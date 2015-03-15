@@ -1,7 +1,7 @@
 /*global FB:false */
 'use strict';
 
-angular.module('coreGamesUi.services').factory('twFacebook',
+angular.module('coreGamesUi.services').factory('jtbFacebook',
   ['$http', '$location', '$q',
     function ($http, $location, $q) {
       var loaded = false;

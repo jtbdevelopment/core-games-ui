@@ -27,6 +27,44 @@
 
 })(angular);
 
+'use strict';
+
+//
+//  Taken from angular-ui-select multi select plunker demo
+//
+/* istanbul ignore next */
+angular.module('coreGamesUi.filters').filter('propsFilter', function () {
+  return function (items, props) {
+    var out = [];
+
+    if (angular.isArray(items)) {
+      items.forEach(function (item) {
+        var itemMatches = false;
+
+        var keys = Object.keys(props);
+        for (var i = 0; i < keys.length; i++) {
+          var prop = keys[i];
+          var text = props[prop].toLowerCase();
+          if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+            itemMatches = true;
+            break;
+          }
+        }
+
+        if (itemMatches) {
+          out.push(item);
+        }
+      });
+    } else {
+      // Let the output be the input untouched
+      out = items;
+    }
+
+    return out;
+  };
+});
+
+
 /*global FB:false */
 'use strict';
 
@@ -149,3 +187,190 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
       };
     }
   ]);
+
+/*global $:false */
+'use strict';
+angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
+  ['$rootScope', 'jtbPlayerService',
+    function ($rootScope, jtbPlayerService) {
+      var request = {
+        url: '',
+        contentType: 'application/json',
+        logLevel: 'debug',
+        //  AWS doesn't support so kind of pointless and slow to default to it
+        //transport: 'websocket',
+        transport: 'long-polling',
+        trackMessageLength: true,
+        fallbackTransport: 'long-polling',
+
+        onOpen: function (response) {
+          console.info(this.url + ' Atmosphere connected using ' + response.transport);
+          $rootScope.$broadcast('liveFeedEstablished');
+        },
+
+        onMessage: function (response) {
+          if (angular.isDefined(response.messages)) {
+            response.messages.forEach(function (messageString) {
+              var message;
+              try {
+                message = JSON.parse(messageString);
+              } catch (error) {
+                console.error('got non-parseable message');
+                return;
+              }
+
+              if (angular.isDefined(message.messageType)) {
+                switch (message.messageType.toString()) {
+                  //  TODO - Handle Alert
+                  case 'Game':
+                    $rootScope.$broadcast('gameUpdate', message.game.id, message.game);
+                    return;
+                  case 'Heartbeat':
+                    console.info('got a heartbeat ' + JSON.stringify(message.message));
+                    return;
+                  case 'Player':
+                    $rootScope.$broadcast('playerUpdate', message.player.id, message.player);
+                    return;
+                  default:
+                    console.warn('onMessage: unknown message type \'' + message.messageType + '\'');
+                    break;
+                }
+                console.warn('onMessage: unknown message type \'' + message.messageType + '\'');
+              }
+              console.warn('unknown message structure ' + message);
+            });
+          } else {
+            console.warn(this.url + ' unknown onMessage: ' + JSON.stringify(response));
+          }
+        },
+
+        onClose: function (response) {
+          console.warn(this.url + ' closed: ' + JSON.stringify(response));
+        },
+
+        onError: function (response) {
+          console.error(this.url + ' onError: ' + JSON.stringify(response));
+        }
+      };
+
+      var socket = $.atmosphere;
+      var subscribed;
+
+      function subscribeToCurrentPlayer() {
+        request.url = '/livefeed/' + jtbPlayerService.currentID();
+        subscribed = socket.subscribe(request);
+      }
+
+      $rootScope.$on('playerLoaded', function () {
+        if (angular.isDefined(subscribed)) {
+          subscribed.close();
+        }
+        subscribed = undefined;
+        subscribeToCurrentPlayer();
+      });
+
+      return {
+        handler: function () {
+          return request;
+        }
+      };
+    }
+
+  ]
+);
+
+'use strict';
+
+
+angular.module('coreGamesUi.services').factory('jtbPlayerService',
+  ['$http', '$rootScope', '$location', '$window', 'jtbFacebook',
+    function ($http, $rootScope, $location, $window, jtbFacebook) {
+      var realPID = '';
+      var simulatedPID = '';
+      var BASE_PLAYER_URL = '/api/player';
+      var FRIENDS_PATH = '/friends';
+
+      var simulatedPlayer;
+
+      var service = {
+        overridePID: function (newpid) {
+          $http.put(this.currentPlayerBaseURL() + '/admin/' + newpid).success(function (data) {
+            simulatedPID = data.id;
+            simulatedPlayer = data;
+            broadcastLoaded();
+          }).error(function () {
+            $location.path('/error');
+          });
+        },
+        realPID: function () {
+          return realPID;
+        },
+
+
+        currentID: function () {
+          return simulatedPID;
+        },
+        currentPlayerBaseURL: function () {
+          return BASE_PLAYER_URL;
+        },
+        currentPlayerFriends: function () {
+          return $http.get(this.currentPlayerBaseURL() + FRIENDS_PATH).then(function (response) {
+            return response.data;
+          });
+        },
+        currentPlayer: function () {
+          return simulatedPlayer;
+        },
+
+        signOutAndRedirect: function () {
+          $http.post('/signout').success(function () {
+            $window.location = '/signin';
+          }).error(function () {
+            $window.location = '/signin';
+          });
+        }
+      };
+
+      function broadcastLoaded() {
+        $rootScope.$broadcast('playerLoaded');
+      }
+
+      function initializePlayer() {
+        $http.get('/api/security', {cache: true}).success(function (response) {
+          simulatedPlayer = response;
+          realPID = simulatedPlayer.id;
+          simulatedPID = simulatedPlayer.id;
+          switch (simulatedPlayer.source) {
+            case 'facebook':
+              jtbFacebook.playerAndFBMatch(simulatedPlayer).then(function (match) {
+                if (!match) {
+                  service.signOutAndRedirect();
+                } else {
+                  broadcastLoaded();
+                }
+              }, function () {
+                service.signOutAndRedirect();
+              });
+              break;
+            default:
+              broadcastLoaded();
+              break;
+          }
+        }).error(function () {
+          $location.path('/error');
+        });
+      }
+
+      $rootScope.$on('playerUpdate', function (event, id, player) {
+        console.log('playerUpdate');
+        if (simulatedPID === id) {
+          angular.copy(player, simulatedPlayer);
+          $rootScope.$apply();
+        }
+      });
+
+      initializePlayer();
+
+      return service;
+    }]);
+

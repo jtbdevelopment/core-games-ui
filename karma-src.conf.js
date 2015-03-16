@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Thu Aug 21 2014 10:24:39 GMT+0200 (CEST)
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -10,16 +10,19 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'chai-jquery', 'jquery-1.8.3', 'sinon-chai'],
+//    frameworks: ['mocha', 'chai-jquery', 'jquery-1.8.3', 'sinon-chai', 'jasmine'],
+    frameworks: ['jasmine'],
 
     plugins: [
-      'karma-mocha',
-      'karma-chai',
-      'karma-sinon-chai',
+//      'karma-mocha',
+//      'karma-chai',
+//      'karma-sinon-chai',
       'karma-chrome-launcher',
       'karma-phantomjs-launcher',
       'karma-jquery',
-      'karma-chai-jquery'
+//      'karma-chai-jquery',
+      'karma-jasmine',
+      'karma-coverage'
     ],
 
     // list of files / patterns to load in the browser
@@ -36,21 +39,31 @@ module.exports = function(config) {
 
 
     // list of files to exclude
-    exclude: [
-    ],
+    exclude: [],
 
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      // source files, that you wanna generate coverage for
+      // do not include tests or libraries
+      // (these files will be instrumented by Istanbul)
+      'src/**/*.js': ['coverage']
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+//    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
 
+
+// optionally, configure the reporter
+    coverageReporter: {
+      type: 'html',
+      dir: 'coverage/'
+    },
 
     // web server port
     port: 9876,

@@ -17,26 +17,27 @@ describe('', function() {
   dependencies = module.requires;
   });
 
+  /*
   it('should load config module', function() {
     expect(hasModule('coreGamesUi.config')).to.be.ok;
   });
 
-  
+
   it('should load filters module', function() {
     expect(hasModule('coreGamesUi.filters')).to.be.ok;
   });
-  
 
-  
+
+
   it('should load directives module', function() {
     expect(hasModule('coreGamesUi.directives')).to.be.ok;
   });
-  
 
-  
+
+
   it('should load services module', function() {
     expect(hasModule('coreGamesUi.services')).to.be.ok;
   });
-  
+  */
 
 });

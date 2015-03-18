@@ -11,11 +11,13 @@
       });
 
   // Modules
+  angular.module('coreGamesUi.controllers', []);
   angular.module('coreGamesUi.directives', []);
   angular.module('coreGamesUi.filters', []);
   angular.module('coreGamesUi.services', []);
   angular.module('coreGamesUi',
       [
+          'coreGamesUi.controllers',
           'coreGamesUi.config',
           'coreGamesUi.directives',
           'coreGamesUi.filters',

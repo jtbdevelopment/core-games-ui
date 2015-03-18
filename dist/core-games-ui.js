@@ -11,11 +11,13 @@
       });
 
   // Modules
+  angular.module('coreGamesUi.controllers', []);
   angular.module('coreGamesUi.directives', []);
   angular.module('coreGamesUi.filters', []);
   angular.module('coreGamesUi.services', []);
   angular.module('coreGamesUi',
       [
+          'coreGamesUi.controllers',
           'coreGamesUi.config',
           'coreGamesUi.directives',
           'coreGamesUi.filters',
@@ -26,6 +28,80 @@
       ]);
 
 })(angular);
+
+'use strict';
+
+angular.module('coreGamesUi.controllers').controller('CoreInviteCtrl',
+  ['$modalInstance', '$scope', 'invitableFriends', 'jtbFacebook',
+    function ($modalInstance, $scope, invitableFriends, jtbFacebook) {
+      $scope.invitableFriends = invitableFriends;
+      $scope.chosenFriends = [];
+      $scope.invite = function () {
+        var ids = [];
+        angular.forEach($scope.chosenFriends, function (chosen) {
+          ids.push(chosen.id);
+        });
+        jtbFacebook.inviteFriends(ids);
+        $modalInstance.close();
+      };
+      $scope.cancel = function () {
+        $modalInstance.dismiss();
+      };
+    }]);
+
+
+'use strict';
+
+angular.module('coreGamesUi.controllers')
+  .controller('CoreSignInCtrl',
+  ['$scope', '$window', '$cookies', 'jtbFacebook',
+    function ($scope, $window, $cookies, jtbFacebook) {
+      $scope.message = 'Initializing...';
+      $scope.showFacebook = false;
+      $scope.showManual = false;
+      $scope.csrf = $cookies['XSRF-TOKEN'];
+      $scope.facebookPermissions = '';
+
+      function showLoginOptions() {
+        $scope.showFacebook = true;
+        $scope.showManual =
+          $window.location.href.indexOf('localhost') > -1 ||
+          $window.location.href.indexOf('-dev') > -1;
+        $scope.message = '';
+      }
+
+      function autoLogin() {
+        $scope.showFacebook = false;
+        $scope.showManual = false;
+        $scope.message = 'Logging in via Facebook';
+        $window.location = '/auth/facebook';
+      }
+
+      jtbFacebook.canAutoSignIn().then(function (details) {
+        $scope.facebookPermissions = details.permissions;
+        if (!details.auto) {
+          showLoginOptions();
+        } else {
+          autoLogin();
+        }
+      }, function () {
+        showLoginOptions();
+      });
+    }]);
+
+'use strict';
+
+//  From https://github.com/angular-ui/bootstrap/issues/1350
+angular.module('coreGamesUi.directives').directive('disableAnimation', function ($animate) {
+  return {
+    restrict: 'A',
+    link: function ($scope, $element, $attrs) {
+      $attrs.$observe('disableAnimation', function (value) {
+        $animate.enabled(!value, $element);
+      });
+    }
+  };
+});
 
 'use strict';
 

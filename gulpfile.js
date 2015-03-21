@@ -7,6 +7,8 @@ var path = require('path');
 var plumber = require('gulp-plumber');
 var runSequence = require('run-sequence');
 var jshint = require('gulp-jshint');
+var bump = require('gulp-bump');
+var git = require('gulp-git');
 
 /**
  * File patterns
@@ -32,6 +34,24 @@ var lintFiles = [
   // Karma configuration
   'karma-*.conf.js'
 ].concat(sourceFiles);
+
+gulp.task('tag', function () {
+  var pkg = require('./package.json');
+  var v = 'v' + pkg.version;
+  var message = 'Release ' + v;
+
+  return gulp.src('./')
+    .pipe(git.commit(message))
+    .pipe(git.tag(v, message))
+    .pipe(git.push('origin', 'master', '--tags'))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('bump', function () {
+  return gulp.src(['./package.json', './bower.json'])
+    .pipe(bump())
+    .pipe(gulp.dest('./'));
+});
 
 gulp.task('build', function() {
   gulp.src(sourceFiles)

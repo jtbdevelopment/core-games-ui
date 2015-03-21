@@ -91,20 +91,6 @@ angular.module('coreGamesUi.controllers')
 
 'use strict';
 
-//  From https://github.com/angular-ui/bootstrap/issues/1350
-angular.module('coreGamesUi.directives').directive('disableAnimation', function ($animate) {
-  return {
-    restrict: 'A',
-    link: function ($scope, $element, $attrs) {
-      $attrs.$observe('disableAnimation', function (value) {
-        $animate.enabled(!value, $element);
-      });
-    }
-  };
-});
-
-'use strict';
-
 //
 //  Taken from angular-ui-select multi select plunker demo
 //
@@ -140,6 +126,20 @@ angular.module('coreGamesUi.filters').filter('propsFilter', function () {
   };
 });
 
+
+'use strict';
+
+//  From https://github.com/angular-ui/bootstrap/issues/1350
+angular.module('coreGamesUi.directives').directive('disableAnimation', function ($animate) {
+  return {
+    restrict: 'A',
+    link: function ($scope, $element, $attrs) {
+      $attrs.$observe('disableAnimation', function (value) {
+        $animate.enabled(!value, $element);
+      });
+    }
+  };
+});
 
 /*global FB:false */
 'use strict';

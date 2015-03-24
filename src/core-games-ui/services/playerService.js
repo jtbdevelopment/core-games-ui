@@ -81,7 +81,6 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
       }
 
       $rootScope.$on('playerUpdate', function (event, id, player) {
-        console.log('playerUpdate');
         if (simulatedPID === id) {
           angular.copy(player, simulatedPlayer);
           $rootScope.$apply();

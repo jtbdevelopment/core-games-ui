@@ -10,7 +10,7 @@ var jshint = require('gulp-jshint');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
 var filter = require('gulp-filter');
-var tag_version = require('gulp-tag-version');
+var tagVersion = require('gulp-tag-version');
 
 /**
  * File patterns
@@ -64,7 +64,7 @@ function inc(importance) {
     // read only one file to get the version number
     .pipe(filter('package.json'))
     // **tag it in the repository**
-    .pipe(tag_version());
+    .pipe(tagVersion());
 }
 
 gulp.task('patch', function() { return inc('patch'); });

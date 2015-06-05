@@ -64,8 +64,7 @@ function inc(importance) {
         // read only one file to get the version number
         .pipe(filter('package.json'))
         // **tag it in the repository**
-        .pipe(tagVersion())
-        .pipe(git.push('origin', 'master', {args: '--tags'}));
+        .pipe(tagVersion());
 }
 
 gulp.task('patch', function () {

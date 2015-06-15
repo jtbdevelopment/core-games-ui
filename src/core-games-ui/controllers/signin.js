@@ -2,8 +2,8 @@
 
 angular.module('coreGamesUi.controllers')
     .controller('CoreSignInCtrl',
-    ['$scope', '$window', '$cookies', 'jtbFacebook', '$http',
-        function ($scope, $window, $cookies, jtbFacebook, $http) {
+    ['$scope', '$window', '$cookies', 'jtbFacebook',
+        function ($scope, $window, $cookies, jtbFacebook) {
             $scope.message = 'Initializing...';
             $scope.showFacebook = false;
             $scope.showManual = false;

@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbFacebook',
-    ['$http', '$location', '$q', $rootScope,
+    ['$http', '$location', '$q', '$rootScope',
         function ($http, $location, $q, $rootScope) {
             var loaded = false;
             var facebookAppId = '';

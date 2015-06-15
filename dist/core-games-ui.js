@@ -54,8 +54,8 @@ angular.module('coreGamesUi.controllers').controller('CoreInviteCtrl',
 
 angular.module('coreGamesUi.controllers')
     .controller('CoreSignInCtrl',
-    ['$scope', '$window', '$cookies', 'jtbFacebook', '$http',
-        function ($scope, $window, $cookies, jtbFacebook, $http) {
+    ['$scope', '$window', '$cookies', 'jtbFacebook',
+        function ($scope, $window, $cookies, jtbFacebook) {
             $scope.message = 'Initializing...';
             $scope.showFacebook = false;
             $scope.showManual = false;
@@ -145,8 +145,8 @@ angular.module('coreGamesUi.filters').filter('propsFilter', function () {
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbFacebook',
-    ['$http', '$location', '$q',
-        function ($http, $location, $q) {
+    ['$http', '$location', '$q', '$rootScope',
+        function ($http, $location, $q, $rootScope) {
             var loaded = false;
             var facebookAppId = '';
             var facebookPermissions = '';
@@ -164,6 +164,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                                 xfbml: true,
                                 version: 'v2.1'
                             });
+                            FB.AppEvents.activateApp();
                             fbLoaded.resolve(facebookPermissions);
                         };
 
@@ -197,6 +198,20 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 }
             }
 
+            //  eventName - string
+            //  params - object with
+            $rootScope.$on('event', function(eventName, countable, otherData) {
+                var data = otherData;
+                if(!angular.isDefined(data)) {
+                    data = {};
+                }
+                var count = countable;
+                if(!angular.isDefined(countable)) {
+                    count = 1;
+                }
+                FB.AppEvents.logEvent(eventName, count, data);
+            });
+
             return {
                 canAutoSignIn: function () {
                     var autoDefer = $q.defer();
@@ -229,6 +244,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             }
                             s = s + id;
                         });
+                        FB.AppEvents.logEvent('invite_friends', 1, {friends: ids.length});
                         FB.ui({
                                 method: 'apprequests',
                                 message: 'Come play Twisted Hangman with me!',

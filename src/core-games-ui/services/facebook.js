@@ -24,7 +24,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             try {
                                 FB.AppEvents.activateApp();
                             } catch(err) {
-                                log.debug('Failed to log to FB ' + err);
+                                console.debug('Failed to log to FB ' + err);
                             }
                             fbLoaded.resolve(facebookPermissions);
                         };
@@ -73,7 +73,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 try {
                     FB.AppEvents.logEvent(eventName, count, data);
                 } catch(err) {
-                    log.debug('Failed to log to FB ' + err);
+                    console.debug('Failed to log to FB ' + err);
                 }
             });
 
@@ -112,7 +112,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         try {
                             FB.AppEvents.logEvent('invite_friends', 1, {friends: ids.length});
                         } catch(err) {
-                            log.debug('Failed to log to FB ' + err);
+                            console.debug('Failed to log to FB ' + err);
                         }
                         FB.ui({
                                 method: 'apprequests',

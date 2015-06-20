@@ -21,11 +21,6 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                                 xfbml: true,
                                 version: 'v2.1'
                             });
-                            try {
-                                FB.AppEvents.activateApp();
-                            } catch(err) {
-                                console.debug('Failed to log to FB ' + err);
-                            }
                             fbLoaded.resolve(facebookPermissions);
                         };
 
@@ -109,11 +104,6 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             }
                             s = s + id;
                         });
-                        try {
-                            FB.AppEvents.logEvent('invite_friends', 1, {friends: ids.length});
-                        } catch(err) {
-                            console.debug('Failed to log to FB ' + err);
-                        }
                         FB.ui({
                                 method: 'apprequests',
                                 message: 'Come play Twisted Hangman with me!',

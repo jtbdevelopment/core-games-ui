@@ -35,4 +35,18 @@ angular.module('coreGamesUi.controllers')
             }, function () {
                 showLoginOptions();
             });
+
+            //  TODO - unit test
+            $scope.fbLogin = function () {
+                jtbFacebook.initiateFBLogin().then(function (details) {
+                    if (!details.auto) {
+                        showLoginOptions();
+                    } else {
+                        autoLogin();
+                    }
+                }, function () {
+                    showLoginOptions();
+                });
+            };
         }]);
+

@@ -76,18 +76,23 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 initiateFBLogin: function () {
                     var fbLogin = $q.defer();
                     loadFB().then(function () {
-                        FB.login(function (response) {
-                            if (angular.isDefined(response) &&
-                                angular.isDefined(response.status) &&
-                                response.status === 'connected') {
-                                fbLogin.resolve({
-                                    auto: true,
-                                    permissions: facebookPermissions
-                                });
-                            } else {
-                                fbLogin.reject();
-                            }
-                        }, {scope: facebookPermissions});
+                        try {
+                            FB.login(function (response) {
+                                if (angular.isDefined(response) &&
+                                    angular.isDefined(response.status) &&
+                                    response.status === 'connected') {
+                                    fbLogin.resolve({
+                                        auto: true,
+                                        permissions: facebookPermissions
+                                    });
+                                } else {
+                                    fbLogin.reject();
+                                }
+                            }, {scope: facebookPermissions});
+                        } catch(ex) {
+                            console.error(JSON.stringify(ex));
+                            fbLogin.reject();
+                        }
                     }, function () {
                         fbLogin.reject();
                     });
@@ -96,48 +101,52 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 canAutoSignIn: function () {
                     var autoDefer = $q.defer();
                     loadFB().then(function (facebookPermissions) {
-                        FB.getLoginStatus(function (response) {
-                            if (angular.isDefined(response) &&
-                                angular.isDefined(response.status) &&
-                                response.status === 'connected') {
-                                FB.api('/me/permissions', function (response) {
-                                        if (angular.isDefined(response) && !angular.isDefined(response.error)) {
-                                            var permissions = facebookPermissions.split(',');
-                                            var allFound = true;
-                                            angular.forEach(permissions, function (permission) {
-                                                var found = false;
-                                                angular.forEach(response.data, function (fbPermission) {
-                                                    if (permission === fbPermission.permission &&
-                                                        (
-                                                            fbPermission.status === 'granted' ||
-                                                            fbPermission.status === 'declined'
-                                                        )) {
-                                                        found = true;
+                        try {
+                            FB.getLoginStatus(function (response) {
+                                if (angular.isDefined(response) &&
+                                    angular.isDefined(response.status) &&
+                                    response.status === 'connected') {
+                                    FB.api('/me/permissions', function (response) {
+                                            if (angular.isDefined(response) && !angular.isDefined(response.error)) {
+                                                var permissions = facebookPermissions.split(',');
+                                                var allFound = true;
+                                                angular.forEach(permissions, function (permission) {
+                                                    var found = false;
+                                                    angular.forEach(response.data, function (fbPermission) {
+                                                        if (permission === fbPermission.permission &&
+                                                            (
+                                                                fbPermission.status === 'granted' ||
+                                                                fbPermission.status === 'declined'
+                                                            )) {
+                                                            found = true;
+                                                        }
+                                                    });
+                                                    if (!found) {
+                                                        allFound = false;
                                                     }
                                                 });
-                                                if (!found) {
-                                                    allFound = false;
+                                                if (allFound) {
+                                                    autoDefer.resolve(
+                                                        {
+                                                            auto: true,
+                                                            permissions: facebookPermissions
+                                                        }
+                                                    );
+                                                } else {
+                                                    autoDefer.reject();
                                                 }
-                                            });
-                                            if (allFound) {
-                                                autoDefer.resolve(
-                                                    {
-                                                        auto: true,
-                                                        permissions: facebookPermissions
-                                                    }
-                                                );
                                             } else {
                                                 autoDefer.reject();
                                             }
-                                        } else {
-                                            autoDefer.reject();
                                         }
-                                    }
-                                );
-                            } else {
-                                autoDefer.reject();
-                            }
-                        });
+                                    );
+                                } else {
+                                    autoDefer.reject();
+                                }
+                            });
+                        } catch(ex) {
+                            console.error(JSON.stringify(ex));
+                        }
                     }, function () {
                         autoDefer.reject();
                     });
@@ -173,14 +182,19 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     var matchDeferred = $q.defer();
                     loadFB().then(function () {
                         if (player.source === 'facebook') {
-                            FB.getLoginStatus(function (response) {
-                                if (response.status === 'connected') {
-                                    matchDeferred.resolve(response.authResponse.userID === player.sourceId);
-                                }
-                                else {
-                                    matchDeferred.resolve(false);
-                                }
-                            });
+                            try {
+                                FB.getLoginStatus(function (response) {
+                                    if (response.status === 'connected') {
+                                        matchDeferred.resolve(response.authResponse.userID === player.sourceId);
+                                    }
+                                    else {
+                                        matchDeferred.resolve(false);
+                                    }
+                                });
+                            } catch(ex) {
+                                console.error(JSON.stringify);
+                                matchDeferred.resolve(false);
+                            }
                         } else {
                             matchDeferred.resolve(false);
                         }
@@ -190,4 +204,3 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
             };
         }
     ]);
-

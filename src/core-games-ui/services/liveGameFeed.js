@@ -67,17 +67,20 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var subscribed;
 
             function subscribeToCurrentPlayer() {
+                if (angular.isDefined(subscribed)) {
+                    subscribed.close();
+                }
                 request.url = '/livefeed/' + jtbPlayerService.currentID();
                 subscribed = socket.subscribe(request);
             }
 
             $rootScope.$on('playerLoaded', function () {
-                if (angular.isDefined(subscribed)) {
-                    subscribed.close();
-                }
-                subscribed = undefined;
                 subscribeToCurrentPlayer();
             });
+
+            if(jtbPlayerService.currentID() != '') {
+                subscribeToCurrentPlayer();
+            }
 
             return {
                 handler: function () {

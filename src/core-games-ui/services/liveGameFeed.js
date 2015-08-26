@@ -3,6 +3,8 @@
 angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
     ['$rootScope', 'jtbPlayerService',
         function ($rootScope, jtbPlayerService) {
+            var urlPrepend = '';
+
             var request = {
                 url: '',
                 contentType: 'application/json',
@@ -12,6 +14,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 transport: 'long-polling',
                 trackMessageLength: true,
                 fallbackTransport: 'long-polling',
+                withCredentials: true,
 
                 onOpen: function (response) {
                     console.info(this.url + ' Atmosphere connected using ' + response.transport);
@@ -67,10 +70,11 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var subscribed;
 
             function subscribeToCurrentPlayer() {
+                console.log('livefeedsubcription to ' + jtbPlayerService.currentID());
                 if (angular.isDefined(subscribed)) {
                     subscribed.close();
                 }
-                request.url = '/livefeed/' + jtbPlayerService.currentID();
+                request.url = urlPrepend + '/livefeed/' + jtbPlayerService.currentID();
                 subscribed = socket.subscribe(request);
             }
 
@@ -78,11 +82,14 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 subscribeToCurrentPlayer();
             });
 
-            if(jtbPlayerService.currentID() != '') {
+            if (jtbPlayerService.currentID() !== '') {
                 subscribeToCurrentPlayer();
             }
 
             return {
+                setServiceBase: function (prepend) {
+                    urlPrepend = prepend;
+                },
                 handler: function () {
                     return request;
                 }

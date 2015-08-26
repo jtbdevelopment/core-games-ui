@@ -88,7 +88,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         }
                         // Based on javascript threading model, and server data
                         // this is an unlikely necessary if - as it probably always falls into true
-                        if (!initializing) {
+                        if (initializing === false) {
                             $rootScope.$broadcast('gameUpdated', existingGame, updatedGame);
                         }
                     } else {
@@ -97,7 +97,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         phaseCache.idMap[updatedGame.id] = phaseCache.games.indexOf(updatedGame);
                         allCache.games.push(updatedGame);
                         allCache.idMap[updatedGame.id] = allCache.games.indexOf(updatedGame);
-                        if (!initializing) {
+                        if (initializing === false) {
                             $rootScope.$broadcast('gameAdded', updatedGame);
                         }
                     }

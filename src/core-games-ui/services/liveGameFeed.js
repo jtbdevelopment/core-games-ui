@@ -3,7 +3,7 @@
 angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
     ['$rootScope', 'jtbPlayerService',
         function ($rootScope, jtbPlayerService) {
-            var urlPrepend = '';
+            var endpoint = '';
 
             var request = {
                 url: '',
@@ -69,12 +69,17 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var socket = $.atmosphere;
             var subscribed;
 
-            function subscribeToCurrentPlayer() {
-                console.log('livefeedsubcription to ' + jtbPlayerService.currentID());
+            function unssubscribe() {
                 if (angular.isDefined(subscribed)) {
+                    console.log('ending livefeedsubcription to ' + jtbPlayerService.currentID());
                     subscribed.close();
                 }
-                request.url = urlPrepend + '/livefeed/' + jtbPlayerService.currentID();
+                subscribed = undefined;
+            }
+
+            function subscribeToCurrentPlayer() {
+                unssubscribe();
+                request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
                 subscribed = socket.subscribe(request);
             }
 
@@ -87,8 +92,11 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             }
 
             return {
-                setServiceBase: function (prepend) {
-                    urlPrepend = prepend;
+                suspendFeed: function() {
+                    unssubscribe();
+                },
+                setEndPoint: function (newEndpoint) {
+                    endpoint = newEndpoint;
                 },
                 handler: function () {
                     return request;

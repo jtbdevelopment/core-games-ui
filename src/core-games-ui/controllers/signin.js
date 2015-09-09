@@ -8,7 +8,6 @@ angular.module('coreGamesUi.controllers')
             $scope.showFacebook = false;
             $scope.showManual = false;
             $scope.csrf = $cookies['XSRF-TOKEN'];
-            $scope.facebookPermissions = '';
 
             function showLoginOptions() {
                 $scope.showFacebook = true;
@@ -26,7 +25,6 @@ angular.module('coreGamesUi.controllers')
             }
 
             jtbFacebook.canAutoSignIn().then(function (details) {
-                $scope.facebookPermissions = details.permissions;
                 if (!details.auto) {
                     showLoginOptions();
                 } else {
@@ -36,7 +34,6 @@ angular.module('coreGamesUi.controllers')
                 showLoginOptions();
             });
 
-            //  TODO - unit test
             $scope.fbLogin = function () {
                 jtbFacebook.initiateFBLogin().then(function (details) {
                     if (!details.auto) {

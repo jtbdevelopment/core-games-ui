@@ -570,8 +570,9 @@ angular.module('coreGamesUi.services').factory('jtbGamePhaseService', ['$http', 
 /*global $:false */
 'use strict';
 angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
-    ['$rootScope', 'jtbPlayerService',
-        function ($rootScope, jtbPlayerService) {
+    ['$rootScope', 'jtbPlayerService', '$timeout',
+        function ($rootScope, jtbPlayerService, $timeout) {
+            var pendingSubscribe;
             var endpoint = '';
 
             var request = {
@@ -639,6 +640,10 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var subscribed;
 
             function unssubscribe() {
+                if(angular.isDefined(pendingSubscribe)) {
+                    $timeout.cancel(pendingSubscribe);
+                    pendingSubscribe = undefined;
+                }
                 if (angular.isDefined(subscribed)) {
                     console.log('ending livefeedsubcription to ' + jtbPlayerService.currentID());
                     subscribed.close();
@@ -648,8 +653,19 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
 
             function subscribeToCurrentPlayer() {
                 unssubscribe();
-                request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
-                subscribed = socket.subscribe(request);
+                pendingSubscribe = $timeout(function() {
+                    if(jtbPlayerService.currentID() !== '') {
+                        request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
+                        try {
+                            subscribed = socket.subscribe(request);
+                        } catch(ex) {
+                            console.log(JSON.stringify(ex));
+                            pendingSubscribe = $timeout(function() {
+                                subscribed = socket.subscribe(request);
+                            }, 1000);
+                        }
+                    }
+                }, 1000);
             }
 
             $rootScope.$on('playerLoaded', function () {

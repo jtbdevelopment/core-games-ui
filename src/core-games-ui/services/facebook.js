@@ -54,6 +54,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         }
                         loaded = true;
                     }).error(function () {
+                        //  TODO - better
                         $location.path('/error');
                         fbLoaded.reject();
                     });

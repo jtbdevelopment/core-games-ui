@@ -48,6 +48,8 @@ describe('Service: playerService', function () {
     beforeEach(function () {
       httpBackend.expectGET('/api/security').respond(playerResult);
       service = injector.get('jtbPlayerService');
+      rootScope.$broadcast('login');
+      rootScope.$apply();
     });
 
     it('initializes', function () {
@@ -241,6 +243,8 @@ describe('Service: playerService', function () {
     beforeEach(function () {
       httpBackend.expectGET('/api/security').respond(500, {somethin: 'somethin'});
       service = injector.get('jtbPlayerService');
+      rootScope.$broadcast('login');
+      rootScope.$apply();
     });
 
 
@@ -266,6 +270,8 @@ describe('Service: playerService', function () {
       httpBackend.expectGET('/api/security').respond(fbPlayerResult);
       matchedPlayer = {};
       service = injector.get('jtbPlayerService');
+      rootScope.$broadcast('login');
+      rootScope.$apply();
     });
 
     it('initializes and can autologin', function () {

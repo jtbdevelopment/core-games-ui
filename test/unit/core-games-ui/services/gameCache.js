@@ -50,19 +50,24 @@ describe('Service: gameCache', function () {
   }));
 
   describe('test initialization', function () {
+    beforeEach(function() {
+      rootScope.$broadcast('playerLoaded');
+      rootScope.$apply();
+    });
     afterEach(function () {
       expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
       expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
     });
 
-    it('initializes cache and waits for player loaded', function () {
-      http.expectGET(baseURL + gamesURL).respond([ng3]);
+    it('initializes cache on player loaded and waits for player live feed for games', function () {
       phaseDeferred.resolve(phases);
       rootScope.$apply();
       expect(service.getGamesForPhase('Phase1')).toEqual([]);
       expect(service.getGamesForPhase('Phase2')).toEqual([]);
       expect(service.getGamesForPhase('Phase3')).toEqual([]);
       expect(service.getGamesForPhase('All')).toEqual([]);
+
+      http.expectGET(baseURL + gamesURL).respond([ng3]);
       rootScope.$broadcast('liveFeedEstablished');
       rootScope.$apply();
       http.flush();
@@ -86,6 +91,8 @@ describe('Service: gameCache', function () {
     });
 
     it('errors when phases errors', function () {
+      rootScope.$broadcast('playerLoaded');
+      rootScope.$apply();
       phaseDeferred.reject();
       rootScope.$apply();
       expect(location.path).toHaveBeenCalledWith('/error');
@@ -158,6 +165,8 @@ describe('Service: gameCache', function () {
 
   describe('test usage', function () {
     beforeEach(function () {
+        rootScope.$broadcast('playerLoaded');
+        rootScope.$apply();
       phaseDeferred.resolve(phases);
       http.expectGET(baseURL + gamesURL).respond([ng1, ng2, ng3, ng4]);
       rootScope.$apply();

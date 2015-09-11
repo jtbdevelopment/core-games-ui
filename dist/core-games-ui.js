@@ -209,6 +209,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         }
                         loaded = true;
                     }).error(function () {
+                        //  TODO - better
                         $location.path('/error');
                         fbLoaded.reject();
                     });
@@ -418,9 +419,9 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
 
 angular.module('coreGamesUi.services').factory('jtbGameCache',
     ['$rootScope', '$cacheFactory', '$location', '$http',
-        'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed',
+        'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed', '$q',
         function ($rootScope, $cacheFactory, $location, $http,
-                  jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed) {
+                  jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed, $q) {
             var ALL = 'All';
             var gameCache = $cacheFactory('game-gameCache');
             var phases = [];
@@ -451,31 +452,46 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             }
 
             function loadCache() {
-                initializeSubCaches();  // This call presumes phase load in initialize has completed
-                $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
-                    initializing = true;
-                    data.forEach(function (game) {
-                        cache.putUpdatedGame(game);
+                initialize().then(function() {
+                    initializeSubCaches();
+                    $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
+                        initializing = true;
+                        data.forEach(function (game) {
+                            cache.putUpdatedGame(game);
+                        });
+                        initializing = false;
+                        ++loadedCounter;
+                        $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
+                    }).error(function () {
+                        //  TODO - better
+                        $location.path('/error');
                     });
-                    initializing = false;
-                    ++loadedCounter;
-                    $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
-                }).error(function () {
+                }, function() {
+                    //  TODO - better
                     $location.path('/error');
                 });
             }
 
             function initialize() {
-                jtbGamePhaseService.phases().then(function (phaseMap) {
-                    phases.slice(0);
-                    phases.push(ALL);
-                    angular.forEach(phaseMap, function (array, phase) {
-                        phases.push(phase);
+                var initialized = $q.defer();
+                if(phases.length > 0) {
+                    initialized.resolve();
+                } else {
+                    jtbGamePhaseService.phases().then(function (phaseMap) {
+                        phases.slice(0);
+                        phases.push(ALL);
+                        angular.forEach(phaseMap, function (array, phase) {
+                            phases.push(phase);
+                        });
+                        initializeSubCaches();
+                        initialized.resolve();
+                    }, function () {
+                        //  TODO - better
+                        $location.path('/error');
+                        initialized.reject();
                     });
-                    initializeSubCaches();
-                }, function () {
-                    $location.path('/error');
-                });
+                }
+                return initialized.promise;
             }
 
             var cache = {
@@ -539,6 +555,10 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 $rootScope.$apply();
             });
 
+            $rootScope.$on('playerLoaded', function() {
+                initialize();
+            });
+
             $rootScope.$on('liveFeedEstablished', function () {
                 loadCache();
             });
@@ -547,12 +567,11 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 loadCache();
             });
 
-            initialize();
-
             return cache;
         }
     ]
 );
+
 
 'use strict';
 
@@ -730,6 +749,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                             break;
                     }
                 }).error(function () {
+                    //  TODO - better
                     $location.path('/error');
                 });
             }
@@ -741,6 +761,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         simulatedPlayer = data;
                         broadcastLoaded();
                     }).error(function () {
+                        //  TODO - better
                         $location.path('/error');
                     });
                 },
@@ -784,8 +805,6 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     $rootScope.$apply();
                 }
             });
-
-            initializePlayer();
 
             return service;
         }]);

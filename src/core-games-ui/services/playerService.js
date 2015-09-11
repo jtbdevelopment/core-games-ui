@@ -38,6 +38,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                             break;
                     }
                 }).error(function () {
+                    //  TODO - better
                     $location.path('/error');
                 });
             }
@@ -49,6 +50,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         simulatedPlayer = data;
                         broadcastLoaded();
                     }).error(function () {
+                        //  TODO - better
                         $location.path('/error');
                     });
                 },
@@ -92,8 +94,6 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     $rootScope.$apply();
                 }
             });
-
-            initializePlayer();
 
             return service;
         }]);

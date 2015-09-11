@@ -639,7 +639,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var socket = $.atmosphere;
             var subscribed;
 
-            function unssubscribe() {
+            function unsubscribe() {
                 if(angular.isDefined(pendingSubscribe)) {
                     $timeout.cancel(pendingSubscribe);
                     pendingSubscribe = undefined;
@@ -652,7 +652,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             }
 
             function subscribeToCurrentPlayer() {
-                unssubscribe();
+                unsubscribe();
                 pendingSubscribe = $timeout(function() {
                     if(jtbPlayerService.currentID() !== '') {
                         request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
@@ -660,9 +660,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                             subscribed = socket.subscribe(request);
                         } catch(ex) {
                             console.log(JSON.stringify(ex));
-                            pendingSubscribe = $timeout(function() {
-                                subscribed = socket.subscribe(request);
-                            }, 1000);
+                            subscribeToCurrentPlayer();
                         }
                     }
                 }, 1000);
@@ -678,7 +676,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
 
             return {
                 suspendFeed: function() {
-                    unssubscribe();
+                    unsubscribe();
                 },
                 setEndPoint: function (newEndpoint) {
                     endpoint = newEndpoint;

@@ -130,6 +130,10 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
 
                 getGamesForPhase: function (phase) {
                     return gameCache.get(phase).games;
+                },
+
+                initialized: function() {
+                    return angular.isDefined(gameCache) && angular.isDefined(gameCache.get(ALL));
                 }
             };
 

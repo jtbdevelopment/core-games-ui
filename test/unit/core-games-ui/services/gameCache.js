@@ -60,8 +60,10 @@ describe('Service: gameCache', function () {
     });
 
     it('initializes cache on player loaded and waits for player live feed for games', function () {
+      expect(service.initialized()).toEqual(false);
       phaseDeferred.resolve(phases);
       rootScope.$apply();
+      expect(service.initialized()).toEqual(true);
       expect(service.getGamesForPhase('Phase1')).toEqual([]);
       expect(service.getGamesForPhase('Phase2')).toEqual([]);
       expect(service.getGamesForPhase('Phase3')).toEqual([]);
@@ -80,6 +82,7 @@ describe('Service: gameCache', function () {
 
     it('asking for a game before initialization yields undefined', function () {
       expect(service.getGameForID('ng3')).toBeUndefined();
+      expect(service.initialized()).toEqual(false);
 
       http.expectGET(baseURL + gamesURL).respond([ng3]);
       phaseDeferred.resolve(phases);
@@ -95,6 +98,7 @@ describe('Service: gameCache', function () {
       rootScope.$apply();
       phaseDeferred.reject();
       rootScope.$apply();
+      expect(service.initialized()).toEqual(false);
       expect(location.path).toHaveBeenCalledWith('/error');
     });
 
@@ -105,16 +109,21 @@ describe('Service: gameCache', function () {
       rootScope.$broadcast('liveFeedEstablished');
       rootScope.$apply();
       http.flush();
+      expect(service.initialized()).toEqual(true);
       expect(location.path).toHaveBeenCalledWith('/error');
     });
 
     it('re-initializes on player switch', function () {
+      expect(service.initialized()).toEqual(false);
       http.expectGET(baseURL + gamesURL).respond([ng3]);
       phaseDeferred.resolve(phases);
       rootScope.$apply();
+      expect(service.initialized()).toEqual(true);
       rootScope.$broadcast('liveFeedEstablished');
       rootScope.$apply();
+      expect(service.initialized()).toEqual(true);
       http.flush();
+      expect(service.initialized()).toEqual(true);
       expect(service.getGamesForPhase('Phase1')).toEqual([]);
       expect(service.getGamesForPhase('Phase2')).toEqual([ng3]);
       expect(service.getGamesForPhase('Phase3')).toEqual([]);
@@ -125,9 +134,12 @@ describe('Service: gameCache', function () {
 
       baseURL = '/api/player/MANUAL3';
       http.expectGET(baseURL + gamesURL).respond([ng1]);
+      expect(service.initialized()).toEqual(true);
       rootScope.$broadcast('liveFeedEstablished');
       rootScope.$apply();
+      expect(service.initialized()).toEqual(true);
       http.flush();
+      expect(service.initialized()).toEqual(true);
       expect(service.getGamesForPhase('Phase1')).toEqual([ng1]);
       expect(service.getGamesForPhase('Phase2')).toEqual([]);
       expect(service.getGamesForPhase('Phase3')).toEqual([]);

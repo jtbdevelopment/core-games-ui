@@ -96,10 +96,9 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                             existingPhaseCache.games[existingPhaseIndex] = updatedGame;
                         } else {
                             var newPhaseCache = gameCache.get(updatedGame.gamePhase);
-                            newPhaseCache.games.push(updatedGame);
-                            newPhaseCache.idMap[updatedGame.id] = newPhaseCache.games.indexOf(updatedGame);
-                            existingPhaseCache.games.splice(existingPhaseIndex, 1);
+                            newPhaseCache.idMap[updatedGame.id] = newPhaseCache.games.push(updatedGame) - 1;
                             delete existingPhaseCache.idMap[existingGame.id];
+                            existingPhaseCache.games.splice(existingPhaseIndex, 1);
                         }
                         // Based on javascript threading model, and server data
                         // this is an unlikely necessary if - as it probably always falls into true

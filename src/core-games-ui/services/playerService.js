@@ -11,6 +11,38 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
 
             var simulatedPlayer;
 
+            function broadcastLoaded() {
+                console.log('Broadcasting playerLoad');
+                $rootScope.$broadcast('playerLoaded');
+            }
+
+            function initializePlayer() {
+                $http.get('/api/security', {cache: true}).success(function (response) {
+                    simulatedPlayer = response;
+                    realPID = simulatedPlayer.id;
+                    simulatedPID = simulatedPlayer.id;
+                    switch (simulatedPlayer.source) {
+                        case 'facebook':
+                            jtbFacebook.playerAndFBMatch(simulatedPlayer).then(function (match) {
+                                if (!match) {
+                                    service.signOutAndRedirect();
+                                } else {
+                                    broadcastLoaded();
+                                }
+                            }, function () {
+                                service.signOutAndRedirect();
+                            });
+                            break;
+                        default:
+                            broadcastLoaded();
+                            break;
+                    }
+                }).error(function () {
+                    //  TODO - better
+                    $location.path('/error');
+                });
+            }
+
             var service = {
                 overridePID: function (newpid) {
                     $http.put(this.currentPlayerBaseURL() + '/admin/' + newpid).success(function (data) {
@@ -18,6 +50,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         simulatedPlayer = data;
                         broadcastLoaded();
                     }).error(function () {
+                        //  TODO - better
                         $location.path('/error');
                     });
                 },
@@ -50,35 +83,10 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                 }
             };
 
-            function broadcastLoaded() {
-                $rootScope.$broadcast('playerLoaded');
-            }
-
-            function initializePlayer() {
-                $http.get('/api/security', {cache: true}).success(function (response) {
-                    simulatedPlayer = response;
-                    realPID = simulatedPlayer.id;
-                    simulatedPID = simulatedPlayer.id;
-                    switch (simulatedPlayer.source) {
-                        case 'facebook':
-                            jtbFacebook.playerAndFBMatch(simulatedPlayer).then(function (match) {
-                                if (!match) {
-                                    service.signOutAndRedirect();
-                                } else {
-                                    broadcastLoaded();
-                                }
-                            }, function () {
-                                service.signOutAndRedirect();
-                            });
-                            break;
-                        default:
-                            broadcastLoaded();
-                            break;
-                    }
-                }).error(function () {
-                    $location.path('/error');
-                });
-            }
+            $rootScope.$on('login', function () {
+                console.log('login received');
+                initializePlayer();
+            });
 
             $rootScope.$on('playerUpdate', function (event, id, player) {
                 if (simulatedPID === id) {
@@ -86,8 +94,6 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     $rootScope.$apply();
                 }
             });
-
-            initializePlayer();
 
             return service;
         }]);

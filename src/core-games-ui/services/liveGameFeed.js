@@ -1,8 +1,11 @@
 /*global $:false */
 'use strict';
 angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
-    ['$rootScope', 'jtbPlayerService',
-        function ($rootScope, jtbPlayerService) {
+    ['$rootScope', 'jtbPlayerService', '$timeout',
+        function ($rootScope, jtbPlayerService, $timeout) {
+            var pendingSubscribe;
+            var endpoint = '';
+
             var request = {
                 url: '',
                 contentType: 'application/json',
@@ -12,6 +15,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 transport: 'long-polling',
                 trackMessageLength: true,
                 fallbackTransport: 'long-polling',
+                withCredentials: true,
 
                 onOpen: function (response) {
                     console.info(this.url + ' Atmosphere connected using ' + response.transport);
@@ -66,20 +70,48 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var socket = $.atmosphere;
             var subscribed;
 
-            function subscribeToCurrentPlayer() {
-                request.url = '/livefeed/' + jtbPlayerService.currentID();
-                subscribed = socket.subscribe(request);
-            }
-
-            $rootScope.$on('playerLoaded', function () {
+            function unsubscribe() {
+                if(angular.isDefined(pendingSubscribe)) {
+                    $timeout.cancel(pendingSubscribe);
+                    pendingSubscribe = undefined;
+                }
                 if (angular.isDefined(subscribed)) {
+                    console.log('ending livefeedsubcription to ' + jtbPlayerService.currentID());
                     subscribed.close();
                 }
                 subscribed = undefined;
+            }
+
+            function subscribeToCurrentPlayer() {
+                unsubscribe();
+                pendingSubscribe = $timeout(function() {
+                    if(jtbPlayerService.currentID() !== '') {
+                        request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
+                        try {
+                            subscribed = socket.subscribe(request);
+                        } catch(ex) {
+                            console.log(JSON.stringify(ex));
+                            subscribeToCurrentPlayer();
+                        }
+                    }
+                }, 1000);
+            }
+
+            $rootScope.$on('playerLoaded', function () {
                 subscribeToCurrentPlayer();
             });
 
+            if (jtbPlayerService.currentID() !== '') {
+                subscribeToCurrentPlayer();
+            }
+
             return {
+                suspendFeed: function() {
+                    unsubscribe();
+                },
+                setEndPoint: function (newEndpoint) {
+                    endpoint = newEndpoint;
+                },
                 handler: function () {
                     return request;
                 }

@@ -32,16 +32,17 @@
 'use strict';
 
 angular.module('coreGamesUi.controllers').controller('CoreInviteCtrl',
-    ['$modalInstance', '$scope', 'invitableFriends', 'jtbFacebook',
-        function ($modalInstance, $scope, invitableFriends, jtbFacebook) {
+    ['$modalInstance', '$scope', 'invitableFriends', 'message', 'jtbFacebook',
+        function ($modalInstance, $scope, invitableFriends, message, jtbFacebook) {
             $scope.invitableFriends = invitableFriends;
             $scope.chosenFriends = [];
+            $scope.message = message;
             $scope.invite = function () {
                 var ids = [];
                 angular.forEach($scope.chosenFriends, function (chosen) {
                     ids.push(chosen.id);
                 });
-                jtbFacebook.inviteFriends(ids);
+                jtbFacebook.inviteFriends(ids, message);
                 $modalInstance.close();
             };
             $scope.cancel = function () {
@@ -60,7 +61,6 @@ angular.module('coreGamesUi.controllers')
             $scope.showFacebook = false;
             $scope.showManual = false;
             $scope.csrf = $cookies['XSRF-TOKEN'];
-            $scope.facebookPermissions = '';
 
             function showLoginOptions() {
                 $scope.showFacebook = true;
@@ -78,7 +78,6 @@ angular.module('coreGamesUi.controllers')
             }
 
             jtbFacebook.canAutoSignIn().then(function (details) {
-                $scope.facebookPermissions = details.permissions;
                 if (!details.auto) {
                     showLoginOptions();
                 } else {
@@ -158,47 +157,59 @@ angular.module('coreGamesUi.filters').filter('propsFilter', function () {
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbFacebook',
-    ['$http', '$location', '$q', '$rootScope',
-        function ($http, $location, $q, $rootScope) {
+    ['$http', '$location', '$q', '$injector', '$window',
+        function ($http, $location, $q, $injector, $window) {
             var loaded = false;
             var facebookAppId = '';
             var facebookPermissions = '';
 
-            //  TODO - deal with facebook disconnect and such
+            var cordovaFacebook;
+            try {
+                if ($window.location.href.indexOf('file:') === 0) {
+                    cordovaFacebook = $injector.get('$cordovaFacebook');
+                }
+            } catch(ex) {
+                cordovaFacebook = undefined;
+            }
+
             function loadFB() {
                 var fbLoaded = $q.defer();
                 if (!loaded) {
                     $http.get('/api/social/apis', {cache: true}).success(function (response) {
                         facebookAppId = response.facebookAppId;
                         facebookPermissions = response.facebookPermissions;
-                        window.fbAsyncInit = function () {
-                            FB.init({
-                                appId: facebookAppId,
-                                xfbml: false,
-                                version: 'v2.2'
-                            });
-                            fbLoaded.resolve(facebookPermissions);
-                        };
+                        if(angular.isDefined(cordovaFacebook)) {
+                            fbLoaded.resolve();
+                        } else {
+                            window.fbAsyncInit = function () {
+                                FB.init({
+                                    appId: facebookAppId,
+                                    xfbml: false,
+                                    version: 'v2.2'
+                                });
+                                fbLoaded.resolve();
+                            };
 
-                        (function (d, s, id) {
-                            function onLoadCB() {
-                                loaded = false;
-                                fbLoaded.reject();
-                            }
+                            (function (d, s, id) {
+                                function onLoadCB() {
+                                    loaded = false;
+                                    fbLoaded.reject();
+                                }
 
-                            var js, fjs = d.getElementsByTagName(s)[0];
-                            if (d.getElementById(id)) {
-                                return;
-                            }
-                            js = d.createElement(s);
-                            js.id = id;
-                            js.src = '//connect.facebook.net/en_US/sdk.js';
-                            js.onerror = onLoadCB;
-                            fjs.parentNode.insertBefore(js, fjs);
-                        }(document, 'script', 'facebook-jssdk'));
-
+                                var js, fjs = d.getElementsByTagName(s)[0];
+                                if (d.getElementById(id)) {
+                                    return;
+                                }
+                                js = d.createElement(s);
+                                js.id = id;
+                                js.src = '//connect.facebook.net/en_US/sdk.js';
+                                js.onerror = onLoadCB;
+                                fjs.parentNode.insertBefore(js, fjs);
+                            }(document, 'script', 'facebook-jssdk'));
+                        }
                         loaded = true;
                     }).error(function () {
+                        //  TODO - better
                         $location.path('/error');
                         fbLoaded.reject();
                     });
@@ -210,40 +221,167 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 }
             }
 
-            //  eventName - string
-            //  params - object with
-            $rootScope.$on('event', function (eventName, countable, otherData) {
-                var data = otherData;
-                if (!angular.isDefined(data)) {
-                    data = {};
-                }
-                var count = countable;
-                if (!angular.isDefined(countable)) {
-                    count = 1;
-                }
+            function login(fbLogin) {
                 try {
-                    FB.AppEvents.logEvent(eventName, count, data);
-                } catch (err) {
-                    console.debug('Failed to log to FB ' + err);
+                    var callback = function(response) {
+                        if (angular.isDefined(response) &&
+                            angular.isDefined(response.status) &&
+                            response.status === 'connected') {
+                            fbLogin.resolve({
+                                auto: true,
+                                permissions: facebookPermissions
+                            });
+                        } else {
+                            fbLogin.reject();
+                        }
+                    };
+
+                    if(angular.isDefined(cordovaFacebook)) {
+                        cordovaFacebook.login(facebookPermissions.split(',')).then(callback,
+                            function(e) {
+                                console.log(JSON.stringify(e));
+                                fbLogin.reject();
+                            });
+                    } else {
+                        FB.login(callback, {scope: facebookPermissions});
+                    }
+                } catch (ex) {
+                    console.error(JSON.stringify(ex));
+                    fbLogin.reject();
                 }
-            });
+            }
+
+            function checkGrantedPermissions(autoDefer) {
+                var checkFunction = function (response) {
+                    if (angular.isDefined(response) && !angular.isDefined(response.error)) {
+                        var permissions = facebookPermissions.split(',');
+                        var allFound = true;
+                        angular.forEach(permissions, function (permission) {
+                            var found = false;
+                            angular.forEach(response.data, function (fbPermission) {
+                                if (permission === fbPermission.permission &&
+                                    (
+                                        fbPermission.status === 'granted' ||
+                                        fbPermission.status === 'declined'
+                                    )) {
+                                    found = true;
+                                }
+                            });
+                            if (!found) {
+                                allFound = false;
+                            }
+                        });
+                        if (allFound) {
+                            autoDefer.resolve(
+                                {
+                                    auto: true,
+                                    permissions: facebookPermissions
+                                }
+                            );
+                        } else {
+                            autoDefer.reject();
+                        }
+                    } else {
+                        autoDefer.reject();
+                    }
+                };
+                var graphPath = '/me/permissions';
+                if(angular.isDefined(cordovaFacebook)) {
+                    cordovaFacebook.api(graphPath, []).then(checkFunction, function(e) {
+                        console.log(JSON.stringify(e));
+                        autoDefer.reject();
+                    });
+                } else {
+                    FB.api(graphPath, checkFunction);
+                }
+            }
+
+            function canAutoLogin(autoDefer) {
+                try {
+                    var callback = function (response) {
+                        if (angular.isDefined(response) &&
+                            angular.isDefined(response.status) &&
+                            response.status === 'connected') {
+                            checkGrantedPermissions(autoDefer);
+                        } else {
+                            autoDefer.reject();
+                        }
+                    };
+                    if(angular.isDefined(cordovaFacebook)) {
+                        cordovaFacebook.getLoginStatus().then(callback, function(e) {
+                            console.log(JSON.stringify(e));
+                            autoDefer.reject();
+                        });
+                    } else {
+                        FB.getLoginStatus(callback);
+                    }
+                } catch (ex) {
+                    console.error(JSON.stringify(ex));
+                }
+            }
+
+            function inviteFriends(ids, message) {
+                var first = true;
+                var s = '';
+                angular.forEach(ids, function (id) {
+                    if (!first) {
+                        s = s + ', ';
+                    } else {
+                        first = false;
+                    }
+                    s = s + id;
+                });
+                var callback = function (response) {
+                    //  TODO - track?
+                    console.info(JSON.stringify(response));
+                };
+                var dialog = {
+                    method: 'apprequests',
+                    message: message,
+                    to: s
+                };
+                if(angular.isDefined(cordovaFacebook)) {
+                    cordovaFacebook.showDialog(dialog).then(callback, function() {
+                        //  TODO
+                    });
+                } else {
+                    FB.ui(dialog, callback);
+                }
+            }
+
+            function gameAndFacebookLoginMatch(player, matchDeferred) {
+                if (player.source === 'facebook') {
+                    try {
+                        var callback = function (response) {
+                            if (response.status === 'connected') {
+                                matchDeferred.resolve(response.authResponse.userID === player.sourceId);
+                            }
+                            else {
+                                matchDeferred.resolve(false);
+                            }
+                        };
+                        if(angular.isDefined(cordovaFacebook)) {
+                            cordovaFacebook.getLoginStatus().then(callback, function(e) {
+                                console.log(JSON.stringify(e));
+                                matchDeferred.resolve(false);
+                            });
+                        } else {
+                            FB.getLoginStatus(callback);
+                        }
+                    } catch (ex) {
+                        console.error(JSON.stringify);
+                        matchDeferred.resolve(false);
+                    }
+                } else {
+                    matchDeferred.resolve(false);
+                }
+            }
 
             return {
                 initiateFBLogin: function () {
                     var fbLogin = $q.defer();
                     loadFB().then(function () {
-                        FB.login(function (response) {
-                            if (angular.isDefined(response) &&
-                                angular.isDefined(response.status) &&
-                                response.status === 'connected') {
-                                fbLogin.resolve({
-                                    auto: true,
-                                    permissions: facebookPermissions
-                                });
-                            } else {
-                                fbLogin.reject();
-                            }
-                        }, {scope: facebookPermissions});
+                        login(fbLogin);
                     }, function () {
                         fbLogin.reject();
                     });
@@ -251,76 +389,17 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 },
                 canAutoSignIn: function () {
                     var autoDefer = $q.defer();
-                    loadFB().then(function (facebookPermissions) {
-                        FB.getLoginStatus(function (response) {
-                            if (angular.isDefined(response) &&
-                                angular.isDefined(response.status) &&
-                                response.status === 'connected') {
-                                FB.api('/me/permissions', function (response) {
-                                        if (angular.isDefined(response) && !angular.isDefined(response.error)) {
-                                            var permissions = facebookPermissions.split(',');
-                                            var allFound = true;
-                                            angular.forEach(permissions, function (permission) {
-                                                var found = false;
-                                                angular.forEach(response.data, function (fbPermission) {
-                                                    if (permission === fbPermission.permission &&
-                                                        (
-                                                            fbPermission.status === 'granted' ||
-                                                            fbPermission.status === 'declined'
-                                                        )) {
-                                                        found = true;
-                                                    }
-                                                });
-                                                if (!found) {
-                                                    allFound = false;
-                                                }
-                                            });
-                                            if (allFound) {
-                                                autoDefer.resolve(
-                                                    {
-                                                        auto: true,
-                                                        permissions: facebookPermissions
-                                                    }
-                                                );
-                                            } else {
-                                                autoDefer.reject();
-                                            }
-                                        } else {
-                                            autoDefer.reject();
-                                        }
-                                    }
-                                );
-                            } else {
-                                autoDefer.reject();
-                            }
-                        });
+                    loadFB().then(function () {
+                        canAutoLogin(autoDefer);
                     }, function () {
                         autoDefer.reject();
                     });
                     return autoDefer.promise;
                 },
 
-                inviteFriends: function (ids) {
+                inviteFriends: function (ids, message) {
                     loadFB().then(function () {
-                        var first = true;
-                        var s = '';
-                        angular.forEach(ids, function (id) {
-                            if (!first) {
-                                s = s + ', ';
-                            } else {
-                                first = false;
-                            }
-                            s = s + id;
-                        });
-                        FB.ui({
-                                method: 'apprequests',
-                                message: 'Come play Twisted Hangman with me!',
-                                to: s
-                            },
-                            function (response) {
-                                //  TODO - track?
-                                console.info(JSON.stringify(response));
-                            });
+                        inviteFriends(ids, message);
                     }, function () {
                         //  TODO - alert error
                     });
@@ -328,18 +407,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 playerAndFBMatch: function (player) {
                     var matchDeferred = $q.defer();
                     loadFB().then(function () {
-                        if (player.source === 'facebook') {
-                            FB.getLoginStatus(function (response) {
-                                if (response.status === 'connected') {
-                                    matchDeferred.resolve(response.authResponse.userID === player.sourceId);
-                                }
-                                else {
-                                    matchDeferred.resolve(false);
-                                }
-                            });
-                        } else {
-                            matchDeferred.resolve(false);
-                        }
+                        gameAndFacebookLoginMatch(player, matchDeferred);
                     });
                     return matchDeferred.promise;
                 }
@@ -347,14 +415,13 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
         }
     ]);
 
-
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbGameCache',
     ['$rootScope', '$cacheFactory', '$location', '$http',
-        'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed',
+        'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed', '$q',
         function ($rootScope, $cacheFactory, $location, $http,
-                  jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed) {
+                  jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed, $q) {
             var ALL = 'All';
             var gameCache = $cacheFactory('game-gameCache');
             var phases = [];
@@ -385,31 +452,46 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             }
 
             function loadCache() {
-                initializeSubCaches();  // This call presumes phase load in initialize has completed
-                $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
-                    initializing = true;
-                    data.forEach(function (game) {
-                        cache.putUpdatedGame(game);
+                initialize().then(function() {
+                    initializeSubCaches();
+                    $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
+                        initializing = true;
+                        data.forEach(function (game) {
+                            cache.putUpdatedGame(game);
+                        });
+                        initializing = false;
+                        ++loadedCounter;
+                        $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
+                    }).error(function () {
+                        //  TODO - better
+                        $location.path('/error');
                     });
-                    initializing = false;
-                    ++loadedCounter;
-                    $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
-                }).error(function () {
+                }, function() {
+                    //  TODO - better
                     $location.path('/error');
                 });
             }
 
             function initialize() {
-                jtbGamePhaseService.phases().then(function (phaseMap) {
-                    phases.slice(0);
-                    phases.push(ALL);
-                    angular.forEach(phaseMap, function (array, phase) {
-                        phases.push(phase);
+                var initialized = $q.defer();
+                if(phases.length > 0) {
+                    initialized.resolve();
+                } else {
+                    jtbGamePhaseService.phases().then(function (phaseMap) {
+                        phases.slice(0);
+                        phases.push(ALL);
+                        angular.forEach(phaseMap, function (array, phase) {
+                            phases.push(phase);
+                        });
+                        initializeSubCaches();
+                        initialized.resolve();
+                    }, function () {
+                        //  TODO - better
+                        $location.path('/error');
+                        initialized.reject();
                     });
-                    initializeSubCaches();
-                }, function () {
-                    $location.path('/error');
-                });
+                }
+                return initialized.promise;
             }
 
             var cache = {
@@ -438,7 +520,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         }
                         // Based on javascript threading model, and server data
                         // this is an unlikely necessary if - as it probably always falls into true
-                        if (!initializing) {
+                        if (initializing === false) {
                             $rootScope.$broadcast('gameUpdated', existingGame, updatedGame);
                         }
                     } else {
@@ -447,7 +529,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         phaseCache.idMap[updatedGame.id] = phaseCache.games.indexOf(updatedGame);
                         allCache.games.push(updatedGame);
                         allCache.idMap[updatedGame.id] = allCache.games.indexOf(updatedGame);
-                        if (!initializing) {
+                        if (initializing === false) {
                             $rootScope.$broadcast('gameAdded', updatedGame);
                         }
                     }
@@ -473,6 +555,10 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 $rootScope.$apply();
             });
 
+            $rootScope.$on('playerLoaded', function() {
+                initialize();
+            });
+
             $rootScope.$on('liveFeedEstablished', function () {
                 loadCache();
             });
@@ -481,12 +567,11 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 loadCache();
             });
 
-            initialize();
-
             return cache;
         }
     ]
 );
+
 
 'use strict';
 
@@ -504,8 +589,11 @@ angular.module('coreGamesUi.services').factory('jtbGamePhaseService', ['$http', 
 /*global $:false */
 'use strict';
 angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
-    ['$rootScope', 'jtbPlayerService',
-        function ($rootScope, jtbPlayerService) {
+    ['$rootScope', 'jtbPlayerService', '$timeout',
+        function ($rootScope, jtbPlayerService, $timeout) {
+            var pendingSubscribe;
+            var endpoint = '';
+
             var request = {
                 url: '',
                 contentType: 'application/json',
@@ -515,6 +603,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 transport: 'long-polling',
                 trackMessageLength: true,
                 fallbackTransport: 'long-polling',
+                withCredentials: true,
 
                 onOpen: function (response) {
                     console.info(this.url + ' Atmosphere connected using ' + response.transport);
@@ -569,20 +658,48 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var socket = $.atmosphere;
             var subscribed;
 
-            function subscribeToCurrentPlayer() {
-                request.url = '/livefeed/' + jtbPlayerService.currentID();
-                subscribed = socket.subscribe(request);
-            }
-
-            $rootScope.$on('playerLoaded', function () {
+            function unsubscribe() {
+                if(angular.isDefined(pendingSubscribe)) {
+                    $timeout.cancel(pendingSubscribe);
+                    pendingSubscribe = undefined;
+                }
                 if (angular.isDefined(subscribed)) {
+                    console.log('ending livefeedsubcription to ' + jtbPlayerService.currentID());
                     subscribed.close();
                 }
                 subscribed = undefined;
+            }
+
+            function subscribeToCurrentPlayer() {
+                unsubscribe();
+                pendingSubscribe = $timeout(function() {
+                    if(jtbPlayerService.currentID() !== '') {
+                        request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
+                        try {
+                            subscribed = socket.subscribe(request);
+                        } catch(ex) {
+                            console.log(JSON.stringify(ex));
+                            subscribeToCurrentPlayer();
+                        }
+                    }
+                }, 1000);
+            }
+
+            $rootScope.$on('playerLoaded', function () {
                 subscribeToCurrentPlayer();
             });
 
+            if (jtbPlayerService.currentID() !== '') {
+                subscribeToCurrentPlayer();
+            }
+
             return {
+                suspendFeed: function() {
+                    unsubscribe();
+                },
+                setEndPoint: function (newEndpoint) {
+                    endpoint = newEndpoint;
+                },
                 handler: function () {
                     return request;
                 }
@@ -605,6 +722,38 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
 
             var simulatedPlayer;
 
+            function broadcastLoaded() {
+                console.log('Broadcasting playerLoad');
+                $rootScope.$broadcast('playerLoaded');
+            }
+
+            function initializePlayer() {
+                $http.get('/api/security', {cache: true}).success(function (response) {
+                    simulatedPlayer = response;
+                    realPID = simulatedPlayer.id;
+                    simulatedPID = simulatedPlayer.id;
+                    switch (simulatedPlayer.source) {
+                        case 'facebook':
+                            jtbFacebook.playerAndFBMatch(simulatedPlayer).then(function (match) {
+                                if (!match) {
+                                    service.signOutAndRedirect();
+                                } else {
+                                    broadcastLoaded();
+                                }
+                            }, function () {
+                                service.signOutAndRedirect();
+                            });
+                            break;
+                        default:
+                            broadcastLoaded();
+                            break;
+                    }
+                }).error(function () {
+                    //  TODO - better
+                    $location.path('/error');
+                });
+            }
+
             var service = {
                 overridePID: function (newpid) {
                     $http.put(this.currentPlayerBaseURL() + '/admin/' + newpid).success(function (data) {
@@ -612,6 +761,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         simulatedPlayer = data;
                         broadcastLoaded();
                     }).error(function () {
+                        //  TODO - better
                         $location.path('/error');
                     });
                 },
@@ -644,35 +794,10 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                 }
             };
 
-            function broadcastLoaded() {
-                $rootScope.$broadcast('playerLoaded');
-            }
-
-            function initializePlayer() {
-                $http.get('/api/security', {cache: true}).success(function (response) {
-                    simulatedPlayer = response;
-                    realPID = simulatedPlayer.id;
-                    simulatedPID = simulatedPlayer.id;
-                    switch (simulatedPlayer.source) {
-                        case 'facebook':
-                            jtbFacebook.playerAndFBMatch(simulatedPlayer).then(function (match) {
-                                if (!match) {
-                                    service.signOutAndRedirect();
-                                } else {
-                                    broadcastLoaded();
-                                }
-                            }, function () {
-                                service.signOutAndRedirect();
-                            });
-                            break;
-                        default:
-                            broadcastLoaded();
-                            break;
-                    }
-                }).error(function () {
-                    $location.path('/error');
-                });
-            }
+            $rootScope.$on('login', function () {
+                console.log('login received');
+                initializePlayer();
+            });
 
             $rootScope.$on('playerUpdate', function (event, id, player) {
                 if (simulatedPID === id) {
@@ -680,8 +805,6 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     $rootScope.$apply();
                 }
             });
-
-            initializePlayer();
 
             return service;
         }]);

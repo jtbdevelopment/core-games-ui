@@ -650,10 +650,12 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 },
 
                 onClose: function (response) {
+                    //  TODO
                     console.warn(this.url + ' closed: ' + JSON.stringify(response));
                 },
 
                 onError: function (response) {
+                    //  TODO
                     console.error(this.url + ' onError: ' + JSON.stringify(response));
                 }
             };
@@ -662,7 +664,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var subscribed;
 
             function unsubscribe() {
-                if(angular.isDefined(pendingSubscribe)) {
+                if (angular.isDefined(pendingSubscribe)) {
                     $timeout.cancel(pendingSubscribe);
                     pendingSubscribe = undefined;
                 }
@@ -673,16 +675,26 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 subscribed = undefined;
             }
 
-            function subscribeToCurrentPlayer() {
+            function subscribeToCurrentPlayer(depth) {
                 unsubscribe();
-                pendingSubscribe = $timeout(function() {
-                    if(jtbPlayerService.currentID() !== '') {
+                if (angular.isUndefined(depth)) {
+                    depth = 0;
+                }
+                pendingSubscribe = $timeout(function () {
+                    if (jtbPlayerService.currentID() !== '') {
                         request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
                         try {
                             subscribed = socket.subscribe(request);
-                        } catch(ex) {
+                        } catch (ex) {
                             console.log(JSON.stringify(ex));
-                            subscribeToCurrentPlayer();
+                            if( depth < 5) {
+                                pendingSubscribe = $timeout(function() {
+                                    subscribeToCurrentPlayer(depth + 1);
+                                }, 500);
+                            } else {
+                                //  TODO
+                                console.warn('Gave up trying to subscribe to websocket');
+                            }
                         }
                     }
                 }, 1000);
@@ -697,7 +709,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             }
 
             return {
-                suspendFeed: function() {
+                suspendFeed: function () {
                     unsubscribe();
                 },
                 setEndPoint: function (newEndpoint) {

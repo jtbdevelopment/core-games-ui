@@ -7,6 +7,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
             var loaded = false;
             var facebookAppId = '';
             var facebookPermissions = '';
+            var facebookAuth;
 
             var cordovaFacebook;
             try {
@@ -72,6 +73,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         if (angular.isDefined(response) &&
                             angular.isDefined(response.status) &&
                             response.status === 'connected') {
+                            facebookAuth = response.authResponse;
                             fbLogin.resolve({
                                 auto: true,
                                 permissions: facebookPermissions
@@ -147,6 +149,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         if (angular.isDefined(response) &&
                             angular.isDefined(response.status) &&
                             response.status === 'connected') {
+                            facebookAuth = response.authResponse;
                             checkGrantedPermissions(autoDefer);
                         } else {
                             autoDefer.reject();
@@ -199,6 +202,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     try {
                         var callback = function (response) {
                             if (response.status === 'connected') {
+                                facebookAuth = response.authResponse;
                                 matchDeferred.resolve(response.authResponse.userID === player.sourceId);
                             }
                             else {
@@ -223,6 +227,10 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
             }
 
             return {
+                currentAuthorization: function() {
+                    return facebookAuth;
+                },
+
                 initiateFBLogin: function () {
                     var fbLogin = $q.defer();
                     loadFB().then(function () {

@@ -76,9 +76,11 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
 
                 signOutAndRedirect: function () {
                     $http.post('/signout').success(function () {
-                        $window.location = '/signin';
+                        //  TODO - location?
+                        $window.location = '#/signin';
                     }).error(function () {
-                        $window.location = '/signin';
+                        //  TODO - location?
+                        $window.location = '#/signin';
                     });
                 }
             };

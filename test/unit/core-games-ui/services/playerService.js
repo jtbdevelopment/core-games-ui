@@ -227,14 +227,14 @@ describe('Service: playerService', function () {
       httpBackend.expectPOST('/signout').respond({});
       service.signOutAndRedirect();
       httpBackend.flush();
-      expect(window.location).toEqual('/signin');
+      expect(window.location).toEqual('#/signin');
     });
 
     it('logout function fail', function () {
       httpBackend.expectPOST('/signout').respond(404, {});
       service.signOutAndRedirect();
       httpBackend.flush();
-      expect(window.location).toEqual('/signin');
+      expect(window.location).toEqual('#/signin');
     });
 
   });
@@ -307,7 +307,7 @@ describe('Service: playerService', function () {
       expect(service.currentPlayer()).toEqual(fbPlayerResult);
       expect(rootScope.$broadcast).not.toHaveBeenCalledWith('playerLoaded');
       expect(matchedPlayer).toEqual(fbPlayerResult);
-      expect(window.location).toEqual('/signin');
+      expect(window.location).toEqual('#/signin');
     });
 
     it('initializes and cannot autologin with fb error', function () {
@@ -326,7 +326,7 @@ describe('Service: playerService', function () {
       expect(service.currentPlayer()).toEqual(fbPlayerResult);
       expect(rootScope.$broadcast).not.toHaveBeenCalledWith('playerLoaded');
       expect(matchedPlayer).toEqual(fbPlayerResult);
-      expect(window.location).toEqual('/signin');
+      expect(window.location).toEqual('#/signin');
     });
   });
 });

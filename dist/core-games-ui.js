@@ -320,6 +320,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     }
                 } catch (ex) {
                     console.error(JSON.stringify(ex));
+                    autoDefer.reject();
                 }
             }
 

@@ -1,4 +1,4 @@
-/*global $:false */
+/*global atmosphere:false */
 'use strict';
 angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
     ['$rootScope', 'jtbPlayerService', '$timeout',
@@ -69,7 +69,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 }
             };
 
-            var socket = $.atmosphere;
+            var socket = atmosphere;
             var subscribed;
 
             function unsubscribe() {

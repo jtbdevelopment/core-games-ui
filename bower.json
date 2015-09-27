@@ -23,7 +23,7 @@
     "angular-resource": "~1.4.0",
     "angular-route": "~1.4.0",
     "angular-sanitize": "~1.4.0",
-    "atmosphere": "~2.2.12"
+    "atmosphere": "https://github.com/jtbdevelopment/bower-atmosphere.git#master"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.0",

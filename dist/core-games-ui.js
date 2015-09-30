@@ -616,6 +616,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 trackMessageLength: true,
                 fallbackTransport: 'long-polling',
                 withCredentials: true,
+                handleOnlineOffline: false,
 
                 onOpen: function (response) {
                     console.info(this.url + ' Atmosphere connected using ' + response.transport);

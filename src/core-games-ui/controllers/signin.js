@@ -24,16 +24,6 @@ angular.module('coreGamesUi.controllers')
                 $window.location = '/auth/facebook';
             }
 
-            jtbFacebook.canAutoSignIn().then(function (details) {
-                if (!details.auto) {
-                    showLoginOptions();
-                } else {
-                    autoLogin();
-                }
-            }, function () {
-                showLoginOptions();
-            });
-
             $scope.fbLogin = function () {
                 jtbFacebook.initiateFBLogin().then(function (details) {
                     if (!details.auto) {
@@ -45,5 +35,16 @@ angular.module('coreGamesUi.controllers')
                     showLoginOptions();
                 });
             };
+
+            jtbFacebook.canAutoSignIn().then(function (details) {
+                if (!details.auto) {
+                    showLoginOptions();
+                } else {
+                    autoLogin();
+                }
+            }, function () {
+                showLoginOptions();
+            });
+
         }]);
 

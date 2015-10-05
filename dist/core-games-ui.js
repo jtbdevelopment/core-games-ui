@@ -462,7 +462,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             }
 
             function loadCache() {
-                initialize().then(function() {
+                initialize().then(function () {
                     initializeSubCaches();
                     $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
                         initializing = true;
@@ -476,7 +476,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         //  TODO - better
                         $location.path('/error');
                     });
-                }, function() {
+                }, function () {
                     //  TODO - better
                     $location.path('/error');
                 });
@@ -484,7 +484,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
 
             function initialize() {
                 var initialized = $q.defer();
-                if(phases.length > 0) {
+                if (phases.length > 0) {
                     initialized.resolve();
                 } else {
                     jtbGamePhaseService.phases().then(function (phaseMap) {
@@ -504,6 +504,45 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 return initialized.promise;
             }
 
+            function addGameToCache(updatedGame, allCache) {
+                var phaseCache = gameCache.get(updatedGame.gamePhase);
+                phaseCache.games.push(updatedGame);
+                phaseCache.idMap[updatedGame.id] = phaseCache.games.indexOf(updatedGame);
+                allCache.games.push(updatedGame);
+                allCache.idMap[updatedGame.id] = allCache.games.indexOf(updatedGame);
+                if (initializing === false) {
+                    $rootScope.$broadcast('gameAdded', updatedGame);
+                }
+            }
+
+            function updateGameInCache(allCache, allIndex, updatedGame, existingGame) {
+                allCache.games[allIndex] = updatedGame;
+
+                var existingPhaseCache = gameCache.get(existingGame.gamePhase);
+                var existingPhaseIndex = existingPhaseCache.idMap[existingGame.id];
+                if (existingGame.gamePhase === updatedGame.gamePhase) {
+                    existingPhaseCache.games[existingPhaseIndex] = updatedGame;
+                } else {
+                    var newPhaseCache = gameCache.get(updatedGame.gamePhase);
+                    newPhaseCache.idMap[updatedGame.id] = newPhaseCache.games.push(updatedGame) - 1;
+                    delete existingPhaseCache.idMap[existingGame.id];
+                    existingPhaseCache.games.splice(existingPhaseIndex, 1);
+                    for (var id in existingPhaseCache.idMap) {
+                        if (existingPhaseCache.idMap.hasOwnProperty(id)) {
+                            var indexOfId = existingPhaseCache.idMap[id];
+                            if (indexOfId > existingPhaseIndex) {
+                                existingPhaseCache.idMap[id] = indexOfId - 1;
+                            }
+                        }
+                    }
+                }
+                // Based on javascript threading model, and server data
+                // this is an unlikely necessary if - as it probably always falls into true
+                if (initializing === false) {
+                    $rootScope.$broadcast('gameUpdated', existingGame, updatedGame);
+                }
+            }
+
             var cache = {
                 putUpdatedGame: function (updatedGame) {
                     var allCache = gameCache.get(ALL);
@@ -515,32 +554,9 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                             console.info('Skipping Stale game update for ' + updatedGame.id);
                             return;
                         }
-                        allCache.games[allIndex] = updatedGame;
-
-                        var existingPhaseCache = gameCache.get(existingGame.gamePhase);
-                        var existingPhaseIndex = existingPhaseCache.idMap[existingGame.id];
-                        if (existingGame.gamePhase === updatedGame.gamePhase) {
-                            existingPhaseCache.games[existingPhaseIndex] = updatedGame;
-                        } else {
-                            var newPhaseCache = gameCache.get(updatedGame.gamePhase);
-                            newPhaseCache.idMap[updatedGame.id] = newPhaseCache.games.push(updatedGame) - 1;
-                            delete existingPhaseCache.idMap[existingGame.id];
-                            existingPhaseCache.games.splice(existingPhaseIndex, 1);
-                        }
-                        // Based on javascript threading model, and server data
-                        // this is an unlikely necessary if - as it probably always falls into true
-                        if (initializing === false) {
-                            $rootScope.$broadcast('gameUpdated', existingGame, updatedGame);
-                        }
+                        updateGameInCache(allCache, allIndex, updatedGame, existingGame);
                     } else {
-                        var phaseCache = gameCache.get(updatedGame.gamePhase);
-                        phaseCache.games.push(updatedGame);
-                        phaseCache.idMap[updatedGame.id] = phaseCache.games.indexOf(updatedGame);
-                        allCache.games.push(updatedGame);
-                        allCache.idMap[updatedGame.id] = allCache.games.indexOf(updatedGame);
-                        if (initializing === false) {
-                            $rootScope.$broadcast('gameAdded', updatedGame);
-                        }
+                        addGameToCache(updatedGame, allCache);
                     }
                 },
 
@@ -558,7 +574,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                     return gameCache.get(phase).games;
                 },
 
-                initialized: function() {
+                initialized: function () {
                     return angular.isDefined(gameCache) && angular.isDefined(gameCache.get(ALL));
                 }
             };
@@ -568,7 +584,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 $rootScope.$apply();
             });
 
-            $rootScope.$on('playerLoaded', function() {
+            $rootScope.$on('playerLoaded', function () {
                 initialize();
             });
 

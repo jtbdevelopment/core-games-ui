@@ -250,6 +250,32 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
           });
 
+          it('takes in multiple game updates to a new phase', function () {
+            var ng1v2 = angular.copy(ng1);
+            ng1v2.lastUpdate = 1001;
+            ng1v2.gamePhase = 'Phase2';
+            updateCall(ng1v2);
+
+            expect(service.getGamesForPhase('Phase1')).toEqual([ng2, ng4]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([ng3, ng1v2]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([]);
+            expect(service.getGamesForPhase('All')).toEqual([ng1v2, ng2, ng3, ng4]);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng1, ng1v2);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+
+            var ng2v2 = angular.copy(ng2);
+            ng2v2.lastUpdate = 1001;
+            ng2v2.gamePhase = 'Phase2';
+            updateCall(ng2v2);
+
+            expect(service.getGamesForPhase('Phase1')).toEqual([ng4]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([ng3, ng1v2, ng2v2]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([]);
+            expect(service.getGamesForPhase('All')).toEqual([ng1v2, ng2v2, ng3, ng4]);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng2, ng2v2);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+          });
+
           it('rejects a stale game update, matching time', function () {
             var ng1v2 = angular.copy(ng1);
             ng1v2.lastUpdate = 1000;

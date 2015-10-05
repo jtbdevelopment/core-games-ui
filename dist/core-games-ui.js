@@ -638,7 +638,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
             var request = {
                 url: '',
                 contentType: 'application/json',
-                logLevel: 'debug',
+                logLevel: 'info',
                 //  AWS doesn't support so kind of pointless and slow to default to it
                 //transport: 'websocket',
                 transport: 'long-polling',

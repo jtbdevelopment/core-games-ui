@@ -1,10 +1,20 @@
 'use strict';
 
+/**
+ * Uses an optional custom classifier
+ * If a service 'jtbGameClassifier' is available, will add additional caches
+ *
+ * jtbGameClassifier must have several functions defined:
+ *   -- getClassifications - returns array of new buckets of game classifications
+ *      ['Your Turn', 'Their Turn', 'Older Games']
+ *   -- getClassification(game) - returns classification for a given game, must match one of returned items above
+ */
+
 angular.module('coreGamesUi.services').factory('jtbGameCache',
     ['$rootScope', '$cacheFactory', '$location', '$http',
-        'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed', '$q',
+        'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed', '$q', '$injector',
         function ($rootScope, $cacheFactory, $location, $http,
-                  jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed, $q) {
+                  jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed, $q, $injector) {
             var ALL = 'All';
             var gameCache = $cacheFactory('game-gameCache');
             var phases = [];
@@ -14,6 +24,13 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             //  This is just to force instantiation and suppress warnings
             var tmp = 'Have Live Game Feed ' + jtbLiveGameFeed;
             console.info(tmp);
+            var customClassifier;
+
+            try {
+                customClassifier = $injector.get('jtbGameClassifier');
+            } catch (ex) {
+                customClassifier = undefined;
+            }
 
             function initializeSubCaches() {
                 phases.forEach(function (phase) {
@@ -66,6 +83,11 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         angular.forEach(phaseMap, function (array, phase) {
                             phases.push(phase);
                         });
+                        if (angular.isDefined(customClassifier)) {
+                            angular.forEach(customClassifier.getClassifications(), function (classification) {
+                                phases.push(classification);
+                            });
+                        }
                         initializeSubCaches();
                         initialized.resolve();
                     }, function () {
@@ -81,6 +103,11 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 var phaseCache = gameCache.get(updatedGame.gamePhase);
                 phaseCache.games.push(updatedGame);
                 phaseCache.idMap[updatedGame.id] = phaseCache.games.indexOf(updatedGame);
+                if(angular.isDefined(customClassifier)) {
+                    phaseCache = gameCache.get(customClassifier.getClassification(updatedGame));
+                    phaseCache.games.push(updatedGame);
+                    phaseCache.idMap[updatedGame.id] = phaseCache.games.indexOf(updatedGame);
+                }
                 allCache.games.push(updatedGame);
                 allCache.idMap[updatedGame.id] = allCache.games.indexOf(updatedGame);
                 if (initializing === false) {
@@ -88,27 +115,39 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 }
             }
 
-            function updateGameInCache(allCache, allIndex, updatedGame, existingGame) {
-                allCache.games[allIndex] = updatedGame;
-
-                var existingPhaseCache = gameCache.get(existingGame.gamePhase);
-                var existingPhaseIndex = existingPhaseCache.idMap[existingGame.id];
-                if (existingGame.gamePhase === updatedGame.gamePhase) {
-                    existingPhaseCache.games[existingPhaseIndex] = updatedGame;
+            function modifyCaches(existingCacheName, existingGame, updatedCacheName, updatedGame) {
+                var existingCache = gameCache.get(existingCacheName);
+                var existingCacheIndex = existingCache.idMap[existingGame.id];
+                if (existingCacheName === updatedCacheName) {
+                    existingCache.games[existingCacheIndex] = updatedGame;
                 } else {
-                    var newPhaseCache = gameCache.get(updatedGame.gamePhase);
-                    newPhaseCache.idMap[updatedGame.id] = newPhaseCache.games.push(updatedGame) - 1;
-                    delete existingPhaseCache.idMap[existingGame.id];
-                    existingPhaseCache.games.splice(existingPhaseIndex, 1);
-                    for (var id in existingPhaseCache.idMap) {
-                        if (existingPhaseCache.idMap.hasOwnProperty(id)) {
-                            var indexOfId = existingPhaseCache.idMap[id];
-                            if (indexOfId > existingPhaseIndex) {
-                                existingPhaseCache.idMap[id] = indexOfId - 1;
+                    var updatedCache = gameCache.get(updatedCacheName);
+                    updatedCache.idMap[updatedGame.id] = updatedCache.games.push(updatedGame) - 1;
+                    delete existingCache.idMap[existingGame.id];
+                    existingCache.games.splice(existingCacheIndex, 1);
+                    for (var id in existingCache.idMap) {
+                        if (existingCache.idMap.hasOwnProperty(id)) {
+                            var indexOfId = existingCache.idMap[id];
+                            if (indexOfId > existingCacheIndex) {
+                                existingCache.idMap[id] = indexOfId - 1;
                             }
                         }
                     }
                 }
+            }
+
+            function updateGameInCache(allCache, allIndex, updatedGame, existingGame) {
+                allCache.games[allIndex] = updatedGame;
+
+                var updatedCacheName = updatedGame.gamePhase;
+                var existingCacheName = existingGame.gamePhase;
+                modifyCaches(existingCacheName, existingGame, updatedCacheName, updatedGame);
+                if(angular.isDefined(customClassifier)) {
+                    updatedCacheName = customClassifier.getClassification(updatedGame);
+                    existingCacheName = customClassifier.getClassification(existingGame);
+                    modifyCaches(existingCacheName, existingGame, updatedCacheName, updatedGame);
+                }
+
                 // Based on javascript threading model, and server data
                 // this is an unlikely necessary if - as it probably always falls into true
                 if (initializing === false) {
@@ -144,7 +183,11 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 },
 
                 getGamesForPhase: function (phase) {
-                    return gameCache.get(phase).games;
+                    var cache = gameCache.get(phase);
+                    if(angular.isDefined(cache)) {
+                        return cache.games;
+                    }
+                    return undefined;
                 },
 
                 initialized: function () {

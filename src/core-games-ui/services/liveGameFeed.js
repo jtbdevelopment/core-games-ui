@@ -19,54 +19,64 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 handleOnlineOffline: false,
 
                 onOpen: function (response) {
-                    console.info(this.url + ' Atmosphere connected using ' + response.transport);
-                    $rootScope.$broadcast('liveFeedEstablished');
+                    $timeout(function () {
+                        console.info(this.url + ' Atmosphere connected using ' + response.transport);
+                        $rootScope.$broadcast('liveFeedEstablished');
+                    });
                 },
 
                 onMessage: function (response) {
-                    if (angular.isDefined(response.messages)) {
-                        response.messages.forEach(function (messageString) {
-                            var message;
-                            try {
-                                message = JSON.parse(messageString);
-                            } catch (error) {
-                                console.error('got non-parseable message');
-                                return;
-                            }
-
-                            if (angular.isDefined(message.messageType)) {
-                                switch (message.messageType.toString()) {
-                                    //  TODO - Handle Alert
-                                    case 'Game':
-                                        $rootScope.$broadcast('gameUpdate', message.game.id, message.game);
-                                        return;
-                                    case 'Heartbeat':
-                                        console.info('got a heartbeat ' + JSON.stringify(message.message));
-                                        return;
-                                    case 'Player':
-                                        $rootScope.$broadcast('playerUpdate', message.player.id, message.player);
-                                        return;
-                                    default:
-                                        console.warn('onMessage: unknown message type \'' + message.messageType + '\'');
-                                        break;
+                    $timeout(function () {
+                        if (angular.isDefined(response.messages)) {
+                            response.messages.forEach(function (messageString) {
+                                var message;
+                                try {
+                                    message = JSON.parse(messageString);
+                                } catch (error) {
+                                    console.error('got non-parseable message');
+                                    return;
                                 }
-                                console.warn('onMessage: unknown message type \'' + message.messageType + '\'');
-                            }
-                            console.warn('unknown message structure ' + message);
-                        });
-                    } else {
-                        console.warn(this.url + ' unknown onMessage: ' + JSON.stringify(response));
-                    }
+
+                                if (angular.isDefined(message.messageType)) {
+                                    switch (message.messageType.toString()) {
+                                        //  TODO - Handle Alert
+                                        case 'Game':
+                                            $rootScope.$broadcast('gameUpdate', message.game.id, message.game);
+                                            return;
+                                        case 'Heartbeat':
+                                            console.info('got a heartbeat ' + JSON.stringify(message.message));
+                                            return;
+                                        case 'Player':
+                                            $rootScope.$broadcast('playerUpdate', message.player.id, message.player);
+                                            return;
+                                        default:
+                                            console.warn('onMessage: unknown message type \'' +
+                                                message.messageType +
+                                                '\'');
+                                            break;
+                                    }
+                                    console.warn('onMessage: unknown message type \'' + message.messageType + '\'');
+                                }
+                                console.warn('unknown message structure ' + message);
+                            });
+                        } else {
+                            console.warn(this.url + ' unknown onMessage: ' + JSON.stringify(response));
+                        }
+                    });
                 },
 
                 onClose: function (response) {
-                    //  TODO
-                    console.warn(this.url + ' closed: ' + JSON.stringify(response));
+                    $timeout(function () {
+                        //  TODO
+                        console.warn(this.url + ' closed: ' + JSON.stringify(response));
+                    });
                 },
 
                 onError: function (response) {
-                    //  TODO
-                    console.error(this.url + ' onError: ' + JSON.stringify(response));
+                    $timeout(function () {
+                        //  TODO
+                        console.error(this.url + ' onError: ' + JSON.stringify(response));
+                    });
                 }
             };
 
@@ -97,8 +107,8 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                             subscribed = socket.subscribe(request);
                         } catch (ex) {
                             console.log(JSON.stringify(ex));
-                            if( depth < 5) {
-                                pendingSubscribe = $timeout(function() {
+                            if (depth < 5) {
+                                pendingSubscribe = $timeout(function () {
                                     subscribeToCurrentPlayer(depth + 1);
                                 }, 500);
                             } else {

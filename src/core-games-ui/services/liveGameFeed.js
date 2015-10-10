@@ -17,6 +17,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 fallbackTransport: 'long-polling',
                 withCredentials: true,
                 handleOnlineOffline: false,
+                closeAsync: true,  // needed because of withCredentials true
 
                 onOpen: function (response) {
                     $timeout(function () {

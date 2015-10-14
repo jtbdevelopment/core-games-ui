@@ -94,17 +94,15 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 }
                 var originalCache = JSON.parse(JSON.stringify(gameCache.get(ALL)));
                 $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
-                    var loadedCounter = 0;
                     data.forEach(function (game) {
                         cache.putUpdatedGame(game);
                         if (angular.isDefined(originalCache.idMap[game.id])) {
                             delete originalCache.idMap[game.id];
                         }
                     });
-                    ++loadedCounter;
                     deleteOldCachedGames(originalCache);
                     updateLocalStorage();
-                    $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
+                    $rootScope.$broadcast('gameCachesLoaded', 1);
                 }).error(function () {
                     //  TODO - better
                     $location.path('/error');
@@ -116,6 +114,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 angular.forEach(localGames, function (game) {
                     cache.putUpdatedGame(game);
                 });
+                $rootScope.$broadcast('gameCachesLoaded', 0);
             }
 
             function initialize() {

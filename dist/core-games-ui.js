@@ -457,6 +457,10 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 customClassifier = undefined;
             }
 
+            function localStorageKey() {
+                return 'gameCache-' + jtbPlayerService.currentPlayer().md5;
+            }
+
             function initializeSubCaches() {
                 phases.forEach(function (phase) {
                         var phaseCache = gameCache.get(phase);
@@ -506,9 +510,16 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 }
             }
 
+            function updateLocalStorage() {
+                jtbLocalStorage.setObject(localStorageKey(), gameCache.get(ALL).games);
+            }
+
             function loadCache() {
+                if(phases.length === 0) {
+                    initialize.then(loadCache());
+                    return;
+                }
                 var originalCache = JSON.parse(JSON.stringify(gameCache.get(ALL)));
-                console.log(JSON.stringify(originalCache));
                 $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
                     var loadedCounter = 0;
                     data.forEach(function (game) {
@@ -519,6 +530,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                     });
                     ++loadedCounter;
                     deleteOldCachedGames(originalCache);
+                    updateLocalStorage();
                     $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
                 }).error(function () {
                     //  TODO - better
@@ -527,7 +539,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             }
 
             function loadFromLocalStorage() {
-                var localGames = jtbLocalStorage.getObject('gameCache-' + jtbPlayerService.currentPlayer().md5, '[]');
+                var localGames = jtbLocalStorage.getObject(localStorageKey(), '[]');
                 angular.forEach(localGames, function (game) {
                     cache.putUpdatedGame(game);
                 });
@@ -632,6 +644,8 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                     } else {
                         addGameToCache(updatedGame, allCache);
                     }
+
+                    updateLocalStorage();
                 },
 
                 getGameForID: function (id) {

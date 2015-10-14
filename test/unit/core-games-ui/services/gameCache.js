@@ -16,8 +16,10 @@ describe('Service: gameCache', function () {
     var alternates = [alt1, alt2];
 
     var baseURL = '/api/player/MANUAL1';
+    var initialMD5 = '4jjd42oi0x';
+    var altMD5 = initialMD5 + 'X';
     var currentPlayer = {
-        md5: '4jjd42oi0x'
+        md5: initialMD5
     };
     var gamesURL = '/games';
 
@@ -54,7 +56,6 @@ describe('Service: gameCache', function () {
                     return alternates;
                 },
                 getClassification: function (game) {
-                    console.log(altClass1Flag);
                     return (altClass1Flag === true && game.lastUpdate !== 1001 ) ? alt1 : alt2;
                 }
             };
@@ -64,6 +65,14 @@ describe('Service: gameCache', function () {
     var service, rootScope, location, http;
 
     // Initialize the controller and a mock scope
+    function mainCacheKey() {
+        return 'gameCache-' + initialMD5;
+    }
+
+    function altCacheKey() {
+        return 'gameCache-' + altMD5;
+    }
+
     beforeEach(inject(function ($injector, $q, $rootScope, $location, $httpBackend, $window) {
         rootScope = $rootScope;
         location = $location;
@@ -72,10 +81,15 @@ describe('Service: gameCache', function () {
         spyOn(location, 'path');
         spyOn(rootScope, '$broadcast').and.callThrough();
         service = $injector.get('jtbGameCache');
+
+        window.localStorage[mainCacheKey()] = '[]';
+        window.localStorage[altCacheKey()] = '[]';
+        currentPlayer.md5 = initialMD5;
     }));
 
-    describe('test initialization, no local storage', function () {
+    describe('test initialization, no initial local storage', function () {
         beforeEach(function () {
+
             rootScope.$broadcast('playerLoaded');
             rootScope.$apply();
         });
@@ -106,6 +120,9 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng3);
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng3]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
         });
 
         it('asking for a game before initialization yields undefined', function () {
@@ -175,7 +192,12 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
 
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng3]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
+
             var referenceHoldover = service.getGamesForPhase('All');
+
+            currentPlayer.md5 = altMD5;
 
             rootScope.$broadcast('playerLoaded');
             rootScope.$apply();
@@ -199,6 +221,9 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng1);
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng3]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([ng1]));
         });
 
         it('re-initializes on refreshGames games', function () {
@@ -217,6 +242,9 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
 
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng3]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
+
             var referenceHoldover = service.getGamesForPhase('All');
 
             http.expectGET(baseURL + gamesURL).respond([ng1, ng2]);
@@ -234,14 +262,16 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng2);
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameRemoved', ng3);
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1, ng2]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
         });
     });
 
     describe('test initialization, with local storage', function () {
         beforeEach(function () {
-            currentPlayer.md5 = 'Player1';
-            window.localStorage['gameCache-' + currentPlayer.md5] = JSON.stringify([ng1, ng2, ng3]);
-            window.localStorage['gameCache-' + currentPlayer.md5 + 'X'] = JSON.stringify([ng4]);
+            window.localStorage[mainCacheKey()] = JSON.stringify([ng1, ng2, ng3]);
+            window.localStorage[altCacheKey()] = JSON.stringify([ng4]);
             rootScope.$broadcast('playerLoaded');
             rootScope.$apply();
         });
@@ -257,6 +287,9 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase('All')).toEqual([ng1, ng2, ng3]);
             expect(service.getGamesForPhase(alt1)).toEqual([ng1, ng2, ng3]);
             expect(service.getGamesForPhase(alt2)).toEqual([]);
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1, ng2, ng3]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([ng4]));
 
             var ng1v2 = angular.copy(ng1);
             ng1v2.lastUpdate = 1001;
@@ -275,10 +308,13 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng4);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng1, ng1v2);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameRemoved', ng2);
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1v2, ng3, ng4]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([ng4]));
+
         });
 
         it('re-initializes on player switch', function () {
-            console.log('test start');
             expect(service.initialized()).toEqual(false);
             http.expectGET(baseURL + gamesURL).respond([ng1, ng2]);
             phaseDeferred.resolve(phases);
@@ -296,12 +332,15 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase(alt1)).toEqual([ng1, ng2]);
             expect(service.getGamesForPhase(alt2)).toEqual([]);
 
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1, ng2]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([ng4]));
+
             var referenceHoldover = service.getGamesForPhase('All');
 
             rootScope.$broadcast.calls.reset();
 
             baseURL = '/api/player/MANUAL3';
-            currentPlayer.md5 += 'X' ;
+            currentPlayer.md5 = altMD5;
             rootScope.$broadcast('playerLoaded');
             rootScope.$apply();
 
@@ -323,6 +362,9 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1, ng2]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([ng4]));
         });
 
         it('re-initializes on refreshGames games', function () {
@@ -338,6 +380,9 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase('All')).toEqual([ng3]);
             expect(service.getGamesForPhase(alt1)).toEqual([ng3]);
             expect(service.getGamesForPhase(alt2)).toEqual([]);
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng3]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([ng4]));
 
             var referenceHoldover = service.getGamesForPhase('All');
 
@@ -364,6 +409,9 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng4);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng3, ng3v2);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameRemoved', ng2);
+
+            expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng3v2, ng4]));
+            expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([ng4]));
         });
     });
 
@@ -418,6 +466,9 @@ describe('Service: gameCache', function () {
                         expect(service.getGamesForPhase(alt2)).toEqual([ng5]);
                         expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng5);
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+
+                        expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1, ng2, ng3, ng4, ng5]));
+                        expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
                     });
 
                     it('takes in a newer game update', function () {
@@ -433,6 +484,9 @@ describe('Service: gameCache', function () {
                         expect(service.getGamesForPhase(alt2)).toEqual([ng1v2]);
                         expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng1, ng1v2);
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+
+                        expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1v2, ng2, ng3, ng4]));
+                        expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
                     });
 
                     it('takes in a newer game update to a new phase', function () {
@@ -447,6 +501,9 @@ describe('Service: gameCache', function () {
                         expect(service.getGamesForPhase('All')).toEqual([ng1v2, ng2, ng3, ng4]);
                         expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng1, ng1v2);
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+
+                        expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1v2, ng2, ng3, ng4]));
+                        expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
                     });
 
                     it('takes in multiple game updates to a new phase', function () {
@@ -473,6 +530,9 @@ describe('Service: gameCache', function () {
                         expect(service.getGamesForPhase('All')).toEqual([ng1v2, ng2v2, ng3, ng4]);
                         expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng2, ng2v2);
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+
+                        expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1v2, ng2v2, ng3, ng4]));
+                        expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
                     });
 
                     it('rejects a stale game update, matching time', function () {
@@ -486,6 +546,9 @@ describe('Service: gameCache', function () {
                         expect(service.getGamesForPhase('All')).toEqual([ng1, ng2, ng3, ng4]);
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+
+                        expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1, ng2, ng3, ng4]));
+                        expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
                     });
 
                     it('rejects a stale game update, older time', function () {
@@ -499,6 +562,9 @@ describe('Service: gameCache', function () {
                         expect(service.getGamesForPhase('All')).toEqual([ng1, ng2, ng3, ng4]);
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
                         expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+
+                        expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng1, ng2, ng3, ng4]));
+                        expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
                     });
                 });
             });

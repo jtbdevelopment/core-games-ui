@@ -7,7 +7,7 @@ describe('Service: gameCache', function () {
     var ng1 = {id: 'ng1', gamePhase: 'Phase1'};
     var ng2 = {id: 'ng2', gamePhase: 'Phase1'};
     var ng3 = {id: 'ng3', gamePhase: 'Phase2'};
-    var ng4 = {id: 'ng4', gamePhase: 'Phase1'};
+    var ng4 = {id: 'ng4', gamePhase: 'Phase1', lastUpdate: 1000};
 
     var phaseDeferred;
     var phases = {Phase1: [], Phase2: [], Phase3: []};
@@ -22,6 +22,8 @@ describe('Service: gameCache', function () {
     var gamesURL = '/games';
 
     var altClass1Flag = true;
+
+    var window;
 
     beforeEach(module(function ($provide) {
         baseURL = '/api/player/MANUAL1';
@@ -38,7 +40,7 @@ describe('Service: gameCache', function () {
                 currentPlayerBaseURL: function () {
                     return baseURL;
                 },
-                currentPlayer: function() {
+                currentPlayer: function () {
                     return currentPlayer;
                 }
             };
@@ -62,23 +64,20 @@ describe('Service: gameCache', function () {
     var service, rootScope, location, http;
 
     // Initialize the controller and a mock scope
-    beforeEach(inject(function ($injector, $q, $rootScope, $location, $httpBackend) {
+    beforeEach(inject(function ($injector, $q, $rootScope, $location, $httpBackend, $window) {
         rootScope = $rootScope;
         location = $location;
         http = $httpBackend;
+        window = $window;
         spyOn(location, 'path');
         spyOn(rootScope, '$broadcast').and.callThrough();
         service = $injector.get('jtbGameCache');
     }));
 
-    describe('test initialization', function () {
+    describe('test initialization, no local storage', function () {
         beforeEach(function () {
             rootScope.$broadcast('playerLoaded');
             rootScope.$apply();
-        });
-        afterEach(function () {
-//            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
-//            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
         });
 
         it('initializes cache on player loaded and waits for player live feed for games', function () {
@@ -178,6 +177,9 @@ describe('Service: gameCache', function () {
 
             var referenceHoldover = service.getGamesForPhase('All');
 
+            rootScope.$broadcast('playerLoaded');
+            rootScope.$apply();
+
             baseURL = '/api/player/MANUAL3';
             http.expectGET(baseURL + gamesURL).respond([ng1]);
             expect(service.initialized()).toEqual(true);
@@ -231,7 +233,137 @@ describe('Service: gameCache', function () {
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng1);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng2);
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameRemoved', ng3);
+        });
+    });
+
+    describe('test initialization, with local storage', function () {
+        beforeEach(function () {
+            currentPlayer.md5 = 'Player1';
+            window.localStorage['gameCache-' + currentPlayer.md5] = JSON.stringify([ng1, ng2, ng3]);
+            window.localStorage['gameCache-' + currentPlayer.md5 + 'X'] = JSON.stringify([ng4]);
+            rootScope.$broadcast('playerLoaded');
+            rootScope.$apply();
+        });
+
+        it('initializes cache on player loaded and waits for player live feed for games', function () {
+            expect(service.initialized()).toEqual(false);
+            phaseDeferred.resolve(phases);
+            rootScope.$apply();
+            expect(service.initialized()).toEqual(true);
+            expect(service.getGamesForPhase('Phase1')).toEqual([ng1, ng2]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([ng3]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([]);
+            expect(service.getGamesForPhase('All')).toEqual([ng1, ng2, ng3]);
+            expect(service.getGamesForPhase(alt1)).toEqual([ng1, ng2, ng3]);
+            expect(service.getGamesForPhase(alt2)).toEqual([]);
+
+            var ng1v2 = angular.copy(ng1);
+            ng1v2.lastUpdate = 1001;
+            ng1v2.gamePhase = 'Phase3';
+            http.expectGET(baseURL + gamesURL).respond([ng3, ng1v2, ng4]);
+            rootScope.$broadcast('liveFeedEstablished');
+            rootScope.$apply();
+            http.flush();
+            expect(service.getGamesForPhase('Phase1')).toEqual([ng4]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([ng3]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([ng1v2]);
+            expect(service.getGamesForPhase('All')).toEqual([ng1v2, ng3, ng4]);
+            expect(service.getGamesForPhase(alt1)).toEqual([ng3, ng4]);
+            expect(service.getGamesForPhase(alt2)).toEqual([ng1v2]);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng4);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng1, ng1v2);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameRemoved', ng2);
+        });
+
+        it('re-initializes on player switch', function () {
+            console.log('test start');
+            expect(service.initialized()).toEqual(false);
+            http.expectGET(baseURL + gamesURL).respond([ng1, ng2]);
+            phaseDeferred.resolve(phases);
+            rootScope.$apply();
+            expect(service.initialized()).toEqual(true);
+            rootScope.$broadcast('liveFeedEstablished');
+            rootScope.$apply();
+            expect(service.initialized()).toEqual(true);
+            http.flush();
+            expect(service.initialized()).toEqual(true);
+            expect(service.getGamesForPhase('Phase1')).toEqual([ng1, ng2]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([]);
+            expect(service.getGamesForPhase('All')).toEqual([ng1, ng2]);
+            expect(service.getGamesForPhase(alt1)).toEqual([ng1, ng2]);
+            expect(service.getGamesForPhase(alt2)).toEqual([]);
+
+            var referenceHoldover = service.getGamesForPhase('All');
+
+            rootScope.$broadcast.calls.reset();
+
+            baseURL = '/api/player/MANUAL3';
+            currentPlayer.md5 += 'X' ;
+            rootScope.$broadcast('playerLoaded');
+            rootScope.$apply();
+
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng4);
+            http.expectGET(baseURL + gamesURL).respond([ng4]);
+            expect(service.initialized()).toEqual(true);
+            rootScope.$broadcast('liveFeedEstablished');
+            rootScope.$apply();
+            expect(service.initialized()).toEqual(true);
+            http.flush();
+            expect(service.initialized()).toEqual(true);
+            expect(service.getGamesForPhase('Phase1')).toEqual([ng4]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([]);
+            expect(service.getGamesForPhase('All')).toEqual([ng4]);
+            expect(service.getGamesForPhase(alt1)).toEqual([ng4]);
+            expect(service.getGamesForPhase(alt2)).toEqual([]);
+            expect(referenceHoldover).toEqual([ng4]);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
             expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
+        });
+
+        it('re-initializes on refreshGames games', function () {
+            http.expectGET(baseURL + gamesURL).respond([ng3]);
+            phaseDeferred.resolve(phases);
+            rootScope.$apply();
+            rootScope.$broadcast('liveFeedEstablished');
+            rootScope.$apply();
+            http.flush();
+            expect(service.getGamesForPhase('Phase1')).toEqual([]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([ng3]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([]);
+            expect(service.getGamesForPhase('All')).toEqual([ng3]);
+            expect(service.getGamesForPhase(alt1)).toEqual([ng3]);
+            expect(service.getGamesForPhase(alt2)).toEqual([]);
+
+            var referenceHoldover = service.getGamesForPhase('All');
+
+            service.putUpdatedGame(ng2);
+
+            rootScope.$broadcast.calls.reset();
+
+            var ng3v2 = angular.copy(ng3);
+            ng3v2.lastUpdate = 1001;
+            ng3v2.gamePhase = 'Phase3';
+
+            http.expectGET(baseURL + gamesURL).respond([ng3v2, ng4]);
+            rootScope.$broadcast('refreshGames');
+            rootScope.$apply();
+            http.flush();
+            expect(service.getGamesForPhase('Phase1')).toEqual([ng4]);
+            expect(service.getGamesForPhase('Phase2')).toEqual([]);
+            expect(service.getGamesForPhase('Phase3')).toEqual([ng3v2]);
+            expect(service.getGamesForPhase('All')).toEqual([ng3v2, ng4]);
+            expect(service.getGamesForPhase(alt1)).toEqual([ng4]);
+            expect(service.getGamesForPhase(alt2)).toEqual([ng3v2]);
+            expect(referenceHoldover).toEqual([ng3v2, ng4]);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng4);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdated', ng3, ng3v2);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameRemoved', ng2);
         });
     });
 

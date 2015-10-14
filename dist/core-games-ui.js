@@ -476,46 +476,51 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 );
             }
 
-            function loadCache() {
-                initialize().then(function () {
-                    var originalCache = JSON.parse(JSON.stringify(gameCache.get(ALL)));
-                    console.log(JSON.stringify(originalCache));
-                    $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
-                        var loadedCounter = 0;
-                        data.forEach(function (game) {
-                            cache.putUpdatedGame(game);
-                            if (angular.isDefined(originalCache.idMap[game.id])) {
-                                delete originalCache.idMap[game.id];
-                            }
-                        });
-                        ++loadedCounter;
+            function deleteOldCachedGames(originalCache) {
+                var deleted = 0;
+                for (var id in originalCache.idMap) {
+                    if (originalCache.idMap.hasOwnProperty(id)) {
+                        var gameToDelete = originalCache.games[originalCache.idMap[id]];
+                        var phaseCache = gameCache.get(ALL);
+                        var phaseIndex = phaseCache.idMap[gameToDelete.id];
+                        if (angular.isDefined(phaseIndex)) {
+                            removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
+                        }
+                        phaseCache = gameCache.get(gameToDelete.gamePhase);
+                        phaseIndex = phaseCache.idMap[gameToDelete.id];
+                        if (angular.isDefined(phaseIndex)) {
+                            removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
+                        }
 
-                        var deleted = 0;
-                        console.log(JSON.stringify(originalCache));
-                        for (var id in originalCache.idMap) {
-                            if (originalCache.idMap.hasOwnProperty(id)) {
-                                var gameToDelete = originalCache.games[originalCache.idMap[id]];
-                                var phaseCache = gameCache(ALL);
-                                var phaseIndex = phaseCache.idMap[gameToDelete.id];
-                                if (angular.isDefined(phaseIndex)) {
-                                    removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
-                                }
-                                phaseCache = gameCache(gameToDelete.gamePhase);
-                                phaseIndex = cache.idMap[gameToDelete.id];
-                                if (angular.isDefined(phaseIndex)) {
-                                    removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
-                                }
-                                $rootScope.$broadcast('gameRemoved', gameToDelete);
-                                ++deleted;
+                        if (angular.isDefined(customClassifier)) {
+                            phaseCache = gameCache.get(customClassifier.getClassification(gameToDelete));
+                            phaseIndex = phaseCache.idMap[gameToDelete.id];
+                            if (angular.isDefined(phaseIndex)) {
+                                removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
                             }
                         }
 
-                        $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
-                    }).error(function () {
-                        //  TODO - better
-                        $location.path('/error');
+                        $rootScope.$broadcast('gameRemoved', gameToDelete);
+                        ++deleted;
+                    }
+                }
+            }
+
+            function loadCache() {
+                var originalCache = JSON.parse(JSON.stringify(gameCache.get(ALL)));
+                console.log(JSON.stringify(originalCache));
+                $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
+                    var loadedCounter = 0;
+                    data.forEach(function (game) {
+                        cache.putUpdatedGame(game);
+                        if (angular.isDefined(originalCache.idMap[game.id])) {
+                            delete originalCache.idMap[game.id];
+                        }
                     });
-                }, function () {
+                    ++loadedCounter;
+                    deleteOldCachedGames(originalCache);
+                    $rootScope.$broadcast('gameCachesLoaded', loadedCounter);
+                }).error(function () {
                     //  TODO - better
                     $location.path('/error');
                 });

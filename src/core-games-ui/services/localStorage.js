@@ -16,8 +16,8 @@ angular.module('coreGamesUi.services')
                 setObject: function (key, value) {
                     $window.localStorage[key] = JSON.stringify(value);
                 },
-                getObject: function (key) {
-                    return JSON.parse($window.localStorage[key] || '{}');
+                getObject: function (key, defaultValue) {
+                    return JSON.parse($window.localStorage[key] || (defaultValue || '{}'));
                 }
             };
         }

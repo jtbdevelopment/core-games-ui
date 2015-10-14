@@ -58,4 +58,8 @@ describe('Service: localStorage', function () {
     it('test default get of object', function () {
         expect(service.getObject('KEY6')).toEqual({});
     });
+
+    it('test default get of object with default', function () {
+        expect(service.getObject('KEY6', '[]')).toEqual([]);
+    });
 });

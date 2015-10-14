@@ -16,6 +16,9 @@ describe('Service: gameCache', function () {
     var alternates = [alt1, alt2];
 
     var baseURL = '/api/player/MANUAL1';
+    var currentPlayer = {
+        md5: '4jjd42oi0x'
+    };
     var gamesURL = '/games';
 
     var altClass1Flag = true;
@@ -34,6 +37,9 @@ describe('Service: gameCache', function () {
             return {
                 currentPlayerBaseURL: function () {
                     return baseURL;
+                },
+                currentPlayer: function() {
+                    return currentPlayer;
                 }
             };
         });
@@ -71,8 +77,8 @@ describe('Service: gameCache', function () {
             rootScope.$apply();
         });
         afterEach(function () {
-            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
-            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+//            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+//            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
         });
 
         it('initializes cache on player loaded and waits for player live feed for games', function () {
@@ -98,11 +104,17 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase(alt1)).toEqual([ng3]);
             expect(service.getGamesForPhase(alt2)).toEqual([]);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng3);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
         });
 
         it('asking for a game before initialization yields undefined', function () {
             expect(service.getGameForID('ng3')).toBeUndefined();
             expect(service.initialized()).toEqual(false);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
 
             http.expectGET(baseURL + gamesURL).respond([ng3]);
             phaseDeferred.resolve(phases);
@@ -111,6 +123,9 @@ describe('Service: gameCache', function () {
             rootScope.$apply();
             http.flush();
             expect(service.getGameForID('ng3')).toEqual(ng3);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng3);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
         });
 
         it('errors when phases errors', function () {
@@ -120,6 +135,9 @@ describe('Service: gameCache', function () {
             rootScope.$apply();
             expect(service.initialized()).toEqual(false);
             expect(location.path).toHaveBeenCalledWith('/error');
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
         });
 
         it('errors when http.get errors', function () {
@@ -131,6 +149,9 @@ describe('Service: gameCache', function () {
             http.flush();
             expect(service.initialized()).toEqual(true);
             expect(location.path).toHaveBeenCalledWith('/error');
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
         });
 
         it('re-initializes on player switch', function () {
@@ -151,6 +172,9 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase(alt1)).toEqual([ng3]);
             expect(service.getGamesForPhase(alt2)).toEqual([]);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng3);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
 
             var referenceHoldover = service.getGamesForPhase('All');
 
@@ -169,7 +193,10 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase(alt1)).toEqual([ng1]);
             expect(service.getGamesForPhase(alt2)).toEqual([]);
             expect(referenceHoldover).toEqual([ng1]);
-            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 2);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng1);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
         });
 
         it('re-initializes on refreshGames games', function () {
@@ -184,6 +211,9 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase('Phase3')).toEqual([]);
             expect(service.getGamesForPhase('All')).toEqual([ng3]);
             expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng3);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
 
             var referenceHoldover = service.getGamesForPhase('All');
 
@@ -197,7 +227,11 @@ describe('Service: gameCache', function () {
             expect(service.getGamesForPhase(alt1)).toEqual([ng1, ng2]);
             expect(service.getGamesForPhase(alt2)).toEqual([]);
             expect(referenceHoldover).toEqual([ng1, ng2]);
-            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 2);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng1);
+            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng2);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
         });
     });
 
@@ -212,11 +246,11 @@ describe('Service: gameCache', function () {
             rootScope.$broadcast('liveFeedEstablished');
             rootScope.$apply();
             http.flush();
+            rootScope.$broadcast.calls.reset();
         });
 
         afterEach(function () {
-            //  From initialization
-            expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 1);
+            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameDeleted', jasmine.any(Object));
         });
 
         it('can serve game by id', function () {
@@ -251,6 +285,7 @@ describe('Service: gameCache', function () {
                         expect(service.getGamesForPhase(alt1)).toEqual([ng1, ng2, ng3, ng4]);
                         expect(service.getGamesForPhase(alt2)).toEqual([ng5]);
                         expect(rootScope.$broadcast).toHaveBeenCalledWith('gameAdded', ng5);
+                        expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
                     });
 
                     it('takes in a newer game update', function () {

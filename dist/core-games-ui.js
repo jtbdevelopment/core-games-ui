@@ -821,13 +821,14 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 if (angular.isUndefined(depth)) {
                     depth = 0;
                 }
+                console.log('depth is ' + depth);
                 pendingSubscribe = $timeout(function () {
                     if (jtbPlayerService.currentID() !== '') {
                         request.url = endpoint + '/livefeed/' + jtbPlayerService.currentID();
                         try {
                             subscribed = socket.subscribe(request);
                         } catch (ex) {
-                            console.log(JSON.stringify(ex));
+                            console.log('sub ex ' + JSON.stringify(ex));
                             if (depth < 5) {
                                 pendingSubscribe = $timeout(function () {
                                     subscribeToCurrentPlayer(depth + 1);
@@ -855,6 +856,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 },
                 setEndPoint: function (newEndpoint) {
                     endpoint = newEndpoint;
+                    subscribeToCurrentPlayer();
                 },
                 handler: function () {
                     return request;

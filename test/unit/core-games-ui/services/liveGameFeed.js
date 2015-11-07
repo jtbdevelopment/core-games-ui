@@ -7,7 +7,7 @@ describe('Service: gamePhases', function () {
     var anId = '';
     var theId = 'some-id';
     var workingRequest;
-    var socket = {close: jasmine.createSpy()};
+    var socket = {close: jasmine.createSpy('close')};
     var subscribeCount;
     var throwException = false;
     var atmosphere = {
@@ -19,6 +19,7 @@ describe('Service: gamePhases', function () {
                 console.log('throw');
                 throw {x: 'y'};
             } else {
+                console.log('socket');
                 return socket;
             }
         }
@@ -47,7 +48,8 @@ describe('Service: gamePhases', function () {
         anId = '';
         subscribeCount = 0;
         window.atmosphere = atmosphere;
-        var throwException = false;
+        throwException = false;
+        socket = {close: jasmine.createSpy('close')};
     }));
 
     describe('player already defined by time feed is initialized', function () {
@@ -89,6 +91,14 @@ describe('Service: gamePhases', function () {
             expect(workingRequest).toBeDefined();
         });
 
+        it('doesnt subscribes when player loaded but id = blank', function () {
+            anId = '';
+            expect(workingRequest).toBeUndefined();
+            timeout.flush();
+            expect(workingRequest).toBeUndefined();
+            expect(subscribeCount).toEqual(0);
+        });
+
         it('unsubscribes when player already loaded', function () {
             timeout.flush();
             expect(workingRequest).toBeDefined();
@@ -112,7 +122,7 @@ describe('Service: gamePhases', function () {
             timeout.flush();
 
             expect(workingRequest.url).toEqual('/livefeed/' + theId + 'X');
-            expect(socket.close).toHaveBeenCalled();
+            expect(socket.close).not.toHaveBeenCalled();
             expect(subscribeCount).toEqual(1);
         });
 
@@ -135,7 +145,7 @@ describe('Service: gamePhases', function () {
 
                 timeout.flush();
                 timeout.flush();
-                expect(subscribeCount).toEqual(6);
+                expect(subscribeCount).toEqual(6);  //  initial + 5 more attempts
             });
 
             it('stops subscribing if 1 succeeds', function () {
@@ -151,6 +161,23 @@ describe('Service: gamePhases', function () {
 
                 expect(subscribeCount).toEqual(3);
             });
+        });
+
+        it('suspend feed attempts to unsubscribe if already subscribed', function () {
+            expect(workingRequest).toBeUndefined();
+            timeout.flush();
+            expect(workingRequest).toBeDefined();
+            service.suspendFeed();
+            expect(socket.close).toHaveBeenCalled();
+        });
+
+        it('suspend feed does nothing if not subscribed', function () {
+            anId = '';
+            timeout.flush();
+            expect(workingRequest).toBeUndefined();
+            expect(subscribeCount).toEqual(0);
+            service.suspendFeed();
+            expect(socket.close).not.toHaveBeenCalled();
         });
     });
 

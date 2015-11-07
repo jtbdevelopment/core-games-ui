@@ -179,6 +179,19 @@ describe('Service: gamePhases', function () {
             service.suspendFeed();
             expect(socket.close).not.toHaveBeenCalled();
         });
+
+        it('resubscribes if end point set', function() {
+            throwException = true;
+            timeout.flush();
+            expect(workingRequest.url).toEqual('/livefeed/' + theId);
+
+            service.setEndPoint('http://www.something.com');
+            throwException = false;
+            timeout.flush();
+            expect(workingRequest.url).toEqual('http://www.something.com/livefeed/' + theId);
+            expect(subscribeCount).toEqual(2);
+            expect(socket.close).not.toHaveBeenCalled();
+        });
     });
 
 });

@@ -137,9 +137,6 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 setEndPoint: function (newEndpoint) {
                     endpoint = newEndpoint;
                     subscribeToCurrentPlayer();
-                },
-                handler: function () {
-                    return request;
                 }
             };
         }

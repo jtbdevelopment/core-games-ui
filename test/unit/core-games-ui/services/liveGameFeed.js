@@ -50,6 +50,7 @@ describe('Service: gamePhases', function () {
         window.atmosphere = atmosphere;
         throwException = false;
         socket = {close: jasmine.createSpy('close')};
+        spyOn(rootScope, '$broadcast').and.callThrough();
     }));
 
     describe('player already defined by time feed is initialized', function () {
@@ -180,7 +181,7 @@ describe('Service: gamePhases', function () {
             expect(socket.close).not.toHaveBeenCalled();
         });
 
-        it('resubscribes if end point set', function() {
+        it('resubscribes if end point set', function () {
             throwException = true;
             timeout.flush();
             expect(workingRequest.url).toEqual('/livefeed/' + theId);
@@ -191,6 +192,96 @@ describe('Service: gamePhases', function () {
             expect(workingRequest.url).toEqual('http://www.something.com/livefeed/' + theId);
             expect(subscribeCount).toEqual(2);
             expect(socket.close).not.toHaveBeenCalled();
+        });
+
+        describe('test request handlers after initialized', function () {
+            beforeEach(function () {
+                timeout.flush();
+            });
+
+
+            it('on close currently does nothing, but log', function () {
+                workingRequest.onClose({x: 'y'});
+                timeout.flush();
+            });
+
+            it('on error currently does nothing, but log', function () {
+                workingRequest.onError({x: 'y'});
+                timeout.flush();
+            });
+
+            it('on open broadcasts link established', function () {
+                expect(rootScope.$broadcast).not.toHaveBeenCalledWith('liveFeedEstablished');
+                workingRequest.onOpen({transport: 'magic'});
+                timeout.flush();
+                expect(rootScope.$broadcast).toHaveBeenCalledWith('liveFeedEstablished');
+            });
+
+            it('broadcasts game on game update', function () {
+                var game = {id: 'some id', data: {}, more: []};
+                workingRequest.onMessage({messages: [JSON.stringify({messageType: 'Game', game: game})]});
+                timeout.flush();
+                expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdate', game.id, game);
+            });
+
+            it('broadcasts player on player update', function () {
+                var player = {id: 'some id', data: {}, more: []};
+                workingRequest.onMessage({messages: [JSON.stringify({messageType: 'Player', player: player})]});
+                timeout.flush();
+                expect(rootScope.$broadcast).toHaveBeenCalledWith('playerUpdate', player.id, player);
+            });
+
+            it('just logs on heartbeat', function () {
+                var data = {id: 'some id', data: {}, more: []};
+                workingRequest.onMessage({messages: [JSON.stringify({messageType: 'Heartbeat', data: data})]});
+                rootScope.$broadcast.calls.reset();
+                timeout.flush();
+                expect(rootScope.$broadcast).not.toHaveBeenCalled();
+            });
+
+            it('handles multi messages', function () {
+                var game = {id: 'some id', data: {}, more: []};
+                var player = {id: 'some id', data: {}, more: []};
+                var data = {id: 'some id', data: {}, more: []};
+                workingRequest.onMessage({messages: [
+                    JSON.stringify({messageType: 'Game', game: game}),
+                    JSON.stringify({messageType: 'Player', player: player}),
+                    JSON.stringify({messageType: 'Heartbeat', data: data})
+                ]});
+                timeout.flush();
+                expect(rootScope.$broadcast).toHaveBeenCalledWith('gameUpdate', game.id, game);
+                expect(rootScope.$broadcast).toHaveBeenCalledWith('playerUpdate', player.id, player);
+            });
+
+            it('just logs on unknown message', function () {
+                var data = {id: 'some id', data: {}, more: []};
+                workingRequest.onMessage({messages: [JSON.stringify({messageType: 'Somethin', data: data})]});
+                rootScope.$broadcast.calls.reset();
+                timeout.flush();
+                expect(rootScope.$broadcast).not.toHaveBeenCalled();
+            });
+
+            it('just logs on undefined message', function () {
+                var data = {id: 'some id', data: {}, more: []};
+                workingRequest.onMessage({messages: [JSON.stringify({data: data})]});
+                rootScope.$broadcast.calls.reset();
+                timeout.flush();
+                expect(rootScope.$broadcast).not.toHaveBeenCalled();
+            });
+
+            it('just logs on unparseable message', function () {
+                workingRequest.onMessage({messages: ['blah']});
+                rootScope.$broadcast.calls.reset();
+                timeout.flush();
+                expect(rootScope.$broadcast).not.toHaveBeenCalled();
+            });
+
+            it('just logs on undefined messages', function () {
+                workingRequest.onMessage({});
+                rootScope.$broadcast.calls.reset();
+                timeout.flush();
+                expect(rootScope.$broadcast).not.toHaveBeenCalled();
+            });
         });
     });
 

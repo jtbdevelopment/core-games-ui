@@ -20,13 +20,15 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 closeAsync: true,  // needed because of withCredentials true
 
                 onOpen: function (response) {
+                    var request = this;
                     $timeout(function () {
-                        console.info(this.url + ' Atmosphere connected using ' + response.transport);
+                        console.info(request.url + ' Atmosphere connected using ' + response.transport);
                         $rootScope.$broadcast('liveFeedEstablished');
                     });
                 },
 
                 onMessage: function (response) {
+                    var request = this;
                     $timeout(function () {
                         if (angular.isDefined(response.messages)) {
                             response.messages.forEach(function (messageString) {
@@ -50,33 +52,30 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                                         case 'Player':
                                             $rootScope.$broadcast('playerUpdate', message.player.id, message.player);
                                             return;
-                                        default:
-                                            console.warn('onMessage: unknown message type \'' +
-                                                message.messageType +
-                                                '\'');
-                                            break;
                                     }
                                     console.warn('onMessage: unknown message type \'' + message.messageType + '\'');
                                 }
                                 console.warn('unknown message structure ' + message);
                             });
                         } else {
-                            console.warn(this.url + ' unknown onMessage: ' + JSON.stringify(response));
+                            console.warn(request.url + ' unknown onMessage: ' + JSON.stringify(response));
                         }
                     });
                 },
 
                 onClose: function (response) {
+                    var request = this;
                     $timeout(function () {
                         //  TODO
-                        console.warn(this.url + ' closed: ' + JSON.stringify(response));
+                        console.warn(request.url + ' closed: ' + JSON.stringify(response));
                     });
                 },
 
                 onError: function (response) {
+                    var request = this;
                     $timeout(function () {
                         //  TODO
-                        console.error(this.url + ' onError: ' + JSON.stringify(response));
+                        console.error(request.url + ' onError: ' + JSON.stringify(response));
                     });
                 }
             };

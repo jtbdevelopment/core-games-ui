@@ -487,21 +487,15 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         var gameToDelete = originalCache.games[originalCache.idMap[id]];
                         var phaseCache = gameCache.get(ALL);
                         var phaseIndex = phaseCache.idMap[gameToDelete.id];
-                        if (angular.isDefined(phaseIndex)) {
-                            removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
-                        }
+                        removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
                         phaseCache = gameCache.get(gameToDelete.gamePhase);
                         phaseIndex = phaseCache.idMap[gameToDelete.id];
-                        if (angular.isDefined(phaseIndex)) {
-                            removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
-                        }
+                        removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
 
                         if (angular.isDefined(customClassifier)) {
                             phaseCache = gameCache.get(customClassifier.getClassification(gameToDelete));
                             phaseIndex = phaseCache.idMap[gameToDelete.id];
-                            if (angular.isDefined(phaseIndex)) {
-                                removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
-                            }
+                            removeGameFromCache(phaseCache, gameToDelete, phaseIndex);
                         }
 
                         $rootScope.$broadcast('gameRemoved', gameToDelete);
@@ -515,10 +509,6 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             }
 
             function loadCache() {
-                if(phases.length === 0) {
-                    initialize.then(loadCache());
-                    return;
-                }
                 var originalCache = JSON.parse(JSON.stringify(gameCache.get(ALL)));
                 $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
                     data.forEach(function (game) {

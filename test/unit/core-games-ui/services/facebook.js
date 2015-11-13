@@ -189,6 +189,15 @@ describe('Service: facebook', function () {
                     });
                 });
 
+                it('cold start initialization - player and fb do not match if not logged in', function () {
+                    var player = {source:'facebook', sourceId: fbSourceId};
+                    service.playerAndFBMatch(player).then(function (data) {
+                        expect(data).toEqual(false);
+                        finalCheck = true;
+                    }, function () {
+                        fail('should not be here');
+                    });
+                });
             });
 
             it('cold start initialization - player and fb do not match if not login status thows exception', function () {

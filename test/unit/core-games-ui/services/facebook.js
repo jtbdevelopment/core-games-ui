@@ -191,6 +191,20 @@ describe('Service: facebook', function () {
 
             });
 
+            it('cold start initialization - player and fb do not match if not login status thows exception', function () {
+                window.FB.getLoginStatus = function (cb) {
+                    throw 'blah';
+                };
+                var player = {source:'facebook', sourceId: fbSourceId};
+                service.playerAndFBMatch(player).then(function (data) {
+                    expect(data).toEqual(false);
+                    finalCheck = true;
+                }, function () {
+                    fail('should not be here');
+                });
+            });
+
+
             it('cold start initialization - player and fb do not match if not fb source', function () {
                 var player = {source:'twitter'};
                 service.playerAndFBMatch(player).then(function (data) {
@@ -200,6 +214,7 @@ describe('Service: facebook', function () {
                     fail('should not be here');
                 });
             });
+
         });
 
         describe('with bad http call', function () {

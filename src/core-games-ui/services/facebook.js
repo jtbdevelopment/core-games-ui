@@ -37,7 +37,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             };
 
                             (function (d, s, id) {
-                                function onLoadCB() {
+                                function onErrorCB() {
                                     loaded = false;
                                     fbLoaded.reject();
                                 }
@@ -49,7 +49,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                                 js = d.createElement(s);
                                 js.id = id;
                                 js.src = '//connect.facebook.net/en_US/sdk.js';
-                                js.onerror = onLoadCB;
+                                js.onerror = onErrorCB;
                                 fjs.parentNode.insertBefore(js, fjs);
                             }(document, 'script', 'facebook-jssdk'));
                         }

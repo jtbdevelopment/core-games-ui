@@ -8,7 +8,8 @@ describe('Service: facebook', function () {
     var service, location, http, q, window, rootScope;
     var fbAppId = 'someid';
     var fbPerms = 'email,profile';
-    var authResponse = 'X134';
+    var fbSourceId = 'FBID1';
+    var authResponse = {field: 'X134', userID: fbSourceId};
 
     describe('without a cordova facebook plugin available', function () {
         beforeEach(inject(function ($injector, $q, $location, $httpBackend, $window, $rootScope) {
@@ -40,18 +41,6 @@ describe('Service: facebook', function () {
                 window.fbAsyncInit();
                 rootScope.$apply();
                 expect(finalCheck).toEqual(true);
-            });
-
-            it('cold start initialization - cannot auto signin if status not connected', function () {
-                service.canAutoSignIn().then(function (data) {
-                    fail('should not be here');
-                }, function () {
-                    console.log('failed due to not connected');
-                    finalCheck = true;
-                });
-                window.FB.getLoginStatus = function (cb) {
-                    cb({status: 'not connected'});
-                };
             });
 
             describe('with connected status', function () {
@@ -124,6 +113,25 @@ describe('Service: facebook', function () {
                     };
                 });
 
+                it('cold start initialization - player and fb matches successfully', function () {
+                    var player = {source:'facebook', sourceId: fbSourceId};
+                    service.playerAndFBMatch(player).then(function (data) {
+                        expect(data).toEqual(true);
+                        finalCheck = true;
+                    }, function () {
+                        fail('should not be here');
+                    });
+                });
+
+                it('cold start initialization - player and fb do not match id successfully', function () {
+                    var player = {source:'facebook', sourceId: fbSourceId + 'X'};
+                    service.playerAndFBMatch(player).then(function (data) {
+                        expect(data).toEqual(false);
+                        finalCheck = true;
+                    }, function () {
+                        fail('should not be here');
+                    });
+                });
             });
 
             describe('with not connected status', function () {
@@ -131,6 +139,15 @@ describe('Service: facebook', function () {
                     window.FB.getLoginStatus = function (cb) {
                         cb({status: 'not connected'});
                     };
+                });
+
+                it('cold start initialization - cannot auto signin if status not connected', function () {
+                    service.canAutoSignIn().then(function (data) {
+                        fail('should not be here');
+                    }, function () {
+                        console.log('failed due to not connected');
+                        finalCheck = true;
+                    });
                 });
 
                 it('cold start initialization - initiate login successfully', function () {
@@ -170,6 +187,17 @@ describe('Service: facebook', function () {
                         console.log('failed to login');
                         finalCheck = true;
                     });
+                });
+
+            });
+
+            it('cold start initialization - player and fb do not match if not fb source', function () {
+                var player = {source:'twitter'};
+                service.playerAndFBMatch(player).then(function (data) {
+                    expect(data).toEqual(false);
+                    finalCheck = true;
+                }, function () {
+                    fail('should not be here');
                 });
             });
         });

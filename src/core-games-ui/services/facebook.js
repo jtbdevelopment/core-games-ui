@@ -11,6 +11,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
 
             var cordovaFacebook;
             try {
+                console.log($window.location.href);
                 if ($window.location.href.indexOf('file:') === 0) {
                     cordovaFacebook = $injector.get('$cordovaFacebook');
                 }
@@ -169,7 +170,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 }
             }
 
-            function inviteFriends(ids, message) {
+            function inviteFriends(ids, message, inviteDeferred) {
                 var first = true;
                 var s = '';
                 angular.forEach(ids, function (id) {
@@ -183,6 +184,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 var callback = function (response) {
                     //  TODO - track?
                     console.info(JSON.stringify(response));
+                    inviteDeferred.resolve();
                 };
                 var dialog = {
                     method: 'apprequests',
@@ -252,11 +254,13 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 },
 
                 inviteFriends: function (ids, message) {
+                    var inviteDeferred = $q.defer();
                     loadFB().then(function () {
-                        inviteFriends(ids, message);
+                        inviteFriends(ids, message, inviteDeferred);
                     }, function () {
-                        //  TODO - alert error
+                        inviteDeferred.reject();
                     });
+                    return inviteDeferred.promise;
                 },
                 playerAndFBMatch: function (player) {
                     var matchDeferred = $q.defer();

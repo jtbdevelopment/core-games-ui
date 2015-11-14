@@ -338,9 +338,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     s = s + id;
                 });
                 var callback = function (response) {
-                    //  TODO - track?
                     console.info(JSON.stringify(response));
-                    inviteDeferred.resolve();
+                    inviteDeferred.resolve(response);
                 };
                 var dialog = {
                     method: 'apprequests',
@@ -349,7 +348,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 };
                 if(angular.isDefined(cordovaFacebook)) {
                     cordovaFacebook.showDialog(dialog).then(callback, function() {
-                        //  TODO
+                        inviteDeferred.reject();
                     });
                 } else {
                     FB.ui(dialog, callback);

@@ -448,6 +448,22 @@ describe('Service: facebook', function () {
                     };
                 });
 
+                it('cannot auto signin if cordova call resolves to reject', function () {
+                    service.canAutoSignIn().then(function () {
+                        fail('should not be here');
+                    }, function () {
+                        console.log('failed due to error checking perms');
+                        finalCheck = true;
+                    });
+                    cordovaFacebook.api = function (path, param) {
+                        var api = q.defer();
+                        expect(path).toEqual('/me/permissions');
+                        expect(param).toEqual([]);
+                        api.reject();
+                        return api.promise;
+                    };
+                });
+
                 it('player and fb matches successfully', function () {
                     var player = {source: 'facebook', sourceId: fbSourceId};
                     service.playerAndFBMatch(player).then(function (data) {
@@ -479,6 +495,20 @@ describe('Service: facebook', function () {
                         finalCheck = true;
                     }, function () {
                         fail('should not be here');
+                    });
+                });
+
+                it('invite friends call resolves to reject', function () {
+                    cordovaFacebook.showDialog = function (params) {
+                        var cb = q.defer();
+                        expect(params).toEqual({method: 'apprequests', message: 'Come play', to: '1, 2, 3'});
+                        cb.reject();
+                        return cb.promise;
+                    };
+                    service.inviteFriends(['1', '2', '3'], 'Come play').then(function () {
+                        fail('should not be here');
+                    }, function () {
+                        finalCheck = true;
                     });
                 });
             });
@@ -544,6 +574,21 @@ describe('Service: facebook', function () {
                     });
                 });
 
+                it('initiate login resolves to reject', function () {
+                    cordovaFacebook.login = function (perms) {
+                        var l = q.defer();
+                        expect(perms).toEqual(['email', 'profile']);
+                        l.reject();
+                        return l.promise;
+                    };
+                    service.initiateFBLogin().then(function () {
+                        fail('should not be here');
+                    }, function () {
+                        console.log('failed to login');
+                        finalCheck = true;
+                    });
+                });
+
                 it('initiate login throws exceptions', function () {
                     cordovaFacebook.login = function () {
                         throw 'blah';
@@ -595,7 +640,6 @@ describe('Service: facebook', function () {
                 });
             });
 
-
             it('player and fb do not match if not fb source', function () {
                 var player = {source: 'twitter'};
                 service.playerAndFBMatch(player).then(function (data) {
@@ -612,7 +656,7 @@ describe('Service: facebook', function () {
                     s.reject();
                     return s.promise;
                 };
-                service.canAutoSignIn().then(function (data) {
+                service.canAutoSignIn().then(function () {
                     fail('should not be here');
                 }, function () {
                     finalCheck = true;

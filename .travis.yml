@@ -8,4 +8,5 @@ before_script:
   - bower install
 script:
   - gulp test-src
+  - gulp test-dist-concatenated
   - gulp test-dist-minified

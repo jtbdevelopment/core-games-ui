@@ -69,7 +69,7 @@ describe('Service: gamePhases', function () {
             expect(workingRequest.withCredentials).toEqual(true);
             expect(workingRequest.closeAsync).toEqual(true);
             expect(workingRequest.handleOnlineOffline).toEqual(false);
-            expect(workingRequest.transport).toEqual('long-polling');
+            expect(workingRequest.transport).toEqual('websocket');
             expect(workingRequest.fallbackTransport).toEqual('long-polling');
             expect(workingRequest.onOpen).toBeDefined();
             expect(workingRequest.onMessage).toBeDefined();

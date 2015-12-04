@@ -723,9 +723,7 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 url: '',
                 contentType: 'application/json',
                 logLevel: 'info',
-                //  AWS doesn't support so kind of pointless and slow to default to it
-                //transport: 'websocket',
-                transport: 'long-polling',
+                transport: 'websocket',
                 trackMessageLength: true,
                 fallbackTransport: 'long-polling',
                 withCredentials: true,
@@ -740,8 +738,10 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                     });
                 },
 
-                onMessage: function (response) {
+                onMessage: function (responseStack) {
                     var request = this;
+                    //  atmosphere re-uses
+                    var response = angular.copy(responseStack);
                     $timeout(function () {
                         if (angular.isDefined(response.messages)) {
                             response.messages.forEach(function (messageString) {

@@ -243,11 +243,15 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             });
 
             $rootScope.$on('liveFeedEstablished', function () {
-                loadCache();
+                initialize().then(function() {
+                    loadCache();
+                });
             });
 
             $rootScope.$on('refreshGames', function () {
-                loadCache();
+                initialize().then(function() {
+                    loadCache();
+                });
             });
 
             return cache;

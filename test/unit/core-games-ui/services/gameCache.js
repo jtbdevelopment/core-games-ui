@@ -85,6 +85,18 @@ describe('Service: gameCache', function () {
                 rootScope.$apply();
             });
 
+            it('initialize started but live feed comes in before done, pends on initialize', function() {
+                expect(service.initialized()).toEqual(false);
+                rootScope.$broadcast('liveFeedEstablished');
+                rootScope.$apply();
+
+                http.expectGET(baseURL + gamesURL).respond([ng3]);
+                phaseDeferred.resolve(phases);
+                rootScope.$apply();
+                http.flush();
+                expect(service.getGamesForPhase('Phase2')).toEqual([ng3]);
+            });
+            
             it('initializes cache on player loaded and waits for player live feed for games', function () {
                 expect(service.initialized()).toEqual(false);
                 phaseDeferred.resolve(phases);
@@ -116,6 +128,19 @@ describe('Service: gameCache', function () {
                 expect(window.localStorage[mainCacheKey()]).toEqual(JSON.stringify([ng3]));
                 expect(window.localStorage[altCacheKey()]).toEqual(JSON.stringify([]));
             });
+
+            it('initialize started but refresh games comes in before done, pends on initialize', function() {
+                expect(service.initialized()).toEqual(false);
+                rootScope.$broadcast('refreshGames');
+                rootScope.$apply();
+
+                http.expectGET(baseURL + gamesURL).respond([ng3]);
+                phaseDeferred.resolve(phases);
+                rootScope.$apply();
+                http.flush();
+                expect(service.getGamesForPhase('Phase2')).toEqual([ng3]);
+            });
+
         });
 
         describe('test initialization, with local storage', function () {

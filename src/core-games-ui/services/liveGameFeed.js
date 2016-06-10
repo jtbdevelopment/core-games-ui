@@ -135,6 +135,11 @@ angular.module('coreGamesUi.services').factory('jtbLiveGameFeed',
                 },
                 setEndPoint: function (newEndpoint) {
                     endpoint = newEndpoint;
+                    //  Known endpoint for grunt serve which does not currently work with websocket
+                    //  Slows dev testing down a lot waiting for timeout
+                    if (endpoint === 'http://localhost:9998') {
+                        request.transport = 'long-polling';
+                    }
                     subscribeToCurrentPlayer();
                 }
             };

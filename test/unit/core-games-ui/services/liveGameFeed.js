@@ -185,11 +185,27 @@ describe('Service: gamePhases', function () {
             throwException = true;
             timeout.flush();
             expect(workingRequest.url).toEqual('/livefeed/' + theId);
+            expect(workingRequest.transport).toEqual('websocket');
 
             service.setEndPoint('http://www.something.com');
             throwException = false;
             timeout.flush();
             expect(workingRequest.url).toEqual('http://www.something.com/livefeed/' + theId);
+            expect(workingRequest.transport).toEqual('websocket');
+            expect(subscribeCount).toEqual(2);
+            expect(socket.close).not.toHaveBeenCalled();
+        });
+
+        it('resubscribes with long-polling it dev endpoint setset', function () {
+            throwException = true;
+            timeout.flush();
+            expect(workingRequest.url).toEqual('/livefeed/' + theId);
+
+            service.setEndPoint('http://localhost:9998');
+            throwException = false;
+            timeout.flush();
+            expect(workingRequest.url).toEqual('http://localhost:9998/livefeed/' + theId);
+            expect(workingRequest.transport).toEqual('long-polling');
             expect(subscribeCount).toEqual(2);
             expect(socket.close).not.toHaveBeenCalled();
         });

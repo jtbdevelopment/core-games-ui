@@ -15,13 +15,15 @@
     angular.module('coreGamesUi.directives', []);
     angular.module('coreGamesUi.filters', []);
     angular.module('coreGamesUi.services', []);
+    angular.module('coreGamesUi.interceptors', []);
     angular.module('coreGamesUi',
         [
-            'coreGamesUi.controllers',
             'coreGamesUi.config',
+            'coreGamesUi.interceptors',
+            'coreGamesUi.services',
             'coreGamesUi.directives',
             'coreGamesUi.filters',
-            'coreGamesUi.services',
+            'coreGamesUi.controllers',
             'ngResource',
             'ngCookies',
             'ngSanitize'
@@ -150,6 +152,21 @@ angular.module('coreGamesUi.filters').filter('propsFilter', function () {
         }
 
         return out;
+    };
+});
+
+
+'use strict';
+
+angular.module('coreGamesUi.interceptors').factory('jtbUnauthorizedHandler', function ($q, $rootScope) {
+    return {
+        'responseError': function (response) {
+            console.log('responseError:' + JSON.stringify(response));
+            if (response.status === 401) {
+                $rootScope.$broadcast('InvalidSession');
+            }
+            return $q.reject(response);
+        }
     };
 });
 

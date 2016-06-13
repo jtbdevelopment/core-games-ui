@@ -15,13 +15,15 @@
     angular.module('coreGamesUi.directives', []);
     angular.module('coreGamesUi.filters', []);
     angular.module('coreGamesUi.services', []);
+    angular.module('coreGamesUi.interceptors', []);
     angular.module('coreGamesUi',
         [
-            'coreGamesUi.controllers',
             'coreGamesUi.config',
+            'coreGamesUi.interceptors',
+            'coreGamesUi.services',
             'coreGamesUi.directives',
             'coreGamesUi.filters',
-            'coreGamesUi.services',
+            'coreGamesUi.controllers',
             'ngResource',
             'ngCookies',
             'ngSanitize'

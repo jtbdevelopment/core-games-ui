@@ -1,7 +1,12 @@
 'use strict';
 
-describe('Service: unauthorizedHandler', function () {
+describe('Interceptor: jtbCSRFHttpInterceptor', function () {
+    var httpProvider;
     // load the controller's module
+    beforeEach(module('coreGamesUi.interceptors', function ($httpProvider) {
+        httpProvider = $httpProvider;
+    }));
+
     beforeEach(module('coreGamesUi.interceptors'));
 
     var interceptor;
@@ -10,6 +15,10 @@ describe('Service: unauthorizedHandler', function () {
     beforeEach(inject(function ($injector) {
         interceptor = $injector.get('jtbCSRFHttpInterceptor');
     }));
+
+    it('registers interceptor', function () {
+        expect(httpProvider.interceptors).toContain('jtbCSRFHttpInterceptor');
+    });
 
     it('appends nothing if no csrf token has been set', function () {
         var config = {content: 'X'};

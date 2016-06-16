@@ -1,6 +1,11 @@
 'use strict';
 
-describe('Service: unauthorizedHandler', function () {
+describe('Interceptor: jtbUnauthorizedHandler', function () {
+    var httpProvider;
+    // load the controller's module
+    beforeEach(module('coreGamesUi.interceptors', function ($httpProvider) {
+        httpProvider = $httpProvider;
+    }));
     // load the controller's module
     beforeEach(module('coreGamesUi.interceptors'));
 
@@ -16,6 +21,10 @@ describe('Service: unauthorizedHandler', function () {
         spyOn(q, 'resolve');
         interceptor = $injector.get('jtbUnauthorizedHandler');
     }));
+
+    it('registers interceptor', function () {
+        expect(httpProvider.interceptors).toContain('jtbUnauthorizedHandler');
+    });
 
     it('broadcasts invalid session on 401 response', function() {
         var error = {status: 401, message: 'X'};

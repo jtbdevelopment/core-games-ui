@@ -8,7 +8,8 @@
     angular.module('coreGamesUi.config', [])
         .value('coreGamesUi.config', {
             debug: true
-        });
+        })
+        .constant('FB', window.FB);
 
     // Modules
     angular.module('coreGamesUi.controllers', []);
@@ -204,12 +205,11 @@ angular.module('coreGamesUi.interceptors')
     }]);
 
 
-/*global FB:false */
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbFacebook',
-    ['$http', '$location', '$q', '$injector', '$window',
-        function ($http, $location, $q, $injector, $window) {
+    ['$http', '$location', '$q', '$injector', '$window', 'FB',
+        function ($http, $location, $q, $injector, $window, FB) {
             var loaded = false;
             var facebookAppId = '';
             var facebookPermissions = '';

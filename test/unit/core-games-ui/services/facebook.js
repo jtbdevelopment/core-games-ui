@@ -2,10 +2,15 @@ describe('Service: facebook', function () {
     // load the controller's module
     beforeEach(module('coreGamesUi.services'));
 
+    var service, location, http, q, window, rootScope;
+    window = {};
+    window.FB = {};
     beforeEach(module(function ($provide) {
+        $provide.factory('FB', function() {
+            return window.FB;
+        })
     }));
 
-    var service, location, http, q, window, rootScope;
     var fbAppId = 'someid';
     var fbPerms = 'email,profile';
     var fbSourceId = 'FBID1';

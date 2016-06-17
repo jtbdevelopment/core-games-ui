@@ -8,7 +8,8 @@
     angular.module('coreGamesUi.config', [])
         .value('coreGamesUi.config', {
             debug: true
-        });
+        })
+        .constant('FB', window.FB);
 
     // Modules
     angular.module('coreGamesUi.controllers', []);

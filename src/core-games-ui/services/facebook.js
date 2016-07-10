@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbFacebook',
-    ['$http', '$location', '$q', '$injector', '$window', 'FB',
-        function ($http, $location, $q, $injector, $window, FB) {
+    ['$http', '$location', '$q', '$injector', '$window',
+        function ($http, $location, $q, $injector, $window) {
             var loaded = false;
             var facebookAppId = '';
             var facebookPermissions = '';
@@ -28,7 +28,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             fbLoaded.resolve();
                         } else {
                             window.fbAsyncInit = function () {
-                                FB.init({
+                                window.FB.init({
                                     appId: facebookAppId,
                                     xfbml: false,
                                     version: 'v2.2'
@@ -90,7 +90,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                                 fbLogin.reject();
                             });
                     } else {
-                        FB.login(callback, {scope: facebookPermissions});
+                        window.FB.login(callback, {scope: facebookPermissions});
                     }
                 } catch (ex) {
                     console.error(JSON.stringify(ex));
@@ -139,7 +139,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         autoDefer.reject();
                     });
                 } else {
-                    FB.api(graphPath, checkFunction);
+                    window.FB.api(graphPath, checkFunction);
                 }
             }
 
@@ -161,7 +161,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             autoDefer.reject();
                         });
                     } else {
-                        FB.getLoginStatus(callback);
+                        window.FB.getLoginStatus(callback);
                     }
                 } catch (ex) {
                     console.error(JSON.stringify(ex));
@@ -194,7 +194,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         inviteDeferred.reject();
                     });
                 } else {
-                    FB.ui(dialog, callback);
+                    window.FB.ui(dialog, callback);
                 }
             }
 
@@ -216,7 +216,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                                 matchDeferred.resolve(false);
                             });
                         } else {
-                            FB.getLoginStatus(callback);
+                            window.FB.getLoginStatus(callback);
                         }
                     } catch (ex) {
                         console.error(JSON.stringify);

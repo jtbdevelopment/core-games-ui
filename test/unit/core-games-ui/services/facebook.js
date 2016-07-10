@@ -5,11 +5,6 @@ describe('Service: facebook', function () {
     var service, location, http, q, window, rootScope;
     window = {};
     window.FB = {};
-    beforeEach(module(function ($provide) {
-        $provide.factory('FB', function() {
-            return window.FB;
-        })
-    }));
 
     var fbAppId = 'someid';
     var fbPerms = 'email,profile';

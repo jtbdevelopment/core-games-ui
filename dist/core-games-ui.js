@@ -33,9 +33,10 @@
 
 'use strict';
 
+//  TODO - this is dependent on angular-bootstrap - this should get removed from this library
 angular.module('coreGamesUi.controllers').controller('CoreInviteCtrl',
-    ['$modalInstance', '$scope', 'invitableFriends', 'message', 'jtbFacebook',
-        function ($modalInstance, $scope, invitableFriends, message, jtbFacebook) {
+    ['$uibModalInstance', '$scope', 'invitableFriends', 'message', 'jtbFacebook',
+        function ($uibModalInstance, $scope, invitableFriends, message, jtbFacebook) {
             $scope.invitableFriends = invitableFriends;
             $scope.chosenFriends = [];
             $scope.message = message;
@@ -45,10 +46,10 @@ angular.module('coreGamesUi.controllers').controller('CoreInviteCtrl',
                     ids.push(chosen.id);
                 });
                 jtbFacebook.inviteFriends(ids, message);
-                $modalInstance.close();
+                $uibModalInstance.close();
             };
             $scope.cancel = function () {
-                $modalInstance.dismiss();
+                $uibModalInstance.dismiss();
             };
         }]);
 
@@ -497,6 +498,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             var ALL = 'All';
             var gameCache = $cacheFactory('game-gameCache');
             var phases = [];
+            var cache = {};
 
             //  This is just to force instantiation and suppress warnings
             var tmp = 'Have Live Game Feed ' + jtbLiveGameFeed;
@@ -670,7 +672,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 $rootScope.$broadcast('gameUpdated', existingGame, updatedGame);
             }
 
-            var cache = {
+            cache = {
                 putUpdatedGame: function (updatedGame) {
                     var allCache = gameCache.get(ALL);
                     var allIndex = allCache.idMap[updatedGame.id];
@@ -722,13 +724,13 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             });
 
             $rootScope.$on('liveFeedEstablished', function () {
-                initialize().then(function() {
+                initialize().then(function () {
                     loadCache();
                 });
             });
 
             $rootScope.$on('refreshGames', function () {
-                initialize().then(function() {
+                initialize().then(function () {
                     loadCache();
                 });
             });
@@ -949,6 +951,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
             var simulatedPID = '';
             var BASE_PLAYER_URL = '/api/player';
             var FRIENDS_PATH = '/friends';
+            var service = {};
 
             var simulatedPlayer;
 
@@ -984,7 +987,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                 });
             }
 
-            var service = {
+            service = {
                 overridePID: function (newpid) {
                     $http.put(this.currentPlayerBaseURL() + '/admin/' + newpid).success(function (data) {
                         simulatedPID = data.id;

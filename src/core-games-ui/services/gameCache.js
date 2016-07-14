@@ -18,6 +18,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             var ALL = 'All';
             var gameCache = $cacheFactory('game-gameCache');
             var phases = [];
+            var cache = {};
 
             //  This is just to force instantiation and suppress warnings
             var tmp = 'Have Live Game Feed ' + jtbLiveGameFeed;
@@ -191,7 +192,7 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                 $rootScope.$broadcast('gameUpdated', existingGame, updatedGame);
             }
 
-            var cache = {
+            cache = {
                 putUpdatedGame: function (updatedGame) {
                     var allCache = gameCache.get(ALL);
                     var allIndex = allCache.idMap[updatedGame.id];
@@ -243,13 +244,13 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
             });
 
             $rootScope.$on('liveFeedEstablished', function () {
-                initialize().then(function() {
+                initialize().then(function () {
                     loadCache();
                 });
             });
 
             $rootScope.$on('refreshGames', function () {
-                initialize().then(function() {
+                initialize().then(function () {
                     loadCache();
                 });
             });

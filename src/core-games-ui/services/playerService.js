@@ -8,6 +8,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
             var simulatedPID = '';
             var BASE_PLAYER_URL = '/api/player';
             var FRIENDS_PATH = '/friends';
+            var service = {};
 
             var simulatedPlayer;
 
@@ -43,7 +44,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                 });
             }
 
-            var service = {
+            service = {
                 overridePID: function (newpid) {
                     $http.put(this.currentPlayerBaseURL() + '/admin/' + newpid).success(function (data) {
                         simulatedPID = data.id;

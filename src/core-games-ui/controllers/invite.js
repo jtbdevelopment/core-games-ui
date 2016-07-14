@@ -1,8 +1,9 @@
 'use strict';
 
+//  TODO - this is dependent on angular-bootstrap - this should get removed from this library
 angular.module('coreGamesUi.controllers').controller('CoreInviteCtrl',
-    ['$modalInstance', '$scope', 'invitableFriends', 'message', 'jtbFacebook',
-        function ($modalInstance, $scope, invitableFriends, message, jtbFacebook) {
+    ['$uibModalInstance', '$scope', 'invitableFriends', 'message', 'jtbFacebook',
+        function ($uibModalInstance, $scope, invitableFriends, message, jtbFacebook) {
             $scope.invitableFriends = invitableFriends;
             $scope.chosenFriends = [];
             $scope.message = message;
@@ -12,10 +13,10 @@ angular.module('coreGamesUi.controllers').controller('CoreInviteCtrl',
                     ids.push(chosen.id);
                 });
                 jtbFacebook.inviteFriends(ids, message);
-                $modalInstance.close();
+                $uibModalInstance.close();
             };
             $scope.cancel = function () {
-                $modalInstance.dismiss();
+                $uibModalInstance.dismiss();
             };
         }]);
 

@@ -19,7 +19,7 @@ describe('Controller: CoreInviteCtrl', function () {
         InviteCtrl = $controller('CoreInviteCtrl', {
             $scope: scope,
             jtbFacebook: facebookMock,
-            $modalInstance: modalInstance,
+            $uibModalInstance: modalInstance,
             message: aMessage,
             invitableFriends: function () {
                 return invitableFriends;

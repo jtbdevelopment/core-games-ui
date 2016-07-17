@@ -33,10 +33,6 @@ describe('', function () {
         expect(hasModule('coreGamesUi.filters')).toBeTruthy();
     });
 
-    it('should load controllers module', function () {
-        expect(hasModule('coreGamesUi.controllers')).toBeTruthy();
-    });
-
     it('should load directives module', function () {
         expect(hasModule('coreGamesUi.directives')).toBeTruthy();
     });

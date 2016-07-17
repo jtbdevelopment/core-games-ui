@@ -11,7 +11,6 @@
         });
 
     // Modules
-    angular.module('coreGamesUi.controllers', []);
     angular.module('coreGamesUi.directives', []);
     angular.module('coreGamesUi.filters', []);
     angular.module('coreGamesUi.services', []);
@@ -23,7 +22,6 @@
             'coreGamesUi.services',
             'coreGamesUi.directives',
             'coreGamesUi.filters',
-            'coreGamesUi.controllers',
             'ngResource',
             'ngCookies',
             'ngSanitize'

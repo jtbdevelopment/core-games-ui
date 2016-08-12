@@ -15,6 +15,7 @@
     angular.module('coreGamesUi.filters', []);
     angular.module('coreGamesUi.services', []);
     angular.module('coreGamesUi.interceptors', []);
+    angular.module('coreGamesUi.controllers', []);
     angular.module('coreGamesUi',
         [
             'coreGamesUi.config',
@@ -22,6 +23,7 @@
             'coreGamesUi.services',
             'coreGamesUi.directives',
             'coreGamesUi.filters',
+            'coreGamesUi.controllers',
             'ngResource',
             'ngCookies',
             'ngSanitize'

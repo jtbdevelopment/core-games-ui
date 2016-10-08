@@ -166,20 +166,6 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
 
 'use strict';
 
-//  From https://github.com/angular-ui/bootstrap/issues/1350
-angular.module('coreGamesUi.directives').directive('disableAnimation', function ($animate) {
-    return {
-        restrict: 'A',
-        link: function ($scope, $element, $attrs) {
-            $attrs.$observe('disableAnimation', function (value) {
-                $animate.enabled(!value, $element);
-            });
-        }
-    };
-});
-
-'use strict';
-
 //
 //  Taken from angular-ui-select multi select plunker demo
 //
@@ -252,7 +238,7 @@ angular.module('coreGamesUi.interceptors')
         function ($q, $rootScope) {
             return {
                 'responseError': function (response) {
-                    switch(response.status) {
+                    switch (response.status) {
                         case 409:
                             //  Internal exceptions, no broadcast
                             break;
@@ -261,10 +247,8 @@ angular.module('coreGamesUi.interceptors')
                             $rootScope.$broadcast('InvalidSession');
                             break;
                         default:
-                            if((response.status - response.status % 100) === 400) {
-                                console.log(JSON.stringify(response));
-                                $rootScope.$broadcast('GeneralError');
-                            }
+                            console.log(JSON.stringify(response));
+                            $rootScope.$broadcast('GeneralError');
                             break;
                     }
                     return $q.reject(response);

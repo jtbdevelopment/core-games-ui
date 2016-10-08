@@ -6,7 +6,7 @@ angular.module('coreGamesUi.interceptors')
         function ($q, $rootScope) {
             return {
                 'responseError': function (response) {
-                    switch(response.status) {
+                    switch (response.status) {
                         case 409:
                             //  Internal exceptions, no broadcast
                             break;
@@ -15,10 +15,8 @@ angular.module('coreGamesUi.interceptors')
                             $rootScope.$broadcast('InvalidSession');
                             break;
                         default:
-                            if((response.status - response.status % 100) === 400) {
-                                console.log(JSON.stringify(response));
-                                $rootScope.$broadcast('GeneralError');
-                            }
+                            console.log(JSON.stringify(response));
+                            $rootScope.$broadcast('GeneralError');
                             break;
                     }
                     return $q.reject(response);

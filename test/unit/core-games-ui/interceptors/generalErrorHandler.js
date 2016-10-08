@@ -36,7 +36,7 @@ describe('Interceptor: jtbGeneralErrorHandler', function () {
 
     it('broadcasts general error for any other error between 400 and 499 that is not 401 or 409', function() {
         var i = 400;
-        while(i < 500) {
+        while(i < 900) {
             if(i !== 401 && i !== 409) {
                 var error = {status: i, message: 'test'};
                 interceptor.responseError(error);
@@ -64,16 +64,5 @@ describe('Interceptor: jtbGeneralErrorHandler', function () {
             }
             i += 1;
         }
-    });
-
-    it('ignores non 400 errors', function() {
-        angular.forEach([304, 500, 650], function(errorCode) {
-            var error = {status: errorCode, message: 'test'};
-            interceptor.responseError(error);
-            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('InvalidSession');
-            expect(rootScope.$broadcast).not.toHaveBeenCalledWith('GeneralError');
-            expect(q.reject).toHaveBeenCalledWith(error);
-            expect(q.resolve).not.toHaveBeenCalled();
-        });
     });
 });

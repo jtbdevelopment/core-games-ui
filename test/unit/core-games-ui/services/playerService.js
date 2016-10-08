@@ -5,7 +5,7 @@ describe('Service: playerService', function () {
   beforeEach(module('coreGamesUi.services'));
 
   var service, httpBackend, injector, rootScope, location, q;
-  var window = {location: jasmine.createSpy()};
+  var window = {location: jasmine.createSpy('location')};
 
   var testID = 'MANUAL1';
   var playerResult = {
@@ -14,7 +14,7 @@ describe('Service: playerService', function () {
     disabled: false,
     displayName: 'Manual Player1'
   };
-  var friendResult = {maskedFriends: {1: '2', 5: '6'}, otherdata: ['1,', '2']};
+  var friendResult = {maskedFriends: {1: '2', 5: '6'}, otherData: ['1,', '2']};
 
   var facebookDeferred, matchedPlayer;
   beforeEach(module(function ($provide) {
@@ -36,10 +36,8 @@ describe('Service: playerService', function () {
   // Initialize the controller and a mock scope
   beforeEach(inject(function ($injector, $rootScope, $location, $httpBackend, $q) {
     rootScope = $rootScope;
-    location = $location;
     q = $q;
     spyOn(rootScope, '$broadcast').and.callThrough();
-    spyOn(location, 'path');
     httpBackend = $httpBackend;
     injector = $injector;
   }));
@@ -63,7 +61,6 @@ describe('Service: playerService', function () {
       expect(service.currentPlayerBaseURL()).toEqual('/api/player');
       expect(service.currentPlayer()).toEqual(playerResult);
       expect(rootScope.$broadcast).toHaveBeenCalledWith('playerLoaded');
-      expect(location.path).not.toHaveBeenCalledWith('/error');
     });
 
     it('processes player Updates for same id', function () {
@@ -83,7 +80,6 @@ describe('Service: playerService', function () {
       expect(service.currentPlayerBaseURL()).toEqual('/api/player');
       expect(service.currentPlayer()).toEqual(playerResult);
       expect(rootScope.$broadcast).toHaveBeenCalledWith('playerLoaded');
-      expect(location.path).not.toHaveBeenCalledWith('/error');
       rootScope.$broadcast('playerUpdate', updatedPlayer.id, updatedPlayer);
       rootScope.$apply();
       expect(service.currentPlayer()).toEqual(updatedPlayer);
@@ -106,7 +102,6 @@ describe('Service: playerService', function () {
       expect(service.currentPlayerBaseURL()).toEqual('/api/player');
       expect(service.currentPlayer()).toEqual(playerResult);
       expect(rootScope.$broadcast).toHaveBeenCalledWith('playerLoaded');
-      expect(location.path).not.toHaveBeenCalledWith('/error');
       rootScope.$broadcast('playerUpdate', updatedPlayer.id, updatedPlayer);
       rootScope.$apply();
       expect(service.currentPlayer()).toEqual(playerResult);
@@ -123,7 +118,6 @@ describe('Service: playerService', function () {
       expect(service.currentPlayerBaseURL()).toEqual('/api/player');
       expect(service.currentPlayer()).toEqual(playerResult);
       expect(rootScope.$broadcast).toHaveBeenCalledWith('playerLoaded');
-      expect(location.path).not.toHaveBeenCalledWith('/error');
 
       var newPlayer = angular.copy(playerResult);
 
@@ -136,34 +130,6 @@ describe('Service: playerService', function () {
       expect(service.currentID()).toEqual(newPlayer.id);
       expect(service.currentPlayerBaseURL()).toEqual('/api/player');
       expect(service.currentPlayer()).toEqual(newPlayer);
-      expect(location.path).not.toHaveBeenCalledWith('/error');
-    });
-
-    it('errors on bad switch', function () {
-      expect(service.currentID()).toEqual('');
-      expect(service.currentPlayerBaseURL()).toEqual('/api/player');
-      expect(service.realPID()).toEqual('');
-      expect(service.currentPlayer()).toBeUndefined();
-      httpBackend.flush();
-      expect(service.currentID()).toEqual(testID);
-      expect(service.realPID()).toEqual(testID);
-      expect(service.currentPlayerBaseURL()).toEqual('/api/player');
-      expect(service.currentPlayer()).toEqual(playerResult);
-      expect(rootScope.$broadcast).toHaveBeenCalledWith('playerLoaded');
-      expect(location.path).not.toHaveBeenCalledWith('/error');
-
-      var newPlayer = angular.copy(playerResult);
-
-      newPlayer.id = 'NEW';
-      httpBackend.expectPUT('/api/player/admin/NEW').respond(501, {message: 'something'});
-      service.overridePID(newPlayer.id);
-      expect(service.currentPlayer()).toEqual(playerResult);
-      expect(service.currentID()).toEqual(testID);
-      httpBackend.flush();
-      expect(service.currentPlayer()).toEqual(playerResult);
-      expect(service.currentID()).toEqual(testID);
-      expect(service.currentPlayerBaseURL()).toEqual('/api/player');
-      expect(location.path).toHaveBeenCalledWith('/error');
     });
 
     it('sets current friends with http', function () {
@@ -196,6 +162,7 @@ describe('Service: playerService', function () {
       httpBackend.flush();
 
       expect(errorCalled).toEqual(true);
+      //noinspection JSUnusedAssignment
       expect(friends).toBeUndefined();
     });
 
@@ -241,20 +208,10 @@ describe('Service: playerService', function () {
 
   describe('with bad responses', function () {
     beforeEach(function () {
-      httpBackend.expectGET('/api/security').respond(500, {somethin: 'somethin'});
+      httpBackend.expectGET('/api/security').respond(500, {something: 'somethin'});
       service = injector.get('jtbPlayerService');
       rootScope.$broadcast('login');
       rootScope.$apply();
-    });
-
-
-    it('player with bad response', function () {
-      expect(service.currentID()).toEqual('');
-      expect(service.realPID()).toEqual('');
-      expect(service.currentPlayer()).toBeUndefined();
-      httpBackend.flush();
-      expect(rootScope.$broadcast).not.toHaveBeenCalledWith('playerLoaded');
-      expect(location.path).toHaveBeenCalledWith('/error');
     });
   });
 
@@ -287,7 +244,6 @@ describe('Service: playerService', function () {
       expect(service.currentPlayerBaseURL()).toEqual('/api/player');
       expect(service.currentPlayer()).toEqual(fbPlayerResult);
       expect(rootScope.$broadcast).toHaveBeenCalledWith('playerLoaded');
-      expect(location.path).not.toHaveBeenCalledWith('/error');
       expect(matchedPlayer).toEqual(fbPlayerResult);
     });
 
@@ -324,6 +280,7 @@ describe('Service: playerService', function () {
       expect(service.realPID()).toEqual(testID);
       expect(service.currentPlayerBaseURL()).toEqual('/api/player');
       expect(service.currentPlayer()).toEqual(fbPlayerResult);
+      expect(rootScope.$broadcast).not.toHaveBeenCalledWith('playerLoaded');
       expect(rootScope.$broadcast).not.toHaveBeenCalledWith('playerLoaded');
       expect(matchedPlayer).toEqual(fbPlayerResult);
       expect(window.location).toEqual('#/signin');

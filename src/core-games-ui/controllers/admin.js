@@ -97,12 +97,7 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
                 $http.get('/api/player/admin/playersLike/' + pageParams).then(
                     function (response) {
                         processUserSearchResponse(response.data);
-                    },
-                    function (data, status/*, headers, config*/) {
-                        console.error(data + '/' + status);
-                        //  TODO
-                    }
-                );
+                    });
             }
 
             controller.refreshData = function () {

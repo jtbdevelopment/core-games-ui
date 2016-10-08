@@ -2,8 +2,8 @@
 
 
 angular.module('coreGamesUi.services').factory('jtbPlayerService',
-    ['$http', '$rootScope', '$location', '$window', 'jtbFacebook',
-        function ($http, $rootScope, $location, $window, jtbFacebook) {
+    ['$http', '$rootScope', '$window', 'jtbFacebook',
+        function ($http, $rootScope, $window, jtbFacebook) {
             var realPID = '';
             var simulatedPID = '';
             var BASE_PLAYER_URL = '/api/player';
@@ -18,8 +18,8 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
             }
 
             function initializePlayer() {
-                $http.get('/api/security', {cache: true}).success(function (response) {
-                    simulatedPlayer = response;
+                $http.get('/api/security', {cache: true}).then(function (response) {
+                    simulatedPlayer = response.data;
                     realPID = simulatedPlayer.id;
                     simulatedPID = simulatedPlayer.id;
                     switch (simulatedPlayer.source) {
@@ -38,21 +38,15 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                             broadcastLoaded();
                             break;
                     }
-                }).error(function () {
-                    //  TODO - better
-                    $location.path('/error');
                 });
             }
 
             service = {
-                overridePID: function (newpid) {
-                    $http.put(this.currentPlayerBaseURL() + '/admin/' + newpid).success(function (data) {
-                        simulatedPID = data.id;
-                        simulatedPlayer = data;
+                overridePID: function (newPID) {
+                    $http.put(this.currentPlayerBaseURL() + '/admin/' + newPID).then(function (response) {
+                        simulatedPlayer = response.data;
+                        simulatedPID = simulatedPlayer.id;
                         broadcastLoaded();
-                    }).error(function () {
-                        //  TODO - better
-                        $location.path('/error');
                     });
                 },
                 realPID: function () {
@@ -75,6 +69,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     return simulatedPlayer;
                 },
 
+                //  Only generally used in testing
                 signOutAndRedirect: function () {
                     $http.post('/signout').success(function () {
                         //  TODO - location?

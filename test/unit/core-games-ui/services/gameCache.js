@@ -52,7 +52,7 @@ describe('Service: gameCache', function () {
         });
     }));
 
-    var service, rootScope, location, http;
+    var service, rootScope, http;
 
     // Initialize the controller and a mock scope
     function mainCacheKey() {
@@ -64,12 +64,10 @@ describe('Service: gameCache', function () {
     }
 
     describe('without a custom classifier - limited tests', function () {
-        beforeEach(inject(function ($injector, $q, $rootScope, $location, $httpBackend, $window) {
+        beforeEach(inject(function ($injector, $q, $rootScope, $httpBackend, $window) {
             rootScope = $rootScope;
-            location = $location;
             http = $httpBackend;
             window = $window;
-            spyOn(location, 'path');
             spyOn(rootScope, '$broadcast').and.callThrough();
 
             window.localStorage[mainCacheKey()] = '[]';
@@ -280,12 +278,10 @@ describe('Service: gameCache', function () {
                 };
             }]);
         }));
-        beforeEach(inject(function ($injector, $q, $rootScope, $location, $httpBackend, $window) {
+        beforeEach(inject(function ($injector, $q, $rootScope, $httpBackend, $window) {
             rootScope = $rootScope;
-            location = $location;
             http = $httpBackend;
             window = $window;
-            spyOn(location, 'path');
             spyOn(rootScope, '$broadcast').and.callThrough();
 
             window.localStorage[mainCacheKey()] = '[]';
@@ -359,26 +355,10 @@ describe('Service: gameCache', function () {
                 phaseDeferred.reject();
                 rootScope.$apply();
                 expect(service.initialized()).toEqual(false);
-                expect(location.path).toHaveBeenCalledWith('/error');
                 expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
                 expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
                 expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
                 expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameCachesLoaded', 0);
-            });
-
-            it('errors when http.get errors', function () {
-                http.expectGET(baseURL + gamesURL).respond(500, {});
-                phaseDeferred.resolve(phases);
-                rootScope.$apply();
-                rootScope.$broadcast('liveFeedEstablished');
-                rootScope.$apply();
-                http.flush();
-                expect(service.initialized()).toEqual(true);
-                expect(location.path).toHaveBeenCalledWith('/error');
-                expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameAdded', jasmine.any(Object));
-                expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameUpdated', jasmine.any(Object), jasmine.any(Object));
-                expect(rootScope.$broadcast).not.toHaveBeenCalledWith('gameRemoved', jasmine.any(Object));
-                expect(rootScope.$broadcast).toHaveBeenCalledWith('gameCachesLoaded', 0);
             });
 
             it('re-initializes on player switch', function () {

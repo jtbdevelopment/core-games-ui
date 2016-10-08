@@ -130,12 +130,7 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
                 $http.get('/api/player/admin/playersLike/' + pageParams).then(
                     function (response) {
                         processUserSearchResponse(response.data);
-                    },
-                    function (data, status/*, headers, config*/) {
-                        console.error(data + '/' + status);
-                        //  TODO
-                    }
-                );
+                    });
             }
 
             controller.refreshData = function () {
@@ -244,6 +239,7 @@ angular.module('coreGamesUi.interceptors')
         };
     })
     .config(['$httpProvider', function ($httpProvider) {
+        console.log('registering jtbUnauthorizedHandler');
         $httpProvider.interceptors.push('jtbCSRFHttpInterceptor');
     }]);
 
@@ -251,29 +247,41 @@ angular.module('coreGamesUi.interceptors')
 'use strict';
 
 angular.module('coreGamesUi.interceptors')
-    .factory('jtbUnauthorizedHandler', [
+    .factory('jtbGeneralErrorHandler', [
         '$q', '$rootScope',
         function ($q, $rootScope) {
             return {
                 'responseError': function (response) {
-                    console.log('responseError:' + JSON.stringify(response));
-                    if (response.status === 401) {
-                        $rootScope.$broadcast('InvalidSession');
+                    switch(response.status) {
+                        case 409:
+                            //  Internal exceptions, no broadcast
+                            break;
+                        case 401:
+                            console.log(JSON.stringify(response));
+                            $rootScope.$broadcast('InvalidSession');
+                            break;
+                        default:
+                            if((response.status - response.status % 100) === 400) {
+                                console.log(JSON.stringify(response));
+                                $rootScope.$broadcast('GeneralError');
+                            }
+                            break;
                     }
                     return $q.reject(response);
                 }
             };
         }])
     .config(['$httpProvider', function ($httpProvider) {
-        $httpProvider.interceptors.push('jtbUnauthorizedHandler');
+        console.log('registering jtbGeneralErrorHandler');
+        $httpProvider.interceptors.push('jtbGeneralErrorHandler');
     }]);
 
 
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbFacebook',
-    ['$http', '$location', '$q', '$injector', '$window',
-        function ($http, $location, $q, $injector, $window) {
+    ['$http', '$q', '$injector', '$window',
+        function ($http, $q, $injector, $window) {
             var loaded = false;
             var facebookAppId = '';
             var facebookPermissions = '';
@@ -326,8 +334,6 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         }
                         loaded = true;
                     }).error(function () {
-                        //  TODO - better
-                        $location.path('/error');
                         fbLoaded.reject();
                     });
 
@@ -555,9 +561,9 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
  */
 
 angular.module('coreGamesUi.services').factory('jtbGameCache',
-    ['$rootScope', '$cacheFactory', '$location', '$http', 'jtbLocalStorage',
+    ['$rootScope', '$cacheFactory', '$http', 'jtbLocalStorage',
         'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed', '$q', '$injector',
-        function ($rootScope, $cacheFactory, $location, $http, jtbLocalStorage,
+        function ($rootScope, $cacheFactory, $http, jtbLocalStorage,
                   jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed, $q, $injector) {
             var ALL = 'All';
             var gameCache = $cacheFactory('game-gameCache');
@@ -628,8 +634,8 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
 
             function loadCache() {
                 var originalCache = JSON.parse(JSON.stringify(gameCache.get(ALL)));
-                $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
-                    data.forEach(function (game) {
+                $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').then(function (response) {
+                    angular.forEach(response.data, function(game) {
                         cache.putUpdatedGame(game);
                         if (angular.isDefined(originalCache.idMap[game.id])) {
                             delete originalCache.idMap[game.id];
@@ -638,9 +644,6 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                     deleteOldCachedGames(originalCache);
                     updateLocalStorage();
                     $rootScope.$broadcast('gameCachesLoaded', 1);
-                }).error(function () {
-                    //  TODO - better
-                    $location.path('/error');
                 });
             }
 
@@ -674,8 +677,6 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         loadFromLocalStorage();
                         initialized.resolve();
                     }, function () {
-                        //  TODO - better
-                        $location.path('/error');
                         initialized.reject();
                     });
                 }
@@ -1009,8 +1010,8 @@ angular.module('coreGamesUi.services')
 
 
 angular.module('coreGamesUi.services').factory('jtbPlayerService',
-    ['$http', '$rootScope', '$location', '$window', 'jtbFacebook',
-        function ($http, $rootScope, $location, $window, jtbFacebook) {
+    ['$http', '$rootScope', '$window', 'jtbFacebook',
+        function ($http, $rootScope, $window, jtbFacebook) {
             var realPID = '';
             var simulatedPID = '';
             var BASE_PLAYER_URL = '/api/player';
@@ -1025,8 +1026,8 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
             }
 
             function initializePlayer() {
-                $http.get('/api/security', {cache: true}).success(function (response) {
-                    simulatedPlayer = response;
+                $http.get('/api/security', {cache: true}).then(function (response) {
+                    simulatedPlayer = response.data;
                     realPID = simulatedPlayer.id;
                     simulatedPID = simulatedPlayer.id;
                     switch (simulatedPlayer.source) {
@@ -1045,21 +1046,15 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                             broadcastLoaded();
                             break;
                     }
-                }).error(function () {
-                    //  TODO - better
-                    $location.path('/error');
                 });
             }
 
             service = {
-                overridePID: function (newpid) {
-                    $http.put(this.currentPlayerBaseURL() + '/admin/' + newpid).success(function (data) {
-                        simulatedPID = data.id;
-                        simulatedPlayer = data;
+                overridePID: function (newPID) {
+                    $http.put(this.currentPlayerBaseURL() + '/admin/' + newPID).then(function (response) {
+                        simulatedPlayer = response.data;
+                        simulatedPID = simulatedPlayer.id;
                         broadcastLoaded();
-                    }).error(function () {
-                        //  TODO - better
-                        $location.path('/error');
                     });
                 },
                 realPID: function () {
@@ -1082,6 +1077,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     return simulatedPlayer;
                 },
 
+                //  Only generally used in testing
                 signOutAndRedirect: function () {
                     $http.post('/signout').success(function () {
                         //  TODO - location?

@@ -11,9 +11,9 @@
  */
 
 angular.module('coreGamesUi.services').factory('jtbGameCache',
-    ['$rootScope', '$cacheFactory', '$location', '$http', 'jtbLocalStorage',
+    ['$rootScope', '$cacheFactory', '$http', 'jtbLocalStorage',
         'jtbGamePhaseService', 'jtbPlayerService', 'jtbLiveGameFeed', '$q', '$injector',
-        function ($rootScope, $cacheFactory, $location, $http, jtbLocalStorage,
+        function ($rootScope, $cacheFactory, $http, jtbLocalStorage,
                   jtbGamePhaseService, jtbPlayerService, jtbLiveGameFeed, $q, $injector) {
             var ALL = 'All';
             var gameCache = $cacheFactory('game-gameCache');
@@ -84,8 +84,8 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
 
             function loadCache() {
                 var originalCache = JSON.parse(JSON.stringify(gameCache.get(ALL)));
-                $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').success(function (data) {
-                    data.forEach(function (game) {
+                $http.get(jtbPlayerService.currentPlayerBaseURL() + '/games').then(function (response) {
+                    angular.forEach(response.data, function(game) {
                         cache.putUpdatedGame(game);
                         if (angular.isDefined(originalCache.idMap[game.id])) {
                             delete originalCache.idMap[game.id];
@@ -94,9 +94,6 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                     deleteOldCachedGames(originalCache);
                     updateLocalStorage();
                     $rootScope.$broadcast('gameCachesLoaded', 1);
-                }).error(function () {
-                    //  TODO - better
-                    $location.path('/error');
                 });
             }
 
@@ -130,8 +127,6 @@ angular.module('coreGamesUi.services').factory('jtbGameCache',
                         loadFromLocalStorage();
                         initialized.resolve();
                     }, function () {
-                        //  TODO - better
-                        $location.path('/error');
                         initialized.reject();
                     });
                 }

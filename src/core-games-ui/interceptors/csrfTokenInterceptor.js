@@ -21,6 +21,7 @@ angular.module('coreGamesUi.interceptors')
         };
     })
     .config(['$httpProvider', function ($httpProvider) {
+        console.log('registering jtbUnauthorizedHandler');
         $httpProvider.interceptors.push('jtbCSRFHttpInterceptor');
     }]);
 

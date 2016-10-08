@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('coreGamesUi.services').factory('jtbFacebook',
-    ['$http', '$location', '$q', '$injector', '$window',
-        function ($http, $location, $q, $injector, $window) {
+    ['$http', '$q', '$injector', '$window',
+        function ($http, $q, $injector, $window) {
             var loaded = false;
             var facebookAppId = '';
             var facebookPermissions = '';
@@ -55,8 +55,6 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         }
                         loaded = true;
                     }).error(function () {
-                        //  TODO - better
-                        $location.path('/error');
                         fbLoaded.reject();
                     });
 

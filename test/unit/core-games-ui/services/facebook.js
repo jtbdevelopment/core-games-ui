@@ -2,7 +2,7 @@ describe('Service: facebook', function () {
     // load the controller's module
     beforeEach(module('coreGamesUi.services'));
 
-    var service, location, http, q, window, rootScope;
+    var service, http, q, window, rootScope;
     window = {};
     window.FB = {};
 
@@ -12,13 +12,11 @@ describe('Service: facebook', function () {
     var authResponse = {field: 'X134', userID: fbSourceId};
 
     describe('without a cordova facebook plugin available', function () {
-        beforeEach(inject(function ($injector, $q, $location, $httpBackend, $window, $rootScope) {
+        beforeEach(inject(function ($injector, $q, $httpBackend, $window, $rootScope) {
             rootScope = $rootScope;
-            location = $location;
             http = $httpBackend;
             window = $window;
             q = $q;
-            spyOn(location, 'path');
 
             window.FB = {
                 init: function (params) {
@@ -341,13 +339,11 @@ describe('Service: facebook', function () {
             }]);
         }));
 
-        beforeEach(inject(function ($injector, $q, $location, $httpBackend, $rootScope) {
+        beforeEach(inject(function ($injector, $q, $httpBackend, $rootScope) {
             rootScope = $rootScope;
-            location = $location;
             http = $httpBackend;
             window.location.href = 'file://somefile';
             q = $q;
-            spyOn(location, 'path');
 
             service = $injector.get('jtbFacebook');
         }));

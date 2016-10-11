@@ -166,44 +166,6 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
 
 'use strict';
 
-//
-//  Taken from angular-ui-select multi select plunker demo
-//
-/* istanbul ignore next */
-angular.module('coreGamesUi.filters').filter('propsFilter', function () {
-    return function (items, props) {
-        var out = [];
-
-        if (angular.isArray(items)) {
-            items.forEach(function (item) {
-                var itemMatches = false;
-
-                var keys = Object.keys(props);
-                for (var i = 0; i < keys.length; i++) {
-                    var prop = keys[i];
-                    var text = props[prop].toLowerCase();
-                    if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
-                        itemMatches = true;
-                        break;
-                    }
-                }
-
-                if (itemMatches) {
-                    out.push(item);
-                }
-            });
-        } else {
-            // Let the output be the input untouched
-            out = items;
-        }
-
-        return out;
-    };
-});
-
-
-'use strict';
-
 angular.module('coreGamesUi.interceptors')
     .factory('jtbCSRFHttpInterceptor', function () {
         var csrfToken;
@@ -259,6 +221,44 @@ angular.module('coreGamesUi.interceptors')
         console.log('registering jtbGeneralErrorHandler');
         $httpProvider.interceptors.push('jtbGeneralErrorHandler');
     }]);
+
+
+'use strict';
+
+//
+//  Taken from angular-ui-select multi select plunker demo
+//
+/* istanbul ignore next */
+angular.module('coreGamesUi.filters').filter('propsFilter', function () {
+    return function (items, props) {
+        var out = [];
+
+        if (angular.isArray(items)) {
+            items.forEach(function (item) {
+                var itemMatches = false;
+
+                var keys = Object.keys(props);
+                for (var i = 0; i < keys.length; i++) {
+                    var prop = keys[i];
+                    var text = props[prop].toLowerCase();
+                    if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+                        itemMatches = true;
+                        break;
+                    }
+                }
+
+                if (itemMatches) {
+                    out.push(item);
+                }
+            });
+        } else {
+            // Let the output be the input untouched
+            out = items;
+        }
+
+        return out;
+    };
+});
 
 
 'use strict';
@@ -1055,6 +1055,32 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                 currentPlayerFriends: function () {
                     return $http.get(this.currentPlayerBaseURL() + FRIENDS_PATH).then(function (response) {
                         return response.data;
+                    });
+                },
+                initializeFriendsForController: function(controller) {
+                    controller.friends = [];
+                    controller.invitableFBFriends = [];
+                    controller.chosenFriends = [];
+                    service.currentPlayerFriends().then(function (data) {
+                        angular.forEach(data.maskedFriends, function (displayName, hash) {
+                            var friend = {
+                                md5: hash,
+                                displayName: displayName
+                            };
+                            controller.friends.push(friend);
+                        });
+                        if (service.currentPlayer().source === 'facebook') {
+                            angular.forEach(data.invitableFriends, function (friend) {
+                                var invite = {
+                                    id: friend.id,
+                                    name: friend.name
+                                };
+                                if (angular.isDefined(friend.picture) && angular.isDefined(friend.picture.url)) {
+                                    invite.url = friend.picture.url;
+                                }
+                                controller.invitableFBFriends.push(invite);
+                            });
+                        }
                     });
                 },
                 currentPlayer: function () {

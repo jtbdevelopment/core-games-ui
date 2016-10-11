@@ -190,6 +190,42 @@ describe('Service: playerService', function () {
       expect(friends).toEqual(friendResult);
     });
 
+    it('initializes friends for non-fb player', function () {
+      httpBackend.flush();
+
+      httpBackend.expectGET('/api/player/friends').respond({
+        maskedFriends: {
+          'md51': 'Friend 1',
+          'md52': 'Friend 52'
+        },
+        invitableFriends: [
+          {
+            id: 'fbid1',
+            name: 'FB Friend',
+            picture: {
+              url: 'http://xyz'
+            }
+          },
+          {
+            id: 'fbid2',
+            name: 'FB Stalker'
+          }
+        ]
+      });
+      var controller = {};
+      service.initializeFriendsForController(controller);
+      expect(controller.invitableFBFriends).toEqual([]);
+      expect(controller.chosenFriends).toEqual([]);
+      expect(controller.friends).toEqual([]);
+      httpBackend.flush();
+      expect(controller.friends).toEqual([
+        {md5: 'md51', displayName: 'Friend 1'},
+        {md5: 'md52', displayName: 'Friend 52'}
+      ]);
+      expect(controller.chosenFriends).toEqual([]);
+      expect(controller.invitableFBFriends).toEqual([]);
+    });
+
     it('logout function success', function () {
       httpBackend.expectPOST('/signout').respond({});
       service.signOutAndRedirect();
@@ -285,6 +321,45 @@ describe('Service: playerService', function () {
       expect(matchedPlayer).toEqual(fbPlayerResult);
       expect(window.location).toEqual('#/signin');
     });
+
+    it('initializes friends for fb player', function () {
+      httpBackend.expectGET('/api/player/friends').respond({
+        maskedFriends: {
+          'md51': 'Friend 1',
+          'md52': 'Friend 52'
+        },
+        invitableFriends: [
+          {
+            id: 'fbid1',
+            name: 'FB Friend',
+            picture: {
+              url: 'http://xyz'
+            }
+          },
+          {
+            id: 'fbid2',
+            name: 'FB Stalker'
+          }
+        ]
+      });
+      var controller = {};
+      service.initializeFriendsForController(controller);
+      expect(controller.invitableFBFriends).toEqual([]);
+      expect(controller.chosenFriends).toEqual([]);
+      expect(controller.friends).toEqual([]);
+      httpBackend.flush();
+
+      expect(controller.friends).toEqual([
+        {md5: 'md51', displayName: 'Friend 1'},
+        {md5: 'md52', displayName: 'Friend 52'}
+      ]);
+      expect(controller.chosenFriends).toEqual([]);
+      expect(controller.invitableFBFriends).toEqual([
+        {id: 'fbid1', name: 'FB Friend', url: 'http://xyz'},
+        {id: 'fbid2', name: 'FB Stalker'}
+      ]);
+    });
+
   });
 });
 

@@ -65,6 +65,32 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         return response.data;
                     });
                 },
+                initializeFriendsForController: function(controller) {
+                    controller.friends = [];
+                    controller.invitableFBFriends = [];
+                    controller.chosenFriends = [];
+                    service.currentPlayerFriends().then(function (data) {
+                        angular.forEach(data.maskedFriends, function (displayName, hash) {
+                            var friend = {
+                                md5: hash,
+                                displayName: displayName
+                            };
+                            controller.friends.push(friend);
+                        });
+                        if (service.currentPlayer().source === 'facebook') {
+                            angular.forEach(data.invitableFriends, function (friend) {
+                                var invite = {
+                                    id: friend.id,
+                                    name: friend.name
+                                };
+                                if (angular.isDefined(friend.picture) && angular.isDefined(friend.picture.url)) {
+                                    invite.url = friend.picture.url;
+                                }
+                                controller.invitableFBFriends.push(invite);
+                            });
+                        }
+                    });
+                },
                 currentPlayer: function () {
                     return simulatedPlayer;
                 },

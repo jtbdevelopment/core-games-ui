@@ -26,7 +26,7 @@ describe('Interceptor: jtbGeneralErrorHandler', function () {
         expect(httpProvider.interceptors).toContain('jtbGeneralErrorHandler');
     });
 
-    it('broadcasts invalid session on 401 response', function() {
+    it('broadcasts invalid session on 401 response', function () {
         var error = {status: 401, message: 'X'};
         interceptor.responseError(error);
         expect(rootScope.$broadcast).toHaveBeenCalledWith('InvalidSession');
@@ -34,30 +34,19 @@ describe('Interceptor: jtbGeneralErrorHandler', function () {
         expect(q.resolve).not.toHaveBeenCalled();
     });
 
-    it('broadcasts general error for any other error between 400 and 499 that is not 401 or 409', function() {
+    it('broadcasts general error for any other error between 400 and 499 that is not 401 or 409', function () {
         var i = 400;
-        while(i < 900) {
-            if(i !== 401 && i !== 409) {
+        while (i < 900) {
+            if (i !== 401) {
                 var error = {status: i, message: 'test'};
                 interceptor.responseError(error);
-                expect(rootScope.$broadcast).not.toHaveBeenCalledWith('InvalidSession');
-                expect(rootScope.$broadcast).toHaveBeenCalledWith('GeneralError');
-                expect(q.reject).toHaveBeenCalledWith(error);
-                expect(q.resolve).not.toHaveBeenCalled();
-                rootScope.$broadcast.calls.reset();
-            }
-            i += 1;
-        }
-    });
-
-    it('broadcasts general error for any other error between 400 and 499 that is not 401 or 409', function() {
-        var i = 400;
-        while(i < 500) {
-            if(i !== 401 && i !== 409) {
-                var error = {status: i, message: 'test'};
-                interceptor.responseError(error);
-                expect(rootScope.$broadcast).not.toHaveBeenCalledWith('InvalidSession');
-                expect(rootScope.$broadcast).toHaveBeenCalledWith('GeneralError');
+                if (i !== 409) {
+                    expect(rootScope.$broadcast).not.toHaveBeenCalledWith('InvalidSession');
+                    expect(rootScope.$broadcast).toHaveBeenCalledWith('GeneralError');
+                } else {
+                    expect(rootScope.$broadcast).not.toHaveBeenCalledWith('InvalidSession');
+                    expect(rootScope.$broadcast).not.toHaveBeenCalledWith('GeneralError');
+                }
                 expect(q.reject).toHaveBeenCalledWith(error);
                 expect(q.resolve).not.toHaveBeenCalled();
                 rootScope.$broadcast.calls.reset();

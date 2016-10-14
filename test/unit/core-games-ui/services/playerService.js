@@ -166,6 +166,13 @@ describe('Service: playerService', function () {
       expect(friends).toBeUndefined();
     });
 
+    it('can update version notes', function() {
+      var v = '1.2';
+      httpBackend.expectPOST('/api/player/lastVersionNotes/' + v).respond(200);
+      service.updateLastVersionNotes(v);
+      httpBackend.flush();
+    });
+
     it('multiple calls only one http friends', function () {
       httpBackend.flush();
 

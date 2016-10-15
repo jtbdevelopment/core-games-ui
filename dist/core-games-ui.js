@@ -1058,7 +1058,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     });
                 },
                 updateLastVersionNotes: function(versionNotes) {
-                    $http.post('/api/player/lastVersionNotes/' + versionNotes);
+                    $http.post(BASE_PLAYER_URL + '/lastVersionNotes/' + versionNotes);
                 },
                 initializeFriendsForController: function(controller) {
                     controller.friends = [];

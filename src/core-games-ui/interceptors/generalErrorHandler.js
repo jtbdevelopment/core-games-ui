@@ -24,7 +24,6 @@ angular.module('coreGamesUi.interceptors')
             };
         }])
     .config(['$httpProvider', function ($httpProvider) {
-        console.log('registering jtbGeneralErrorHandler');
         $httpProvider.interceptors.push('jtbGeneralErrorHandler');
     }]);
 

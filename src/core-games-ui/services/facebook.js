@@ -10,7 +10,6 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
 
             var cordovaFacebook;
             try {
-                console.log($window.location.href);
                 if ($window.location.href.indexOf('file:') === 0) {
                     cordovaFacebook = $injector.get('$cordovaFacebook');
                 }
@@ -179,7 +178,6 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     s = s + id;
                 });
                 var callback = function (response) {
-                    console.info(JSON.stringify(response));
                     inviteDeferred.resolve(response);
                 };
                 var dialog = {
@@ -217,7 +215,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             window.FB.getLoginStatus(callback);
                         }
                     } catch (ex) {
-                        console.error(JSON.stringify);
+                        console.error(JSON.stringify(ex));
                         matchDeferred.resolve(false);
                     }
                 } else {

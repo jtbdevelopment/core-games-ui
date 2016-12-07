@@ -3,7 +3,7 @@
 //
 //  Taken from angular-ui-select multi select plunker demo
 //
-/* istanbul ignore next */
+//  TODO - test
 angular.module('coreGamesUi.filters').filter('propsFilter', function () {
     return function (items, props) {
         var out = [];

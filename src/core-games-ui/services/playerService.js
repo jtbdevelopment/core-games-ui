@@ -65,10 +65,10 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         return response.data;
                     });
                 },
-                updateLastVersionNotes: function(versionNotes) {
+                updateLastVersionNotes: function (versionNotes) {
                     $http.post(BASE_PLAYER_URL + '/lastVersionNotes/' + versionNotes);
                 },
-                initializeFriendsForController: function(controller) {
+                initializeFriendsForController: function (controller) {
                     controller.friends = [];
                     controller.invitableFBFriends = [];
                     controller.chosenFriends = [];
@@ -100,10 +100,10 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
 
                 //  Only generally used in testing
                 signOutAndRedirect: function () {
-                    $http.post('/signout').success(function () {
+                    $http.post('/signout').then(function () {
                         //  TODO - location?
                         $window.location = '#/signin';
-                    }).error(function () {
+                    }, function () {
                         //  TODO - location?
                         $window.location = '#/signin';
                     });

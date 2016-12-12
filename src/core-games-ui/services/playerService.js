@@ -65,10 +65,10 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         return response.data;
                     });
                 },
-                updateLastVersionNotes: function(versionNotes) {
+                updateLastVersionNotes: function (versionNotes) {
                     $http.post(BASE_PLAYER_URL + '/lastVersionNotes/' + versionNotes);
                 },
-                initializeFriendsForController: function(controller) {
+                initializeFriendsForController: function (controller) {
                     var defer = $q.defer();
                     controller.friends = [];
                     controller.invitableFBFriends = [];

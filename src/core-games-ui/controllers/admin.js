@@ -33,48 +33,48 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
             var time7 = time - (dayInSeconds * 7);
             var time30 = time - (dayInSeconds * 30);
 
-            $http.get('/api/player/admin/playerCount').success(function (data) {
-                controller.playerCount = data;
+            $http.get('/api/player/admin/playerCount').then(function (response) {
+                controller.playerCount = response.data;
             });
 
-            $http.get('/api/player/admin/gameCount').success(function (data) {
-                controller.gameCount = data;
+            $http.get('/api/player/admin/gameCount').then(function (response) {
+                controller.gameCount = response.data;
             });
             function getPlayerCreatedCounts() {
-                $http.get('/api/player/admin/playersCreated/' + time24).success(function (data) {
-                    controller.playersCreated24hours = data;
+                $http.get('/api/player/admin/playersCreated/' + time24).then(function (response) {
+                    controller.playersCreated24hours = response.data;
                 });
-                $http.get('/api/player/admin/playersCreated/' + time7).success(function (data) {
-                    controller.playersCreated7days = data;
+                $http.get('/api/player/admin/playersCreated/' + time7).then(function (response) {
+                    controller.playersCreated7days = response.data;
                 });
-                $http.get('/api/player/admin/playersCreated/' + time30).success(function (data) {
-                    controller.playersCreated30days = data;
+                $http.get('/api/player/admin/playersCreated/' + time30).then(function (response) {
+                    controller.playersCreated30days = response.data;
                 });
             }
 
             function getPlayerLoginCounts() {
-                $http.get('/api/player/admin/playersLoggedIn/' + time24).success(function (data) {
-                    controller.playersLastLogin24hours = data;
+                $http.get('/api/player/admin/playersLoggedIn/' + time24).then(function (response) {
+                    controller.playersLastLogin24hours = response.data;
                 });
-                $http.get('/api/player/admin/playersLoggedIn/' + time7).success(function (data) {
-                    controller.playersLastLogin7days = data;
+                $http.get('/api/player/admin/playersLoggedIn/' + time7).then(function (response) {
+                    controller.playersLastLogin7days = response.data;
                 });
-                $http.get('/api/player/admin/playersLoggedIn/' + time30).success(function (data) {
-                    controller.playersLastLogin30days = data;
+                $http.get('/api/player/admin/playersLoggedIn/' + time30).then(function (response) {
+                    controller.playersLastLogin30days = response.data;
                 });
             }
 
             function getGameCounts() {
-                $http.get('/api/player/admin/gamesSince/' + time24).success(function (data) {
-                    controller.gamesLast24hours = data;
+                $http.get('/api/player/admin/gamesSince/' + time24).then(function (response) {
+                    controller.gamesLast24hours = response.data;
                 });
 
-                $http.get('/api/player/admin/gamesSince/' + time7).success(function (data) {
-                    controller.gamesLast7days = data;
+                $http.get('/api/player/admin/gamesSince/' + time7).then(function (response) {
+                    controller.gamesLast7days = response.data;
                 });
 
-                $http.get('/api/player/admin/gamesSince/' + time30).success(function (data) {
-                    controller.gamesLast30days = data;
+                $http.get('/api/player/admin/gamesSince/' + time30).then(function (response) {
+                    controller.gamesLast30days = response.data;
                 });
             }
 
@@ -82,11 +82,11 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
             getPlayerLoginCounts();
             getGameCounts();
 
-            function processUserSearchResponse(data) {
-                controller.totalItems = data.totalElements;
-                controller.numberOfPages = data.totalPages;
-                controller.players = data.content;
-                controller.currentPage = data.number + 1;
+            function processUserSearchResponse(response) {
+                controller.totalItems = response.totalElements;
+                controller.numberOfPages = response.totalPages;
+                controller.players = response.content;
+                controller.currentPage = response.number + 1;
             }
 
             function requestData() {

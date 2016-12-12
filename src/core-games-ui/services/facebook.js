@@ -13,49 +13,51 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 if ($window.location.href.indexOf('file:') === 0) {
                     cordovaFacebook = $injector.get('$cordovaFacebook');
                 }
-            } catch(ex) {
+            } catch (ex) {
                 cordovaFacebook = undefined;
             }
 
             function loadFB() {
                 var fbLoaded = $q.defer();
                 if (!loaded) {
-                    $http.get('/api/social/apis', {cache: true}).success(function (response) {
-                        facebookAppId = response.facebookAppId;
-                        facebookPermissions = response.facebookPermissions;
-                        if(angular.isDefined(cordovaFacebook)) {
-                            fbLoaded.resolve();
-                        } else {
-                            window.fbAsyncInit = function () {
-                                window.FB.init({
-                                    appId: facebookAppId,
-                                    xfbml: false,
-                                    version: 'v2.2'
-                                });
+                    $http.get('/api/social/apis', {cache: true}).then(
+                        function (response) {
+                            facebookAppId = response.data.facebookAppId;
+                            facebookPermissions = response.data.facebookPermissions;
+                            if (angular.isDefined(cordovaFacebook)) {
                                 fbLoaded.resolve();
-                            };
+                            } else {
+                                window.fbAsyncInit = function () {
+                                    window.FB.init({
+                                        appId: facebookAppId,
+                                        xfbml: false,
+                                        version: 'v2.2'
+                                    });
+                                    fbLoaded.resolve();
+                                };
 
-                            (function (d, s, id) {
-                                function onErrorCB() {
-                                    loaded = false;
-                                    fbLoaded.reject();
-                                }
+                                (function (d, s, id) {
+                                    function onErrorCB() {
+                                        loaded = false;
+                                        fbLoaded.reject();
+                                    }
 
-                                var js, fjs = d.getElementsByTagName(s)[0];
-                                if (d.getElementById(id)) {
-                                    return;
-                                }
-                                js = d.createElement(s);
-                                js.id = id;
-                                js.src = '//connect.facebook.net/en_US/sdk.js';
-                                js.onerror = onErrorCB;
-                                fjs.parentNode.insertBefore(js, fjs);
-                            }(document, 'script', 'facebook-jssdk'));
-                        }
-                        loaded = true;
-                    }).error(function () {
-                        fbLoaded.reject();
-                    });
+                                    var js, fjs = d.getElementsByTagName(s)[0];
+                                    if (d.getElementById(id)) {
+                                        return;
+                                    }
+                                    js = d.createElement(s);
+                                    js.id = id;
+                                    js.src = '//connect.facebook.net/en_US/sdk.js';
+                                    js.onerror = onErrorCB;
+                                    fjs.parentNode.insertBefore(js, fjs);
+                                }(document, 'script', 'facebook-jssdk'));
+                            }
+                            loaded = true;
+                        },
+                        function () {
+                            fbLoaded.reject();
+                        });
 
                     return fbLoaded.promise;
                 } else {
@@ -66,7 +68,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
 
             function login(fbLogin) {
                 try {
-                    var callback = function(response) {
+                    var callback = function (response) {
                         if (angular.isDefined(response) &&
                             angular.isDefined(response.status) &&
                             response.status === 'connected') {
@@ -80,9 +82,9 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         }
                     };
 
-                    if(angular.isDefined(cordovaFacebook)) {
+                    if (angular.isDefined(cordovaFacebook)) {
                         cordovaFacebook.login(facebookPermissions.split(',')).then(callback,
-                            function(e) {
+                            function (e) {
                                 console.log(JSON.stringify(e));
                                 fbLogin.reject();
                             });
@@ -130,8 +132,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     }
                 };
                 var graphPath = '/me/permissions';
-                if(angular.isDefined(cordovaFacebook)) {
-                    cordovaFacebook.api(graphPath, []).then(checkFunction, function(e) {
+                if (angular.isDefined(cordovaFacebook)) {
+                    cordovaFacebook.api(graphPath, []).then(checkFunction, function (e) {
                         console.log(JSON.stringify(e));
                         autoDefer.reject();
                     });
@@ -152,8 +154,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             autoDefer.reject();
                         }
                     };
-                    if(angular.isDefined(cordovaFacebook)) {
-                        cordovaFacebook.getLoginStatus().then(callback, function(e) {
+                    if (angular.isDefined(cordovaFacebook)) {
+                        cordovaFacebook.getLoginStatus().then(callback, function (e) {
                             console.log(JSON.stringify(e));
                             autoDefer.reject();
                         });
@@ -185,8 +187,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     message: message,
                     to: s
                 };
-                if(angular.isDefined(cordovaFacebook)) {
-                    cordovaFacebook.showDialog(dialog).then(callback, function() {
+                if (angular.isDefined(cordovaFacebook)) {
+                    cordovaFacebook.showDialog(dialog).then(callback, function () {
                         inviteDeferred.reject();
                     });
                 } else {
@@ -206,8 +208,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                                 matchDeferred.resolve(false);
                             }
                         };
-                        if(angular.isDefined(cordovaFacebook)) {
-                            cordovaFacebook.getLoginStatus().then(callback, function(e) {
+                        if (angular.isDefined(cordovaFacebook)) {
+                            cordovaFacebook.getLoginStatus().then(callback, function (e) {
                                 console.log(JSON.stringify(e));
                                 matchDeferred.resolve(false);
                             });
@@ -224,7 +226,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
             }
 
             return {
-                currentAuthorization: function() {
+                currentAuthorization: function () {
                     return facebookAuth;
                 },
 

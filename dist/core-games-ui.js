@@ -66,48 +66,48 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
             var time7 = time - (dayInSeconds * 7);
             var time30 = time - (dayInSeconds * 30);
 
-            $http.get('/api/player/admin/playerCount').success(function (data) {
-                controller.playerCount = data;
+            $http.get('/api/player/admin/playerCount').then(function (response) {
+                controller.playerCount = response.data;
             });
 
-            $http.get('/api/player/admin/gameCount').success(function (data) {
-                controller.gameCount = data;
+            $http.get('/api/player/admin/gameCount').then(function (response) {
+                controller.gameCount = response.data;
             });
             function getPlayerCreatedCounts() {
-                $http.get('/api/player/admin/playersCreated/' + time24).success(function (data) {
-                    controller.playersCreated24hours = data;
+                $http.get('/api/player/admin/playersCreated/' + time24).then(function (response) {
+                    controller.playersCreated24hours = response.data;
                 });
-                $http.get('/api/player/admin/playersCreated/' + time7).success(function (data) {
-                    controller.playersCreated7days = data;
+                $http.get('/api/player/admin/playersCreated/' + time7).then(function (response) {
+                    controller.playersCreated7days = response.data;
                 });
-                $http.get('/api/player/admin/playersCreated/' + time30).success(function (data) {
-                    controller.playersCreated30days = data;
+                $http.get('/api/player/admin/playersCreated/' + time30).then(function (response) {
+                    controller.playersCreated30days = response.data;
                 });
             }
 
             function getPlayerLoginCounts() {
-                $http.get('/api/player/admin/playersLoggedIn/' + time24).success(function (data) {
-                    controller.playersLastLogin24hours = data;
+                $http.get('/api/player/admin/playersLoggedIn/' + time24).then(function (response) {
+                    controller.playersLastLogin24hours = response.data;
                 });
-                $http.get('/api/player/admin/playersLoggedIn/' + time7).success(function (data) {
-                    controller.playersLastLogin7days = data;
+                $http.get('/api/player/admin/playersLoggedIn/' + time7).then(function (response) {
+                    controller.playersLastLogin7days = response.data;
                 });
-                $http.get('/api/player/admin/playersLoggedIn/' + time30).success(function (data) {
-                    controller.playersLastLogin30days = data;
+                $http.get('/api/player/admin/playersLoggedIn/' + time30).then(function (response) {
+                    controller.playersLastLogin30days = response.data;
                 });
             }
 
             function getGameCounts() {
-                $http.get('/api/player/admin/gamesSince/' + time24).success(function (data) {
-                    controller.gamesLast24hours = data;
+                $http.get('/api/player/admin/gamesSince/' + time24).then(function (response) {
+                    controller.gamesLast24hours = response.data;
                 });
 
-                $http.get('/api/player/admin/gamesSince/' + time7).success(function (data) {
-                    controller.gamesLast7days = data;
+                $http.get('/api/player/admin/gamesSince/' + time7).then(function (response) {
+                    controller.gamesLast7days = response.data;
                 });
 
-                $http.get('/api/player/admin/gamesSince/' + time30).success(function (data) {
-                    controller.gamesLast30days = data;
+                $http.get('/api/player/admin/gamesSince/' + time30).then(function (response) {
+                    controller.gamesLast30days = response.data;
                 });
             }
 
@@ -115,11 +115,11 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
             getPlayerLoginCounts();
             getGameCounts();
 
-            function processUserSearchResponse(data) {
-                controller.totalItems = data.totalElements;
-                controller.numberOfPages = data.totalPages;
-                controller.players = data.content;
-                controller.currentPage = data.number + 1;
+            function processUserSearchResponse(response) {
+                controller.totalItems = response.totalElements;
+                controller.numberOfPages = response.totalPages;
+                controller.players = response.content;
+                controller.currentPage = response.number + 1;
             }
 
             function requestData() {
@@ -169,7 +169,7 @@ angular.module('coreGamesUi.controllers').controller('CoreAdminCtrl',
 //
 //  Taken from angular-ui-select multi select plunker demo
 //
-/* istanbul ignore next */
+//  TODO - test
 angular.module('coreGamesUi.filters').filter('propsFilter', function () {
     return function (items, props) {
         var out = [];
@@ -274,49 +274,51 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                 if ($window.location.href.indexOf('file:') === 0) {
                     cordovaFacebook = $injector.get('$cordovaFacebook');
                 }
-            } catch(ex) {
+            } catch (ex) {
                 cordovaFacebook = undefined;
             }
 
             function loadFB() {
                 var fbLoaded = $q.defer();
                 if (!loaded) {
-                    $http.get('/api/social/apis', {cache: true}).success(function (response) {
-                        facebookAppId = response.facebookAppId;
-                        facebookPermissions = response.facebookPermissions;
-                        if(angular.isDefined(cordovaFacebook)) {
-                            fbLoaded.resolve();
-                        } else {
-                            window.fbAsyncInit = function () {
-                                window.FB.init({
-                                    appId: facebookAppId,
-                                    xfbml: false,
-                                    version: 'v2.2'
-                                });
+                    $http.get('/api/social/apis', {cache: true}).then(
+                        function (response) {
+                            facebookAppId = response.data.facebookAppId;
+                            facebookPermissions = response.data.facebookPermissions;
+                            if (angular.isDefined(cordovaFacebook)) {
                                 fbLoaded.resolve();
-                            };
+                            } else {
+                                window.fbAsyncInit = function () {
+                                    window.FB.init({
+                                        appId: facebookAppId,
+                                        xfbml: false,
+                                        version: 'v2.2'
+                                    });
+                                    fbLoaded.resolve();
+                                };
 
-                            (function (d, s, id) {
-                                function onErrorCB() {
-                                    loaded = false;
-                                    fbLoaded.reject();
-                                }
+                                (function (d, s, id) {
+                                    function onErrorCB() {
+                                        loaded = false;
+                                        fbLoaded.reject();
+                                    }
 
-                                var js, fjs = d.getElementsByTagName(s)[0];
-                                if (d.getElementById(id)) {
-                                    return;
-                                }
-                                js = d.createElement(s);
-                                js.id = id;
-                                js.src = '//connect.facebook.net/en_US/sdk.js';
-                                js.onerror = onErrorCB;
-                                fjs.parentNode.insertBefore(js, fjs);
-                            }(document, 'script', 'facebook-jssdk'));
-                        }
-                        loaded = true;
-                    }).error(function () {
-                        fbLoaded.reject();
-                    });
+                                    var js, fjs = d.getElementsByTagName(s)[0];
+                                    if (d.getElementById(id)) {
+                                        return;
+                                    }
+                                    js = d.createElement(s);
+                                    js.id = id;
+                                    js.src = '//connect.facebook.net/en_US/sdk.js';
+                                    js.onerror = onErrorCB;
+                                    fjs.parentNode.insertBefore(js, fjs);
+                                }(document, 'script', 'facebook-jssdk'));
+                            }
+                            loaded = true;
+                        },
+                        function () {
+                            fbLoaded.reject();
+                        });
 
                     return fbLoaded.promise;
                 } else {
@@ -327,7 +329,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
 
             function login(fbLogin) {
                 try {
-                    var callback = function(response) {
+                    var callback = function (response) {
                         if (angular.isDefined(response) &&
                             angular.isDefined(response.status) &&
                             response.status === 'connected') {
@@ -341,9 +343,9 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                         }
                     };
 
-                    if(angular.isDefined(cordovaFacebook)) {
+                    if (angular.isDefined(cordovaFacebook)) {
                         cordovaFacebook.login(facebookPermissions.split(',')).then(callback,
-                            function(e) {
+                            function (e) {
                                 console.log(JSON.stringify(e));
                                 fbLogin.reject();
                             });
@@ -391,8 +393,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     }
                 };
                 var graphPath = '/me/permissions';
-                if(angular.isDefined(cordovaFacebook)) {
-                    cordovaFacebook.api(graphPath, []).then(checkFunction, function(e) {
+                if (angular.isDefined(cordovaFacebook)) {
+                    cordovaFacebook.api(graphPath, []).then(checkFunction, function (e) {
                         console.log(JSON.stringify(e));
                         autoDefer.reject();
                     });
@@ -413,8 +415,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                             autoDefer.reject();
                         }
                     };
-                    if(angular.isDefined(cordovaFacebook)) {
-                        cordovaFacebook.getLoginStatus().then(callback, function(e) {
+                    if (angular.isDefined(cordovaFacebook)) {
+                        cordovaFacebook.getLoginStatus().then(callback, function (e) {
                             console.log(JSON.stringify(e));
                             autoDefer.reject();
                         });
@@ -446,8 +448,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                     message: message,
                     to: s
                 };
-                if(angular.isDefined(cordovaFacebook)) {
-                    cordovaFacebook.showDialog(dialog).then(callback, function() {
+                if (angular.isDefined(cordovaFacebook)) {
+                    cordovaFacebook.showDialog(dialog).then(callback, function () {
                         inviteDeferred.reject();
                     });
                 } else {
@@ -467,8 +469,8 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
                                 matchDeferred.resolve(false);
                             }
                         };
-                        if(angular.isDefined(cordovaFacebook)) {
-                            cordovaFacebook.getLoginStatus().then(callback, function(e) {
+                        if (angular.isDefined(cordovaFacebook)) {
+                            cordovaFacebook.getLoginStatus().then(callback, function (e) {
                                 console.log(JSON.stringify(e));
                                 matchDeferred.resolve(false);
                             });
@@ -485,7 +487,7 @@ angular.module('coreGamesUi.services').factory('jtbFacebook',
             }
 
             return {
-                currentAuthorization: function() {
+                currentAuthorization: function () {
                     return facebookAuth;
                 },
 
@@ -990,8 +992,8 @@ angular.module('coreGamesUi.services')
 
 
 angular.module('coreGamesUi.services').factory('jtbPlayerService',
-    ['$http', '$rootScope', '$window', 'jtbFacebook', '$q',
-        function ($http, $rootScope, $window, jtbFacebook, $q) {
+    ['$http', '$rootScope', '$window', 'jtbFacebook',
+        function ($http, $rootScope, $window, jtbFacebook) {
             var realPID = '';
             var simulatedPID = '';
             var BASE_PLAYER_URL = '/api/player';
@@ -1053,11 +1055,10 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                         return response.data;
                     });
                 },
-                updateLastVersionNotes: function(versionNotes) {
+                updateLastVersionNotes: function (versionNotes) {
                     $http.post(BASE_PLAYER_URL + '/lastVersionNotes/' + versionNotes);
                 },
-                initializeFriendsForController: function(controller) {
-                    var defer = $q.defer();
+                initializeFriendsForController: function (controller) {
                     controller.friends = [];
                     controller.invitableFBFriends = [];
                     controller.chosenFriends = [];
@@ -1081,9 +1082,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                                 controller.invitableFBFriends.push(invite);
                             });
                         }
-                        defer.resolve();
                     });
-                    return defer.promise;
                 },
                 currentPlayer: function () {
                     return simulatedPlayer;
@@ -1091,10 +1090,10 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
 
                 //  Only generally used in testing
                 signOutAndRedirect: function () {
-                    $http.post('/signout').success(function () {
+                    $http.post('/signout').then(function () {
                         //  TODO - location?
                         $window.location = '#/signin';
-                    }).error(function () {
+                    }, function () {
                         //  TODO - location?
                         $window.location = '#/signin';
                     });

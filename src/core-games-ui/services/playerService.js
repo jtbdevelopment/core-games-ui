@@ -2,8 +2,8 @@
 
 
 angular.module('coreGamesUi.services').factory('jtbPlayerService',
-    ['$http', '$rootScope', '$window', 'jtbFacebook',
-        function ($http, $rootScope, $window, jtbFacebook) {
+    ['$http', '$rootScope', '$window', 'jtbFacebook', '$q',
+        function ($http, $rootScope, $window, jtbFacebook, $q) {
             var realPID = '';
             var simulatedPID = '';
             var BASE_PLAYER_URL = '/api/player';
@@ -69,6 +69,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                     $http.post(BASE_PLAYER_URL + '/lastVersionNotes/' + versionNotes);
                 },
                 initializeFriendsForController: function(controller) {
+                    var defer = $q.defer();
                     controller.friends = [];
                     controller.invitableFBFriends = [];
                     controller.chosenFriends = [];
@@ -92,7 +93,9 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
                                 controller.invitableFBFriends.push(invite);
                             });
                         }
+                        defer.resolve();
                     });
+                    return defer.promise;
                 },
                 currentPlayer: function () {
                     return simulatedPlayer;

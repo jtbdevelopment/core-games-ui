@@ -1,30 +1,17 @@
 {
-  "generator-angularjs-library": {
+  "generator-fountain-angular2": {
+    "version": "1.0.0",
     "props": {
-      "author": {
-        "name": "JTB",
-        "email": "jtbdevelopment@gmail.com"
-      },
-      "libraryName": {
-        "original": "core-games-ui",
-        "camelized": "coreGamesUi",
-        "dasherized": "core-games-ui",
-        "slugified": "core-games-ui",
-        "parts": [
-          "core",
-          "games",
-          "ui"
-        ]
-      },
-      "includeModuleDirectives": true,
-      "includeModuleFilters": true,
-      "includeModuleServices": true,
-      "includeAngularModuleResource": true,
-      "includeAngularModuleCookies": true,
-      "includeAngularModuleSanitize": true,
-      "librarySrcDirectory": "src/core-games-ui",
-      "libraryUnitTestDirectory": "test/unit/core-games-ui",
-      "libraryUnitE2eDirectory": "test/e2e/core-games-ui"
+      "framework": "angular2",
+      "modules": "webpack",
+      "js": "typescript",
+      "ci": "travis",
+      "css": "scss",
+      "resolved": "/usr/local/lib/node_modules/generator-fountain-webapp/node_modules/generator-fountain-angular2/generators/app/index.js",
+      "namespace": "fountain-angular2:app",
+      "_": [],
+      "sample": "techs",
+      "router": "router"
     }
   }
 }

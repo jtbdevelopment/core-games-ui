@@ -36,3 +36,8 @@ coverage
 # OS-specific
 .DS_Store
 
+
+.tmp/
+lib/
+node_modules/
+node/

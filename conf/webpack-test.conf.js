@@ -12,15 +12,6 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(css|scss)$/,
-                loaders: [
-                    'style-loader',
-                    'css-loader',
-                    'sass-loader',
-                    'postcss-loader'
-                ]
-            },
-            {
                 test: /\.ts$/,
                 exclude: /node_modules/,
                 loader: 'tslint-loader',
@@ -38,24 +29,6 @@ module.exports = {
                 exclude: /(node_modules|\.spec\.ts$|\.module\.ts$)/,
                 loader: 'sourcemap-istanbul-instrumenter-loader?force-sourcemap=true',
                 enforce: 'post'
-            },
-            {
-                test: /\.html$/,
-                loaders: [
-                    'html-loader'
-                ]
-            },
-            {
-                test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                loader: "url-loader?limit=10000&minetype=application/font-woff"
-            },
-            {
-                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                loader: "file-loader"
-            },
-            {
-                test: /\.(png|jpg|gif)$/,
-                loader: "url-loader?limit=50000&name=[path][name].[ext]"
             }
         ]
     },

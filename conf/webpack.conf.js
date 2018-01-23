@@ -25,25 +25,10 @@ module.exports = {
                 enforce: 'pre'
             },
             {
-                test: /\.(css|scss)$/,
-                loaders: [
-                    'style-loader',
-                    'css-loader',
-                    'sass-loader',
-                    'postcss-loader'
-                ]
-            },
-            {
                 test: /\.ts$/,
                 exclude: /node_modules/,
                 loaders: [
                     'ts-loader'
-                ]
-            },
-            {
-                test: /\.html$/,
-                loaders: [
-                    'html-loader'
                 ]
             }
         ]
@@ -59,9 +44,6 @@ module.exports = {
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         FailPlugin,
-        new HtmlWebpackPlugin({
-            template: conf.path.src('index.html')
-        }),
         new webpack.ContextReplacementPlugin(/angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/, conf.paths.src),
         new webpack.LoaderOptionsPlugin({
             options: {

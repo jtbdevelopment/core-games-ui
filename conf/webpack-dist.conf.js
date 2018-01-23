@@ -2,7 +2,6 @@ const webpack = require('webpack');
 const conf = require('./gulp.conf');
 const path = require('path');
 
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const FailPlugin = require('webpack-fail-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
@@ -60,9 +59,6 @@ module.exports = {
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         FailPlugin,
-        new HtmlWebpackPlugin({
-            template: conf.path.src('index.html')
-        }),
         new webpack.ContextReplacementPlugin(
             /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
             conf.paths.src
@@ -70,11 +66,6 @@ module.exports = {
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': '"production"'
         }),
-        new webpack.optimize.UglifyJsPlugin({
-            output: {comments: false},
-            compress: {unused: true, dead_code: true, warnings: false} // eslint-disable-line camelcase
-        }),
-        new ExtractTextPlugin('index-[contenthash].css'),
         new webpack.optimize.CommonsChunkPlugin({name: 'vendor'}),
         new webpack.LoaderOptionsPlugin({
             options: {
@@ -91,7 +82,6 @@ module.exports = {
     ],
     output: {
         path: path.join(process.cwd(), conf.paths.dist),
-        filename: '[name]-[hash].js'
     },
     resolve: {
         extensions: [
@@ -101,5 +91,5 @@ module.exports = {
             '.ts'
         ]
     },
-    entry: `./${conf.path.src('index')}`
+    entry: `./${conf.path.src('core-games-ui/jtb.core.games.ui.module.ts')}`
 };

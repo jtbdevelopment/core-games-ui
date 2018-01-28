@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="PROJECT" libraries="{jest-DefinitelyTyped, jest-diff-DefinitelyTyped, jest-matchers-DefinitelyTyped}" />
+    <file url="PROJECT" libraries="{jasmine-DefinitelyTyped, jest-DefinitelyTyped, jest-diff-DefinitelyTyped, jest-matchers-DefinitelyTyped}" />
   </component>
 </project>

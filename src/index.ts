@@ -9,6 +9,7 @@ import {JTBCoreGamesUIFeatures} from './features/jtb.core.games.ui.features.modu
 import {JTBCoreGamesUIFriends} from './friends/jtb.core.games.ui.friends.module';
 import {JTBCoreGamesUIInterceptors} from './interceptors/jtb.core.games.ui.interceptors.module';
 import {JTBCoreGamesUIFacebook} from './facebook/jtb.core.games.ui.facebook.module';
+import {AppConfig} from './appconfig.interface';
 
 export {AppConfig} from './appconfig.interface';
 
@@ -42,4 +43,7 @@ export {AppConfig} from './appconfig.interface';
     ]
 })
 export class JTBCoreGamesUI {
+    constructor(private appConfig: AppConfig) {
+        console.log('Initializing core ui for ' + this.appConfig.appName);
+    }
 }

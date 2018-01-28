@@ -11,7 +11,7 @@ import {MessageBusService} from '../messagebus/message-bus.service';
 class MockSubscription extends Subscription {
     constructor() {
         super();
-        this.unsubscribe = jasmine.createSpy('unsubscribe');
+        this.unsubscribe = jest.fn();
     }
 }
 

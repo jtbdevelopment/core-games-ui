@@ -1,9 +1,9 @@
-import {ReflectiveInjector} from '@angular/core';
 import {Player} from '../player/player.model';
 import {AtmosphereService} from './atmosphere.service';
 import {BehaviorSubject} from 'rxjs';
 import {PlayerService} from '../player/player.service';
 import {AtmosphereMessageProcessorService} from './atmosphere-message-processor.service';
+import {TestBed} from '@angular/core/testing';
 
 class MockPlayerService {
     player: BehaviorSubject<Player> = new BehaviorSubject(new Player());
@@ -27,14 +27,16 @@ describe('Service: atmosphere service', () => {
 
     beforeEach(() => {
         socket = new MockSocket();
-        this.injector = ReflectiveInjector.resolveAndCreate([
+        TestBed.configureTestingModule({
+            providers: [
             {provide: PlayerService, useClass: MockPlayerService},
             {provide: AtmosphereMessageProcessorService, useClass: MockProcessor},
             AtmosphereService
-        ]);
-        atmosphereService = this.injector.get(AtmosphereService);
-        processor = this.injector.get(AtmosphereMessageProcessorService);
-        playerService = this.injector.get(PlayerService);
+            ]
+        });
+        atmosphereService = TestBed.get(AtmosphereService);
+        processor = TestBed.get(AtmosphereMessageProcessorService);
+        playerService = TestBed.get(PlayerService);
         mockAtmosphere.subscribe = jasmine.createSpy('subscribe').and.returnValue(socket);
         atmosphereService.socket = mockAtmosphere;
     });

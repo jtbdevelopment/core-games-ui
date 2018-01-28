@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {FacebookInitializerService} from './facebook-initializer.service';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 declare let FB: any;

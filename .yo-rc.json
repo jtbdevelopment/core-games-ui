@@ -1,17 +1,7 @@
 {
-  "generator-fountain-angular2": {
-    "version": "1.0.0",
-    "props": {
-      "framework": "angular2",
-      "modules": "webpack",
-      "js": "typescript",
-      "ci": "travis",
-      "css": "scss",
-      "resolved": "/usr/local/lib/node_modules/generator-fountain-webapp/node_modules/generator-fountain-angular2/generators/app/index.js",
-      "namespace": "fountain-angular2:app",
-      "_": [],
-      "sample": "techs",
-      "router": "router"
+  "generator-angular2-library": {
+    "promptValues": {
+      "gitRepositoryUrl": "https://github.com/username/repo"
     }
   }
 }

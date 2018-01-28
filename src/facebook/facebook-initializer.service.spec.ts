@@ -2,9 +2,7 @@ import {HttpClientTestingModule, HttpTestingController} from '@angular/common/ht
 import {FacebookInitializerService} from './facebook-initializer.service';
 import {fakeAsync, TestBed, tick} from '@angular/core/testing';
 
-declare let window: any;
-
-describe('Service: facebook initalizer', () => {
+describe('Service: facebook initializer', () => {
     let httpMock: HttpTestingController;
     let fbInit: FacebookInitializerService;
 
@@ -12,7 +10,7 @@ describe('Service: facebook initalizer', () => {
     let reject: boolean;
 
     beforeEach(() => {
-        window.FB = {};
+        global.FB = {};
         ready = false;
         reject = false;
         TestBed.configureTestingModule({
@@ -20,6 +18,7 @@ describe('Service: facebook initalizer', () => {
             providers: [FacebookInitializerService]
         });
 
+        console.log('error');
         httpMock = TestBed.get(HttpTestingController);
         fbInit = TestBed.get(FacebookInitializerService);
         fbInit.fbReady.then(() => {
@@ -31,13 +30,13 @@ describe('Service: facebook initalizer', () => {
 
     it('initializes from server and inits FB', fakeAsync(() => {
         let request = httpMock.expectOne('/api/social/apis');
-        window.FB.init = jasmine.createSpy('init');
+        global.FB.init = jest.fn();
         expect(request.request.method).toEqual('GET');
         request.flush({
             facebookAppId: 'someappid',
             facebookPermissions: '1,perm2,another'
         });
-        expect(window.FB.init).toHaveBeenCalledWith({
+        expect(global.FB.init).toHaveBeenCalledWith({
             appId: 'someappid',
             xfbml: false,
             version: 'v2.11'
@@ -50,14 +49,14 @@ describe('Service: facebook initalizer', () => {
     }));
 
     it('initializes from server and fails on server', fakeAsync(() => {
+        global.FB.init = jest.fn();
         let request = httpMock.expectOne('/api/social/apis');
-        window.FB.init = jasmine.createSpy('init');
         expect(request.request.method).toEqual('GET');
         request.flush('something is not right', {
             status: 402,
             statusText: 'x'
         });
-        expect(window.FB.init).not.toHaveBeenCalled();
+        expect(global.FB.init.mock.calls.length).toEqual(0);
         tick();
         expect(reject).toBeTruthy();
         expect(ready).toBeFalsy();

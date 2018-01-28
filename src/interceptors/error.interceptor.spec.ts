@@ -21,6 +21,7 @@ class MockHandler extends HttpHandler {
     }
 }
 
+
 describe('Interceptor: error interceptor', () => {
     let messageBus: MessageBusService;
     let interceptor: ErrorInterceptor;
@@ -45,14 +46,14 @@ describe('Interceptor: error interceptor', () => {
     });
 
     it('passes requests on unchanged', () => {
-        let req: HttpRequest<any> = jasmine.createSpyObj<HttpRequest<any>>('http', ['url', 'body']);
+
+        let req: HttpRequest<any> = new HttpRequest<any>('GET', 'someurl', null);
         interceptor.intercept(req, next);
         expect(next.lastRequest).toEqual(req);
     });
 
     it('passes on non error response', () => {
         let passedOn: HttpEvent<any>;
-
 
         interceptor.intercept(null, next).subscribe((x) => {
             passedOn = x;

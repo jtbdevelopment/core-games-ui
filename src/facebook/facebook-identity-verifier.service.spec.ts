@@ -28,7 +28,7 @@ class MockPlayerService {
     public subject: BehaviorSubject<Player> = new BehaviorSubject<Player>(new Player());
     public loggedInPlayer: Observable<Player> = Observable.from(this.subject);
 
-    public logout: any = jasmine.createSpy('logout');
+    public logout: any = jest.fn();
 }
 
 describe('Service: facebook identity verifier service', () => {

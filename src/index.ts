@@ -10,6 +10,7 @@ import {JTBCoreGamesUIFriends} from './friends/jtb.core.games.ui.friends.module'
 import {JTBCoreGamesUIInterceptors} from './interceptors/jtb.core.games.ui.interceptors.module';
 import {JTBCoreGamesUIFacebook} from './facebook/jtb.core.games.ui.facebook.module';
 import {AppConfig} from './appconfig.interface';
+import {JTBCoreGamesUIGames} from './games/jtb.core.games.ui.games.module';
 
 export {AppConfig} from './appconfig.interface';
 
@@ -24,6 +25,7 @@ export {AppConfig} from './appconfig.interface';
         JTBCoreGamesUIFeatures,
         JTBCoreGamesUIPhases,
         JTBCoreGamesUIPlayer,
+        JTBCoreGamesUIGames,
         JTBCoreGamesUIFriends,
         JTBCoreGamesUIUtils,
         JTBCoreGamesUIInterceptors,
@@ -36,6 +38,7 @@ export {AppConfig} from './appconfig.interface';
         JTBCoreGamesUIFeatures,
         JTBCoreGamesUIPhases,
         JTBCoreGamesUIPlayer,
+        JTBCoreGamesUIGames,
         JTBCoreGamesUIFriends,
         JTBCoreGamesUIUtils,
         JTBCoreGamesUIInterceptors,

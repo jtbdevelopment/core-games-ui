@@ -125,7 +125,7 @@ gulp.task('rollup:umd', function () {
             // The name to use for the module for UMD/IIFE bundles
             // (required for bundles with exports)
             // See "name" in https://rollupjs.org/#core-functionality
-            name: 'test-lib',
+            name: 'jtb-core-games-ui',
 
             // See "globals" in https://rollupjs.org/#core-functionality
             globals: {
@@ -133,7 +133,7 @@ gulp.task('rollup:umd', function () {
             }
 
         }))
-        .pipe(rename('test-lib.umd.js'))
+        .pipe(rename('jtb-core-games-ui.umd.js'))
         .pipe(gulp.dest(distFolder));
 });
 

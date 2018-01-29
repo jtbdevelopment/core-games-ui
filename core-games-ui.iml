@@ -8,5 +8,6 @@
     <orderEntry type="library" name="jest-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="jest-matchers-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="jest-diff-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="jasmine-DefinitelyTyped" level="application" />
   </component>
 </module>

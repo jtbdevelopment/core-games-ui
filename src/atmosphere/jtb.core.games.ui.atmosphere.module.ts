@@ -3,6 +3,10 @@ import {JTBCoreGamesUIMessageBus} from '../messagebus/jtb.core.games.ui.messageb
 import {AtmosphereService} from './atmosphere.service';
 import {AtmosphereMessageProcessorService} from './atmosphere-message-processor.service';
 
+export * from './atmosphere-message-processor.service';
+export * from './atmosphere-request.model';
+export * from './atmosphere.service';
+
 @NgModule({
     imports: [JTBCoreGamesUIMessageBus],
     providers: [

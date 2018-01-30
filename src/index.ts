@@ -14,6 +14,8 @@ import {JTBCoreGamesUIGames} from './games/jtb.core.games.ui.games.module';
 
 export {AppConfig} from './appconfig.interface';
 
+export {MessageBusService} from './messagebus/jtb.core.games.ui.messagebus.module';
+
 //  Use of this module presumes:
 //  1.  You will implement GameFactory and provide as 'GameFactory'
 //  2.  You will create (or re-use PhaseGameClassifier) an GameClassifier and provide as 'GameClassifier'
@@ -44,10 +46,6 @@ export {AppConfig} from './appconfig.interface';
     ]
 })
 export class JTBCoreGamesUI {
-    constructor(private appConfig: AppConfig) {
-        console.log('Initializing core ui for ' + this.appConfig.appName);
-    }
-
     static forRoot(): ModuleWithProviders {
         return {
             ngModule: JTBCoreGamesUI

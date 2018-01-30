@@ -6,9 +6,11 @@ import {JTBCoreGamesUIPlayer} from '../player/jtb.core.games.ui.player.module';
 import {FacebookIdentifyVerifierService} from './facebook-identity-verifier.service';
 import {FacebookInviteService} from './facebook-invite.service';
 
+export * from './facebook-invite.service';
+export * from './facebook-login.service';
+
 @NgModule({
     imports: [JTBCoreGamesUIMessageBus, JTBCoreGamesUIPlayer],
-    exports: [JTBCoreGamesUIMessageBus],
     providers: [
         FacebookInitializerService,
         FacebookIdentifyVerifierService,

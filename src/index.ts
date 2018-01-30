@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {ModuleWithProviders, NgModule} from '@angular/core';
 import {JTBCoreGamesUIMessageBus} from './messagebus/jtb.core.games.ui.messagebus.module';
 import {JTBCoreGamesUIAtmosphere} from './atmosphere/jtb.core.games.ui.atmosphere.module';
 import {JTBCoreGamesUIGameCache} from './gamecache/jtb.core.games.ui.gamecache.module';
@@ -32,7 +32,6 @@ export {AppConfig} from './appconfig.interface';
         JTBCoreGamesUIFacebook
     ],
     exports: [
-        JTBCoreGamesUIAtmosphere,
         JTBCoreGamesUIMessageBus,
         JTBCoreGamesUIGameCache,
         JTBCoreGamesUIFeatures,
@@ -41,12 +40,17 @@ export {AppConfig} from './appconfig.interface';
         JTBCoreGamesUIGames,
         JTBCoreGamesUIFriends,
         JTBCoreGamesUIUtils,
-        JTBCoreGamesUIInterceptors,
         JTBCoreGamesUIFacebook
     ]
 })
 export class JTBCoreGamesUI {
     constructor(private appConfig: AppConfig) {
         console.log('Initializing core ui for ' + this.appConfig.appName);
+    }
+
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: JTBCoreGamesUI
+        };
     }
 }

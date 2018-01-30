@@ -6,8 +6,6 @@ import {Player} from '../player/player.model';
 import {Observable} from 'rxjs/Observable';
 import {PlayerService} from '../player/player.service';
 
-declare let window: any;
-
 class MockInitService {
     public fbReady: Promise<any>;
     public fbRequiredPermissions: string[];

@@ -5,7 +5,6 @@ import {AtmosphereMessageProcessorService} from './atmosphere-message-processor.
 
 @NgModule({
     imports: [JTBCoreGamesUIMessageBus],
-    exports: [JTBCoreGamesUIMessageBus],
     providers: [
         AtmosphereService,
         AtmosphereMessageProcessorService

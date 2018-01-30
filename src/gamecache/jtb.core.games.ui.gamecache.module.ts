@@ -4,12 +4,13 @@ import {JTBCoreGamesUIPhases} from '../phases/jtb.core.games.ui.phases.module';
 import {GameCacheService} from './game-cache.service';
 import {PhaseGameClassifier} from './phase-game-classifier.service';
 import {HttpClientModule} from '@angular/common/http';
-// noinspection ES6UnusedImports
-import {AbstractTurnClassifier} from './abstract-turn-classifier.service';
+
+export * from './abstract-turn-classifier.service';
+export * from './game-cache.service';
+export * from './phase-game-classifier.service';
 
 @NgModule({
     imports: [JTBCoreGamesUIMessageBus, HttpClientModule, JTBCoreGamesUIPhases],
-    exports: [JTBCoreGamesUIMessageBus, JTBCoreGamesUIPhases],
     providers: [
         GameCacheService,
         PhaseGameClassifier

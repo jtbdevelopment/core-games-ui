@@ -3,8 +3,6 @@ import {FacebookInitializerService} from './facebook-initializer.service';
 import {FacebookInviteService} from './facebook-invite.service';
 import {Invitable} from '../friends/invitable.model';
 
-declare let window: any;
-
 class MockInitService {
     public fbReady: Promise<any>;
 

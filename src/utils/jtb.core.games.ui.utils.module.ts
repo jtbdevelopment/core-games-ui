@@ -1,6 +1,8 @@
 import {NgModule} from '@angular/core';
 import {MapKeysPipe} from './map-keys.pipe';
 
+export * from './map-keys.pipe';
+
 @NgModule({
     exports: [
         MapKeysPipe

@@ -8,6 +8,7 @@ import {HttpClientModule} from '@angular/common/http';
 export * from './abstract-turn-classifier.service';
 export * from './game-cache.service';
 export * from './phase-game-classifier.service';
+export * from './game-classifier.serviceinterface';
 
 @NgModule({
     imports: [JTBCoreGamesUIMessageBus, HttpClientModule, JTBCoreGamesUIPhases],

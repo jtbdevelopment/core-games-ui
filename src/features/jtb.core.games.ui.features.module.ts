@@ -6,6 +6,7 @@ import {HttpClientModule} from '@angular/common/http';
 export * from './feature-cache.service';
 export * from './feature-group.model';
 export * from './feature-option.model';
+export * from './feature.model';
 
 @NgModule({
     imports: [HttpClientModule, JTBCoreGamesUIMessageBus],

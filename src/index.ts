@@ -15,6 +15,29 @@ import {JTBCoreGamesUIGames} from './games/jtb.core.games.ui.games.module';
 export {AppConfig} from './appconfig.interface';
 
 export {MessageBusService} from './messagebus/jtb.core.games.ui.messagebus.module';
+export {
+    FacebookInitializerService,
+    FacebookLoginService,
+    FacebookInviteService
+} from './facebook/jtb.core.games.ui.facebook.module';
+export {Feature, FeatureGroup, FeatureOption, FeatureCacheService} from './features/jtb.core.games.ui.features.module';
+export {Friend, Invitable, FriendsService} from './friends/jtb.core.games.ui.friends.module';
+export {Player, PlayerService} from './player/jtb.core.games.ui.player.module';
+export {
+    AbstractTurnClassifier,
+    GameCacheService,
+    PhaseGameClassifier,
+    GameClassifier
+} from './gamecache/jtb.core.games.ui.gamecache.module';
+export {
+    GameFactory,
+    Game,
+    MultiPlayerGame,
+    SinglePlayerGame,
+    StandardPlayerStates
+} from './games/jtb.core.games.ui.games.module';
+export {Phase, PhaseCacheService, StandardPhases} from './phases/jtb.core.games.ui.phases.module';
+export {MapKeysPipe} from './utils/map-keys.pipe';
 
 //  Use of this module presumes:
 //  1.  You will implement GameFactory and provide as 'GameFactory'

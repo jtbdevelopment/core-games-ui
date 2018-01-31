@@ -4,6 +4,7 @@ import {FriendsService} from './friends.service';
 import {HttpClientModule} from '@angular/common/http';
 
 export * from './friend.model';
+export * from './invitable.model';
 export * from './friends.service';
 
 @NgModule({

@@ -8,6 +8,7 @@ import {FacebookInviteService} from './facebook-invite.service';
 
 export * from './facebook-invite.service';
 export * from './facebook-login.service';
+export * from './facebook-initializer.service';
 
 @NgModule({
     imports: [JTBCoreGamesUIMessageBus, JTBCoreGamesUIPlayer],

@@ -13,5 +13,6 @@
     <orderEntry type="library" name="jest-matchers-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="jest-diff-DefinitelyTyped" level="application" />
     <orderEntry type="library" name="jasmine-DefinitelyTyped" level="application" />
+    <orderEntry type="library" name="rxjs" level="project" />
   </component>
 </module>

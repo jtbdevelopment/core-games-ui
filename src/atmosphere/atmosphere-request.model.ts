@@ -1,4 +1,5 @@
-import {BehaviorSubject, Subject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subject} from 'rxjs/Subject';
 
 export class AtmosphereRequest {
     requestConnectionStatus: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);

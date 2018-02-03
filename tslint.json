@@ -15,6 +15,11 @@
       true,
       "spaces"
     ],
+    "import-blacklist": [
+      true,
+      "rxjs",
+      "rxjs/Rx"
+    ],
     "label-position": true,
     "max-line-length": [
       true,

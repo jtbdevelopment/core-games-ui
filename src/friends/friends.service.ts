@@ -6,6 +6,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {MessageBusService} from '../messagebus/message-bus.service';
 import {Player} from '../player/player.model';
 import {HttpClient} from '@angular/common/http';
+import {from} from 'rxjs/observable/from';
+import 'rxjs/add/operator/map';
 
 //  TODO - if we ever support multiple social networks - this might be where
 //  to move overall invite functionality
@@ -19,8 +21,8 @@ export class FriendsService {
     private invitableFriendsSubject: BehaviorSubject<Invitable[]> = new BehaviorSubject([]);
 
     constructor(private http: HttpClient, private messageBus: MessageBusService) {
-        this.friends = Observable.from<Friend[]>(this.friendsSubject);
-        this.invitableFriends = Observable.from<Invitable[]>(this.invitableFriendsSubject);
+      this.friends = from<Friend[]>(this.friendsSubject);
+      this.invitableFriends = from<Invitable[]>(this.invitableFriendsSubject);
         this.messageBus.playerUpdates.subscribe(p => {
             if (this.player === undefined || this.player.id !== p.id) {
                 this.friendsSubject.next([]);

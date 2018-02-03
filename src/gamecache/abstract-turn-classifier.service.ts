@@ -1,5 +1,7 @@
-import {BehaviorSubject, Observable} from 'rxjs';
 import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
+import {from} from 'rxjs/observable/from';
 
 @Injectable()
 export abstract class AbstractTurnClassifier {
@@ -19,12 +21,12 @@ export abstract class AbstractTurnClassifier {
 
     //noinspection JSMethodCanBeStatic
     public getClassifications(): Observable<string[]> {
-        return Observable.from(this.DEFAULT_CLASSIFICATIONS);
+      return from(this.DEFAULT_CLASSIFICATIONS);
     }
 
     //  Game buckets to icons - can return empty map if not initialized
     //noinspection JSMethodCanBeStatic
     public getIcons(): Observable<Map<string, string>> {
-        return Observable.from(this.DEFAULT_ICONS);
+      return from(this.DEFAULT_ICONS);
     }
 }

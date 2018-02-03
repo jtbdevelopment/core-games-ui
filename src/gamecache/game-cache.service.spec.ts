@@ -1,4 +1,3 @@
-import {BehaviorSubject, Observable} from 'rxjs';
 import {TestBed} from '@angular/core/testing';
 import {Game} from '../games/game.model';
 import {GameClassifier} from './game-classifier.serviceinterface';
@@ -7,6 +6,9 @@ import {GameFactory} from '../games/gamefactory.serviceinterface';
 import {MultiPlayerGame} from '../games/multi-player-game.model';
 import {MessageBusService} from '../messagebus/message-bus.service';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
+import {from} from 'rxjs/observable/from';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 
 class MockClassifier implements GameClassifier<Game> {
     public classifications = ['A', 'B', 'D'];
@@ -14,7 +16,7 @@ class MockClassifier implements GameClassifier<Game> {
     public classificationSubject: BehaviorSubject<string[]> = new BehaviorSubject([]);
 
     public getClassifications(): Observable<string[]> {
-        return Observable.from(this.classificationSubject);
+      return from(this.classificationSubject);
     }
 
     public getIcons(): Observable<Map<string, string>> {

@@ -1,9 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Player} from './player.model';
-import {BehaviorSubject, Observable} from 'rxjs';
 import {MessageBusService} from '../messagebus/message-bus.service';
 import {Router} from '@angular/router';
 import {HttpClient} from '@angular/common/http';
+import {from} from 'rxjs/observable/from';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import 'rxjs/add/operator/map';
 
 @Injectable()
 export class PlayerService {
@@ -20,8 +23,8 @@ export class PlayerService {
     constructor(private http: HttpClient,
                 private messageBus: MessageBusService,
                 private router: Router) {
-        this.player = Observable.from<Player>(this.playerSubject);
-        this.loggedInPlayer = Observable.from<Player>(this.loggedInSubject);
+      this.player = from<Player>(this.playerSubject);
+      this.loggedInPlayer = from<Player>(this.loggedInSubject);
         this.messageBus.playerUpdates.subscribe(player => {
             if (player.id === this.playerSubject.getValue().id) {
                 this.playerSubject.next(player);

@@ -1,13 +1,15 @@
-import {ReflectiveInjector} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
 import {Phase} from '../phases/phase.model';
 import {Game} from '../games/game.model';
 import {PhaseGameClassifier} from './phase-game-classifier.service';
 import {PhaseCacheService} from '../phases/phase-cache.service';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
+import {TestBed} from '@angular/core/testing';
+import {from} from 'rxjs/observable/from';
 
 class MockPhaseService {
     public phasesSubject: BehaviorSubject<Phase[]> = new BehaviorSubject<Phase[]>([]);
-    public phases: Observable<Phase[]> = Observable.from(this.phasesSubject);
+  public phases: Observable<Phase[]> = from(this.phasesSubject);
 }
 
 describe('Service: phase game clasifier service', () => {
@@ -17,11 +19,12 @@ describe('Service: phase game clasifier service', () => {
 
     beforeEach(() => {
         classifications = null;
-        this.injector = ReflectiveInjector.resolveAndCreate([
-            {provide: PhaseCacheService, useClass: MockPhaseService},
+      this.injector = TestBed.configureTestingModule({
+        providers: [
+          {provide: PhaseCacheService, useClass: MockPhaseService},
                 PhaseGameClassifier
             ]
-        );
+      });
         phaseCache = this.injector.get(PhaseCacheService);
         classifier = this.injector.get(PhaseGameClassifier);
         classifier.getClassifications().subscribe(c => classifications = c);

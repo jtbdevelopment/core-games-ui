@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import {MessageBusService} from '../messagebus/message-bus.service';
@@ -7,6 +6,9 @@ import {Feature} from './feature.model';
 import {FeatureOption} from './feature-option.model';
 import {FeatureGroup} from './feature-group.model';
 import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {from} from 'rxjs/observable/from';
 
 @Injectable()
 export class FeatureCacheService {
@@ -15,7 +17,7 @@ export class FeatureCacheService {
     private featuresSubject: BehaviorSubject<FeatureGroup[]> = new BehaviorSubject<FeatureGroup[]>([]);
 
     constructor(private http: HttpClient, private messageBus: MessageBusService) {
-        this.features = Observable.from(this.featuresSubject);
+      this.features = from(this.featuresSubject);
         this.messageBus.connectionStatus.subscribe(connected => {
             if (connected && this.featuresSubject.getValue().length === 0) {
                 this.initialize();

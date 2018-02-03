@@ -1,9 +1,9 @@
 import {Player} from '../player/player.model';
 import {Inject, Injectable} from '@angular/core';
-import {Subscription} from 'rxjs';
 import {AtmosphereRequest} from './atmosphere-request.model';
 import {GameFactory} from '../games/gamefactory.serviceinterface';
 import {MessageBusService} from '../messagebus/message-bus.service';
+import {Subscription} from 'rxjs/Subscription';
 
 @Injectable()
 export class AtmosphereMessageProcessorService {

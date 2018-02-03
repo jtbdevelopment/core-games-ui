@@ -8,7 +8,8 @@ export class Player {
     imageUrl: string;
     profileUrl: string;
     lastVersionNotes: string;
-    adminUser: boolean = false;
+  adminUser = false;
+  payLevel: string;
     gameSpecificPlayerAttributes: any = {};
 
     constructor(original?: any) {

@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {Player} from '../player/player.model';
-import {BehaviorSubject, Subject} from 'rxjs';
 import {Game} from '../games/game.model';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subject} from 'rxjs/Subject';
 
 @Injectable()
 export class MessageBusService {

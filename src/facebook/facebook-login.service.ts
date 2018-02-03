@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {FacebookInitializerService} from './facebook-initializer.service';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {from} from 'rxjs/observable/from';
 
 declare let FB: any;
 
@@ -15,8 +16,8 @@ export class FacebookLoginService {
     private canAutoLoginSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     constructor(private fbInitializer: FacebookInitializerService) {
-        this.canAutoLogin = Observable.from(this.canAutoLoginSubject);
-        this.currentAuthorization = Observable.from(this.currentAuthorizationSubject);
+      this.canAutoLogin = from(this.canAutoLoginSubject);
+      this.currentAuthorization = from(this.currentAuthorizationSubject);
         this.fbInitializer.fbReady.then(this.checkLoginStatus.bind(this));
     }
 

@@ -5,6 +5,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Player} from '../player/player.model';
 import {Observable} from 'rxjs/Observable';
 import {PlayerService} from '../player/player.service';
+import {from} from 'rxjs/observable/from';
 
 class MockInitService {
     public fbReady: Promise<any>;
@@ -24,7 +25,7 @@ class MockInitService {
 
 class MockPlayerService {
     public subject: BehaviorSubject<Player> = new BehaviorSubject<Player>(new Player());
-    public loggedInPlayer: Observable<Player> = Observable.from(this.subject);
+  public loggedInPlayer: Observable<Player> = from(this.subject);
 
     public logout: any = jest.fn();
 }

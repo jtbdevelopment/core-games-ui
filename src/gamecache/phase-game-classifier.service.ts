@@ -1,8 +1,9 @@
-import {BehaviorSubject, Observable} from 'rxjs';
 import {Game} from '../games/game.model';
 import {Injectable} from '@angular/core';
 import {GameClassifier} from './game-classifier.serviceinterface';
 import {PhaseCacheService} from '../phases/phase-cache.service';
+import {from} from 'rxjs/observable/from';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class PhaseGameClassifier implements GameClassifier<Game> {
@@ -36,11 +37,11 @@ export class PhaseGameClassifier implements GameClassifier<Game> {
     }
 
     public getClassifications(): Observable<string[]> {
-        return Observable.from(this.phasesSubject);
+      return from(this.phasesSubject);
     }
 
     public getIcons(): Observable<Map<string, string>> {
-        return Observable.from(this.iconsSubject);
+      return from(this.iconsSubject);
     }
 
     public classifyGame(game: Game): string {

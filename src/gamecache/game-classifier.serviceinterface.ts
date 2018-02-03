@@ -1,5 +1,5 @@
 import {Game} from '../games/game.model';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 export interface GameClassifier<G extends Game> {
     //  Buckets of games - aka ['Your turn', 'Their turn', 'Other']  in order of display

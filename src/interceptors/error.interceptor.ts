@@ -3,6 +3,7 @@ import {MessageBusService} from '../messagebus/message-bus.service';
 import {Observable} from 'rxjs/Observable';
 import {Injectable} from '@angular/core';
 import {Subject} from 'rxjs/Subject';
+import {from} from 'rxjs/observable/from';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
@@ -32,6 +33,6 @@ export class ErrorInterceptor implements HttpInterceptor {
                 subject.next(event);
             }
         });
-        return Observable.from(subject);
+      return from(subject);
     }
 }

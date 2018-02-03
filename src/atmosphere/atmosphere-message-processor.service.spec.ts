@@ -1,12 +1,14 @@
 import {ReflectiveInjector} from '@angular/core';
 import {Player} from '../player/player.model';
-import {BehaviorSubject, Subject, Subscription} from 'rxjs';
 import {Game} from '../games/game.model';
 import {AtmosphereMessageProcessorService} from './atmosphere-message-processor.service';
 import {AtmosphereRequest} from './atmosphere-request.model';
 import {GameFactory} from '../games/gamefactory.serviceinterface';
 import {MultiPlayerGame} from '../games/multi-player-game.model';
 import {MessageBusService} from '../messagebus/message-bus.service';
+import {Subscription} from 'rxjs/Subscription';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subject} from 'rxjs/Subject';
 
 class MockSubscription extends Subscription {
     constructor() {

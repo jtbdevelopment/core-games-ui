@@ -1,9 +1,9 @@
 import {Player} from '../player/player.model';
 import {AtmosphereService} from './atmosphere.service';
-import {BehaviorSubject} from 'rxjs';
 import {PlayerService} from '../player/player.service';
 import {AtmosphereMessageProcessorService} from './atmosphere-message-processor.service';
 import {TestBed} from '@angular/core/testing';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 class MockPlayerService {
     player: BehaviorSubject<Player> = new BehaviorSubject(new Player());

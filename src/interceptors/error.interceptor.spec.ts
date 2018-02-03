@@ -1,15 +1,16 @@
 import {MessageBusService} from '../messagebus/message-bus.service';
 import {ErrorInterceptor} from './error.interceptor';
 import {
-    HttpErrorResponse,
-    HttpEvent,
-    HttpHandler,
-    HttpHeaderResponse,
-    HttpRequest,
-    HttpResponse
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandler,
+  HttpHeaderResponse,
+  HttpRequest,
+  HttpResponse
 } from '@angular/common/http';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
+import {from} from 'rxjs/observable/from';
 
 class MockHandler extends HttpHandler {
     public lastRequest: HttpRequest<any>;
@@ -17,7 +18,7 @@ class MockHandler extends HttpHandler {
 
     handle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
         this.lastRequest = req;
-        return Observable.from(this.events);
+      return from(this.events);
     }
 }
 

@@ -4,6 +4,7 @@ import {GameClassifier} from './game-classifier.serviceinterface';
 import {PhaseCacheService} from '../phases/phase-cache.service';
 import {from} from 'rxjs/observable/from';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class PhaseGameClassifier implements GameClassifier<Game> {

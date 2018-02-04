@@ -3,15 +3,16 @@ import {JTBCoreGamesUIMessageBus} from '../messagebus/jtb.core.games.ui.messageb
 import {FriendsService} from './friends.service';
 import {HttpClientModule} from '@angular/common/http';
 
-export * from './friend.model';
-export * from './invitable.model';
-export * from './friends.service';
+export {Friend} from './friend.model';
+export {Invitable} from './invitable.model';
+export {FriendsService} from './friends.service';
 
 @NgModule({
-    imports: [HttpClientModule, JTBCoreGamesUIMessageBus],
-    providers: [
-        FriendsService
-    ]
+  imports: [HttpClientModule, JTBCoreGamesUIMessageBus],
+  exports: [HttpClientModule, JTBCoreGamesUIMessageBus],
+  providers: [
+    FriendsService
+  ]
 })
 export class JTBCoreGamesUIFriends {
 }

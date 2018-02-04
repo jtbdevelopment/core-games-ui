@@ -3,14 +3,15 @@ import {JTBCoreGamesUIMessageBus} from '../messagebus/jtb.core.games.ui.messageb
 import {PlayerService} from './player.service';
 import {HttpClientModule} from '@angular/common/http';
 
-export * from './player.model';
-export * from './player.service';
+export {Player} from './player.model';
+export {PlayerService} from './player.service';
 
 @NgModule({
-    imports: [HttpClientModule, JTBCoreGamesUIMessageBus],
-    providers: [
-        PlayerService
-    ]
+  imports: [HttpClientModule, JTBCoreGamesUIMessageBus],
+  exports: [HttpClientModule, JTBCoreGamesUIMessageBus],
+  providers: [
+    PlayerService
+  ]
 })
 export class JTBCoreGamesUIPlayer {
 }

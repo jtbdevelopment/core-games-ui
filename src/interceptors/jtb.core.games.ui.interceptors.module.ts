@@ -3,17 +3,20 @@ import {JTBCoreGamesUIMessageBus} from '../messagebus/jtb.core.games.ui.messageb
 import {ErrorInterceptor} from './error.interceptor';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 
-export * from './error.interceptor';
+export {ErrorInterceptor} from './error.interceptor';
 
 @NgModule({
-    imports: [
-        JTBCoreGamesUIMessageBus
-    ],
-    providers: [{
-        provide: HTTP_INTERCEPTORS,
-        useClass: ErrorInterceptor,
-        multi: true,
-    }]
+  imports: [
+    JTBCoreGamesUIMessageBus
+  ],
+  exports: [
+    JTBCoreGamesUIMessageBus
+  ],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: ErrorInterceptor,
+    multi: true,
+  }]
 })
 export class JTBCoreGamesUIInterceptors {
 }

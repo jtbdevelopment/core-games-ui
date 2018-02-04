@@ -5,17 +5,18 @@ import {GameCacheService} from './game-cache.service';
 import {PhaseGameClassifier} from './phase-game-classifier.service';
 import {HttpClientModule} from '@angular/common/http';
 
-export * from './abstract-turn-classifier.service';
-export * from './game-cache.service';
-export * from './phase-game-classifier.service';
-export * from './game-classifier.serviceinterface';
+export {AbstractTurnClassifier} from './abstract-turn-classifier.service';
+export {GameCacheService} from './game-cache.service';
+export {PhaseGameClassifier} from './phase-game-classifier.service';
+export {GameClassifier} from './game-classifier.serviceinterface';
 
 @NgModule({
-    imports: [JTBCoreGamesUIMessageBus, HttpClientModule, JTBCoreGamesUIPhases],
-    providers: [
-        GameCacheService,
-        PhaseGameClassifier
-    ]
+  imports: [JTBCoreGamesUIMessageBus, HttpClientModule, JTBCoreGamesUIPhases],
+  exports: [JTBCoreGamesUIMessageBus, HttpClientModule, JTBCoreGamesUIPhases],
+  providers: [
+    GameCacheService,
+    PhaseGameClassifier
+  ]
 })
 export class JTBCoreGamesUIGameCache {
 }

@@ -3,16 +3,17 @@ import {JTBCoreGamesUIMessageBus} from '../messagebus/jtb.core.games.ui.messageb
 import {FeatureCacheService} from './feature-cache.service';
 import {HttpClientModule} from '@angular/common/http';
 
-export * from './feature-cache.service';
-export * from './feature-group.model';
-export * from './feature-option.model';
-export * from './feature.model';
+export {FeatureCacheService} from './feature-cache.service';
+export {FeatureGroup} from './feature-group.model';
+export {FeatureOption} from './feature-option.model';
+export {Feature} from './feature.model';
 
 @NgModule({
-    imports: [HttpClientModule, JTBCoreGamesUIMessageBus],
-    providers: [
-        FeatureCacheService
-    ]
+  imports: [HttpClientModule, JTBCoreGamesUIMessageBus],
+  exports: [HttpClientModule, JTBCoreGamesUIMessageBus],
+  providers: [
+    FeatureCacheService
+  ]
 })
 export class JTBCoreGamesUIFeatures {
 }

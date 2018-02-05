@@ -1,11 +1,11 @@
 import {Feature} from './feature.model';
 
 export class FeatureGroup {
-    public groupType: string;
+  public groupType: string;
 
-    public features: Feature[] = [];
+  public features: Feature[] = [];
 
-    constructor(groupType: string) {
-        this.groupType = groupType;
-    }
+  constructor(groupType: string) {
+    this.groupType = groupType;
+  }
 }

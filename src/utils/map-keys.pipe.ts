@@ -3,7 +3,7 @@ import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({name: 'mapKeys'})
 export class MapKeysPipe implements PipeTransform {
-    transform(value: any, args: any[] = null): any {
-        return Object.keys(value).map(key => key);
-    }
+  transform(value: any, args: any[] = null): any {
+    return Object.keys(value).map(key => key);
+  }
 }

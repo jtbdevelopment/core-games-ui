@@ -7,24 +7,24 @@ declare let FB: any;
 
 @Injectable()
 export class FacebookIdentifyVerifierService {
-    constructor(private playerService: PlayerService, private fbInitializer: FacebookInitializerService) {
-        this.playerService.loggedInPlayer.subscribe(p => {
-            this.verifyPlayerAndFacebookMatch(p);
-        });
-    }
+  constructor(private playerService: PlayerService, private fbInitializer: FacebookInitializerService) {
+    this.playerService.loggedInPlayer.subscribe(p => {
+      this.verifyPlayerAndFacebookMatch(p);
+    });
+  }
 
-    private verifyPlayerAndFacebookMatch(player: Player): void {
-        if (player.source === 'facebook') {
-            this.fbInitializer.fbReady.then(() => {
-                FB.getLoginStatus((response: any) => {
-                    if (response.status !== 'connected' ||
-                        response.authResponse === undefined ||
-                        response.authResponse === null ||
-                        response.authResponse.userID !== player.sourceId) {
-                        this.playerService.logout();
-                    }
-                });
-            });
-        }
+  private verifyPlayerAndFacebookMatch(player: Player): void {
+    if (player.source === 'facebook') {
+      this.fbInitializer.fbReady.then(() => {
+        FB.getLoginStatus((response: any) => {
+          if (response.status !== 'connected' ||
+            response.authResponse === undefined ||
+            response.authResponse === null ||
+            response.authResponse.userID !== player.sourceId) {
+            this.playerService.logout();
+          }
+        });
+      });
     }
+  }
 }

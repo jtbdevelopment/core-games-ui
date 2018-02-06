@@ -10,7 +10,10 @@
     "email": "jtbdevelopment@gmail.com"
   },
   "keywords": [
-    "angular"
+    "angular",
+    "games",
+    "facebook",
+    "websocket"
   ],
   "license": "MIT",
   "bugs": {
@@ -21,14 +24,14 @@
   "jsnext:main": "jtb-core-games-ui.js",
   "typings": "jtb-core-games-ui.d.ts",
   "peerDependencies": {
-    "@angular/common": "^5.0.0",
-    "@angular/compiler": "^5.0.0",
-    "@angular/compiler-cli": "^5.0.0",
-    "@angular/core": "^5.0.0",
-    "@angular/http": "^5.0.0",
-    "@angular/router": "^5.0.0",
-    "@angular/platform-browser": "^5.0.0",
-    "@angular/platform-browser-dynamic": "^5.0.0",
+    "@angular/common": "^5.2.3",
+    "@angular/compiler": "^5.2.3",
+    "@angular/compiler-cli": "^5.2.3",
+    "@angular/core": "^5.2.3",
+    "@angular/http": "^5.2.3",
+    "@angular/router": "^5.2.3",
+    "@angular/platform-browser": "^5.2.3",
+    "@angular/platform-browser-dynamic": "^5.2.3",
     "atmosphere.js": "^2.3.3",
     "core-js": "^2.4.1",
     "rxjs": "^5.5.2",

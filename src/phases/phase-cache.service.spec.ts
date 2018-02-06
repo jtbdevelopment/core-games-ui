@@ -33,7 +33,7 @@ describe('Service: phase cache service', () => {
   });
 
   describe('loading phases', () => {
-    let results = {
+    const results = {
       'p1': ['d1', 'g1'],
       'p2': ['d2', 'g2'],
       'p4': ['d4', 'g4'],
@@ -51,7 +51,7 @@ describe('Service: phase cache service', () => {
 
     it('it requests phases on first request', () => {
       messageBus.connectionStatus.next(true);
-      let request = httpMock.expectOne('/api/phases');
+      const request = httpMock.expectOne('/api/phases');
       expect(request.request.method).toEqual('GET');
       expect(request.request.body).toBeNull();
       request.flush(results);
@@ -59,7 +59,7 @@ describe('Service: phase cache service', () => {
 
     it('it does not re-request after first call', () => {
       messageBus.connectionStatus.next(true);
-      let request = httpMock.expectOne('/api/phases');
+      const request = httpMock.expectOne('/api/phases');
       expect(request.request.method).toEqual('GET');
       expect(request.request.body).toBeNull();
       request.flush(results);

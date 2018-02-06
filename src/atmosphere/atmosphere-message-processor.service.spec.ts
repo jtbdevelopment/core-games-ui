@@ -67,7 +67,7 @@ describe('Service: atmosphere message handler service', () => {
   });
 
   it('basic listen setup', () => {
-    let r: MockAtmosphereRequest = new MockAtmosphereRequest();
+    const r: MockAtmosphereRequest = new MockAtmosphereRequest();
     processor.listen(r);
     expect(lastStatus).toBeFalsy();
     expect(r.requestConnectionStatus.subscribe).toHaveBeenCalledTimes(1);
@@ -81,7 +81,7 @@ describe('Service: atmosphere message handler service', () => {
   });
 
   it('basic listen publishes connection status', () => {
-    let r: AtmosphereRequest = new AtmosphereRequest('', '');
+    const r: AtmosphereRequest = new AtmosphereRequest('', '');
     processor.listen(r);
     expect(lastStatus).toBeFalsy();
     r.requestConnectionStatus.next(true);
@@ -91,7 +91,7 @@ describe('Service: atmosphere message handler service', () => {
   });
 
   it('basic listen publishes game status', () => {
-    let r: AtmosphereRequest = new AtmosphereRequest('', '');
+    const r: AtmosphereRequest = new AtmosphereRequest('', '');
     processor.listen(r);
     expect(lastGame).toBeNull();
     let g1: MultiPlayerGame = new MultiPlayerGame();
@@ -110,7 +110,7 @@ describe('Service: atmosphere message handler service', () => {
   });
 
   it('basic listen publishes player status', () => {
-    let r: AtmosphereRequest = new AtmosphereRequest('', '');
+    const r: AtmosphereRequest = new AtmosphereRequest('', '');
     processor.listen(r);
     expect(lastPlayer).toBeNull();
     let p1: Player = new Player();
@@ -132,13 +132,13 @@ describe('Service: atmosphere message handler service', () => {
 
   describe('testing disconnect/reconnects', () => {
     it('disconnects and reconnects', () => {
-      let r1: AtmosphereRequest = new AtmosphereRequest('', '');
+      const r1: AtmosphereRequest = new AtmosphereRequest('', '');
       processor.listen(r1);
       expect(lastStatus).toBeFalsy();
       expect(lastPlayer).toBeNull();
       r1.requestConnectionStatus.next(true);
       expect(lastStatus).toBeTruthy();
-      let r2: AtmosphereRequest = new AtmosphereRequest('', '');
+      const r2: AtmosphereRequest = new AtmosphereRequest('', '');
       processor.listen(r2);
       expect(lastStatus).toBeFalsy();
       r1.requestConnectionStatus.next(true);  // ignored

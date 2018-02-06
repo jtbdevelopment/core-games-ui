@@ -48,7 +48,7 @@ describe('Interceptor: error interceptor', () => {
 
   it('passes requests on unchanged', () => {
 
-    let req: HttpRequest<any> = new HttpRequest<any>('GET', 'someurl', null);
+    const req: HttpRequest<any> = new HttpRequest<any>('GET', 'someurl', null);
     interceptor.intercept(req, next);
     expect(next.lastRequest).toEqual(req);
   });
@@ -81,7 +81,7 @@ describe('Interceptor: error interceptor', () => {
       passedOn = x;
     });
     expect(passedOn).toBeUndefined();
-    let response: any = new HttpErrorResponse({status: 409});
+    const response: any = new HttpErrorResponse({status: 409});
     next.events.next(response);
     expect(passedOn).toEqual(response);
     expect(error).toBeFalsy();
@@ -96,7 +96,7 @@ describe('Interceptor: error interceptor', () => {
       passedOn = x;
     });
     expect(passedOn).toBeUndefined();
-    let response: any = new HttpErrorResponse({status: 401});
+    const response: any = new HttpErrorResponse({status: 401});
     next.events.next(response);
     expect(passedOn).toBeUndefined();
     expect(error).toBeFalsy();
@@ -111,7 +111,7 @@ describe('Interceptor: error interceptor', () => {
       passedOn = x;
     });
     expect(passedOn).toBeUndefined();
-    let response: any = new HttpErrorResponse({status: 404});
+    const response: any = new HttpErrorResponse({status: 404});
     next.events.next(response);
     expect(passedOn).toBeUndefined();
     expect(error).toEqual(response);

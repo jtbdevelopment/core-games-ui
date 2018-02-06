@@ -2,6 +2,8 @@ import {HttpClientTestingModule, HttpTestingController} from '@angular/common/ht
 import {FacebookInitializerService} from './facebook-initializer.service';
 import {fakeAsync, TestBed, tick} from '@angular/core/testing';
 
+declare let window: any;
+
 describe('Service: facebook initializer', () => {
   let httpMock: HttpTestingController;
   let fbInit: FacebookInitializerService;
@@ -10,7 +12,7 @@ describe('Service: facebook initializer', () => {
   let reject: boolean;
 
   beforeEach(() => {
-    global.FB = {};
+    window.FB = {};
     ready = false;
     reject = false;
     TestBed.configureTestingModule({
@@ -29,14 +31,14 @@ describe('Service: facebook initializer', () => {
   });
 
   it('initializes from server and inits FB', fakeAsync(() => {
-    let request = httpMock.expectOne('/api/social/apis');
-    global.FB.init = jest.fn();
+    const request = httpMock.expectOne('/api/social/apis');
+    window.FB.init = jest.fn();
     expect(request.request.method).toEqual('GET');
     request.flush({
       facebookAppId: 'someappid',
       facebookPermissions: '1,perm2,another'
     });
-    expect(global.FB.init).toHaveBeenCalledWith({
+    expect(window.FB.init).toHaveBeenCalledWith({
       appId: 'someappid',
       xfbml: false,
       version: 'v2.11'
@@ -49,14 +51,14 @@ describe('Service: facebook initializer', () => {
   }));
 
   it('initializes from server and fails on server', fakeAsync(() => {
-    global.FB.init = jest.fn();
-    let request = httpMock.expectOne('/api/social/apis');
+    window.FB.init = jest.fn();
+    const request = httpMock.expectOne('/api/social/apis');
     expect(request.request.method).toEqual('GET');
     request.flush('something is not right', {
       status: 402,
       statusText: 'x'
     });
-    expect(global.FB.init.mock.calls.length).toEqual(0);
+    expect(window.FB.init.mock.calls.length).toEqual(0);
     tick();
     expect(reject).toBeTruthy();
     expect(ready).toBeFalsy();

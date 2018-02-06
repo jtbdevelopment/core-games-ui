@@ -3,6 +3,8 @@ import {FacebookInitializerService} from './facebook-initializer.service';
 import {FacebookInviteService} from './facebook-invite.service';
 import {Invitable} from '../friends/invitable.model';
 
+declare let window: any;
+
 class MockInitService {
   public fbReady: Promise<any>;
 
@@ -44,8 +46,8 @@ describe('Service: facebook invite service', () => {
 
 
   it('invite friends when ready', fakeAsync(() => {
-    let message = 'to boldly go';
-    let friends = [
+    const message = 'to boldly go';
+    const friends = [
       new Invitable('id1', 'dn1'),
       new Invitable('id2', 'dn2'),
       new Invitable('id3', 'dn3')

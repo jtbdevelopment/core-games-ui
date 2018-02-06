@@ -2,7 +2,7 @@ import {MultiPlayerGame} from './multi-player-game.model';
 
 describe('Model: MultiPlayerGame', () => {
   it('defaults to undefined', () => {
-    let g: MultiPlayerGame = new MultiPlayerGame();
+    const g: MultiPlayerGame = new MultiPlayerGame();
 
     //  select checks from underlying game class
     expect(g.id).toBeUndefined();
@@ -20,7 +20,7 @@ describe('Model: MultiPlayerGame', () => {
   });
 
   it('copies from optional param if provided', () => {
-    let source: MultiPlayerGame = new MultiPlayerGame();
+    const source: MultiPlayerGame = new MultiPlayerGame();
     source.id = 'id1';
     source.version = 17;
     source.created = 123455;
@@ -38,7 +38,7 @@ describe('Model: MultiPlayerGame', () => {
       'md51': 'Accepted',
       'md52': 'Quit'
     };
-    let g: MultiPlayerGame = new MultiPlayerGame(source);
+    const g: MultiPlayerGame = new MultiPlayerGame(source);
 
     //  select checks from underlying game class
     expect(g.id).toEqual(source.id);

@@ -31,7 +31,7 @@ describe('Service: phase game clasifier service', () => {
   });
 
   it('before initialization of phases, returns game phase', () => {
-    let g = new Game();
+    const g = new Game();
     g.gamePhase = 'phase1';
 
     expect(classifier.classifyGame(g)).toEqual(g.gamePhase);
@@ -51,8 +51,8 @@ describe('Service: phase game clasifier service', () => {
   });
 
   describe('after phases initialized', () => {
-    let p1 = new Phase('phase1', 'Phase 1', 'Phase 1 Desc');
-    let p2 = new Phase('phase2', 'Phase 2', 'Phase 2 Desc');
+    const p1 = new Phase('phase1', 'Phase 1', 'Phase 1 Desc');
+    const p2 = new Phase('phase2', 'Phase 2', 'Phase 2 Desc');
     beforeEach(() => {
       phaseCache.phasesSubject.next([p1, p2]);
     });
@@ -62,21 +62,21 @@ describe('Service: phase game clasifier service', () => {
     });
 
     it('returns Phase 1 for phase1 game', () => {
-      let g = new Game();
+      const g = new Game();
       g.gamePhase = 'phase1';
 
       expect(classifier.classifyGame(g)).toEqual(p1.groupLabel);
     });
 
     it('returns Phase 2 for phase2 game', () => {
-      let g = new Game();
+      const g = new Game();
       g.gamePhase = 'phase2';
 
       expect(classifier.classifyGame(g)).toEqual(p2.groupLabel);
     });
 
     it('returns raw phase for unknown pahse', () => {
-      let g = new Game();
+      const g = new Game();
       g.gamePhase = 'unknown';
 
       expect(classifier.classifyGame(g)).toEqual(g.gamePhase);

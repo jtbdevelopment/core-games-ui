@@ -2,7 +2,7 @@ import {Player} from './player.model';
 
 describe('Model: player', () => {
   it('defaults to undefined player with no admin rights', () => {
-    let p: Player = new Player();
+    const p: Player = new Player();
 
     expect(p.id).toBeUndefined();
     expect(p.md5).toBeUndefined();
@@ -18,7 +18,7 @@ describe('Model: player', () => {
   });
 
   it('copies from optional param if provided', () => {
-    let source: Player = new Player();
+    const source: Player = new Player();
     source.imageUrl = 'imageurl';
     source.profileUrl = 'profileUrl';
     source.adminUser = true;
@@ -33,7 +33,7 @@ describe('Model: player', () => {
       freeGamesRemaining: 32,
       anAttribute: 'X'
     };
-    let p: Player = new Player(source);
+    const p: Player = new Player(source);
 
     expect(p.id).toEqual(source.id);
     expect(p.md5).toEqual(source.md5);
@@ -50,7 +50,7 @@ describe('Model: player', () => {
   });
 
   it('copies from optional param if provided as general json', () => {
-    let source: Player = new Player();
+    const source: Player = new Player();
     source.imageUrl = 'imageurl';
     source.profileUrl = 'profileUrl';
     source.adminUser = true;
@@ -65,7 +65,7 @@ describe('Model: player', () => {
       freeGamesRemaining: 32,
       anAttribute: 'X'
     };
-    let p: Player = new Player(JSON.parse(JSON.stringify(source)));
+    const p: Player = new Player(JSON.parse(JSON.stringify(source)));
 
     expect(p.id).toEqual(source.id);
     expect(p.md5).toEqual(source.md5);

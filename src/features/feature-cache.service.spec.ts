@@ -33,7 +33,7 @@ describe('Service: feature cache service', () => {
   });
 
   describe('loading features', () => {
-    let results = [
+    const results = [
       {
         'feature': {
           'groupType': 'Difficulty',
@@ -126,7 +126,7 @@ describe('Service: feature cache service', () => {
     ];
 
     afterEach(() => {
-      let expectedGroups = [
+      const expectedGroups = [
         new FeatureGroup('Difficulty'),
         new FeatureGroup('MultiPlayer')
       ];
@@ -157,14 +157,14 @@ describe('Service: feature cache service', () => {
 
     it('it requests features on first request', () => {
       messageBus.connectionStatus.next(true);
-      let request = httpMock.expectOne('/api/features');
+      const request = httpMock.expectOne('/api/features');
       expect(request.request.method).toEqual('GET');
       request.flush(results);
     });
 
     it('it does not re-request after first call', () => {
       messageBus.connectionStatus.next(true);
-      let request = httpMock.expectOne('/api/features');
+      const request = httpMock.expectOne('/api/features');
       expect(request.request.method).toEqual('GET');
       request.flush(results);
 

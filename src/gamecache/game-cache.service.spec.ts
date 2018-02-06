@@ -66,7 +66,7 @@ describe('Service: game cache service', () => {
   });
 
   describe('initialization', () => {
-    let expectedGames = [
+    const expectedGames = [
       new MultiPlayerGame({id: '1', gamePhase: 'B', lastUpdate: 0}),
       new MultiPlayerGame({id: '2', gamePhase: 'A', lastUpdate: 0}),
       new MultiPlayerGame({id: '3', gamePhase: 'B', lastUpdate: 0}),
@@ -77,7 +77,7 @@ describe('Service: game cache service', () => {
     describe('state after connecting but categories are not ready', () => {
       beforeEach(() => {
         messageBus.connectionStatus.next(true);
-        let request = httpMock.expectOne('/api/player/games');
+        const request = httpMock.expectOne('/api/player/games');
         expect(request.request.method).toEqual('GET');
         expect(request.request.body).toBeNull();
         request.flush(expectedGames);
@@ -98,7 +98,7 @@ describe('Service: game cache service', () => {
       describe('state after connected and categories are ready', () => {
         it('categories are available and empty games initialized', () => {
           classifier.classificationSubject.next(classifier.classifications);
-          let games: Game[][] = [];
+          const games: Game[][] = [];
           classifier.classifications.forEach((c, i) => {
             games.push(null);
             gameCache.getGamesForCategory(c).subscribe(x => games[i] = x);
@@ -115,7 +115,7 @@ describe('Service: game cache service', () => {
     });
 
     describe('state after categories are ready, but not connected initially', () => {
-      let games: Game[][] = [];
+      const games: Game[][] = [];
       beforeEach(async () => {
         classifier.classificationSubject.next(classifier.classifications);
         classifier.classifications.forEach((c, i) => {
@@ -137,7 +137,7 @@ describe('Service: game cache service', () => {
         });
 
         it('requests games after connected', () => {
-          let request = httpMock.expectOne('/api/player/games');
+          const request = httpMock.expectOne('/api/player/games');
           expect(request.request.method).toEqual('GET');
           expect(request.request.body).toBeNull();
           request.flush(expectedGames);
@@ -152,7 +152,7 @@ describe('Service: game cache service', () => {
   });
 
   describe('updates after initialized', () => {
-    let expectedGames = [
+    const expectedGames = [
       new MultiPlayerGame({id: '1', gamePhase: 'B', lastUpdate: 0}),
       new MultiPlayerGame({id: '2', gamePhase: 'A', lastUpdate: 0}),
       new MultiPlayerGame({id: '3', gamePhase: 'B', lastUpdate: 0}),
@@ -160,10 +160,10 @@ describe('Service: game cache service', () => {
       new MultiPlayerGame({id: '5', gamePhase: 'B', lastUpdate: 0}),
     ];
 
-    let games: Map<string, Game[]> = new Map<string, Game[]>();
+    const games: Map<string, Game[]> = new Map<string, Game[]>();
     beforeEach(() => {
       messageBus.connectionStatus.next(true);
-      let request = httpMock.expectOne('/api/player/games');
+      const request = httpMock.expectOne('/api/player/games');
       expect(request.request.method).toEqual('GET');
       expect(request.request.body).toBeNull();
       request.flush(expectedGames);
@@ -182,7 +182,7 @@ describe('Service: game cache service', () => {
       });
     });
 
-    let methods = [(game: Game) => {
+    const methods = [(game: Game) => {
       messageBus.gameUpdates.next(game);
     }, (game: Game) => {
       gameCache.putGame(game);
@@ -190,7 +190,7 @@ describe('Service: game cache service', () => {
 
     methods.forEach(method => {
       it('new game adding to list', () => {
-        let newGame = new MultiPlayerGame({id: '6', gamePhase: 'A', lastUpdate: 1});
+        const newGame = new MultiPlayerGame({id: '6', gamePhase: 'A', lastUpdate: 1});
         method(newGame);
 
         let subscribed: Game;
@@ -202,7 +202,7 @@ describe('Service: game cache service', () => {
       });
 
       it('updating newer version of game in list, keeping classification', () => {
-        let newGame = new MultiPlayerGame({id: '4', gamePhase: 'D', lastUpdate: 1});
+        const newGame = new MultiPlayerGame({id: '4', gamePhase: 'D', lastUpdate: 1});
         method(newGame);
         let subscribed: Game;
         gameCache.getGame(newGame.id).subscribe(x => subscribed = x);
@@ -213,7 +213,7 @@ describe('Service: game cache service', () => {
       });
 
       it('ignores older version of game in list', () => {
-        let newGame = new MultiPlayerGame({id: '4', gamePhase: 'D', lastUpdate: -1});
+        const newGame = new MultiPlayerGame({id: '4', gamePhase: 'D', lastUpdate: -1});
         method(newGame);
         let subscribed: Game;
         gameCache.getGame(newGame.id).subscribe(x => subscribed = x);
@@ -224,7 +224,7 @@ describe('Service: game cache service', () => {
       });
 
       it('updating newer version of game in list, changing classification', () => {
-        let newGame = new MultiPlayerGame({id: '4', gamePhase: 'A', lastUpdate: 1});
+        const newGame = new MultiPlayerGame({id: '4', gamePhase: 'A', lastUpdate: 1});
         method(newGame);
         let subscribed: Game;
         gameCache.getGame(newGame.id).subscribe(x => subscribed = x);
@@ -236,7 +236,7 @@ describe('Service: game cache service', () => {
       });
 
       it('deals with non classifiable games on existing classified', () => {
-        let newGame = new MultiPlayerGame({id: '4', gamePhase: 'AD', lastUpdate: 1});
+        const newGame = new MultiPlayerGame({id: '4', gamePhase: 'AD', lastUpdate: 1});
         method(newGame);
 
         let subscribed: Game;
@@ -251,7 +251,7 @@ describe('Service: game cache service', () => {
       });
 
       it('deals with non classifiable games on existing classified moving to classified', () => {
-        let newGame = new MultiPlayerGame({id: '6', gamePhase: 'AD', lastUpdate: 1});
+        const newGame = new MultiPlayerGame({id: '6', gamePhase: 'AD', lastUpdate: 1});
         method(newGame);
 
         let subscribed: Game;
@@ -265,7 +265,7 @@ describe('Service: game cache service', () => {
         expect(JSON.stringify(games.get('D'))).toEqual(JSON.stringify([expectedGames[3]]));
         expect(games.get('AD')).toBeUndefined();
 
-        let updateToGame = new MultiPlayerGame({id: '6', gamePhase: 'D', lastUpdate: 2});
+        const updateToGame = new MultiPlayerGame({id: '6', gamePhase: 'D', lastUpdate: 2});
         messageBus.gameUpdates.next(updateToGame);
 
         expect(gameCache.getGamesCount()).toBeCloseTo(6);

@@ -2,7 +2,7 @@ import {AtmosphereRequest} from './atmosphere-request.model';
 
 describe('Model: atmosphererequest', () => {
   it('initializes variables for connection parameters', () => {
-    let request = new AtmosphereRequest('localhost:123', '1234');
+    const request = new AtmosphereRequest('localhost:123', '1234');
     expect(request.url).toEqual('localhost:123/livefeed/1234');
     expect(request.closeAsync).toBeTruthy();
     expect(request.withCredentials).toBeTruthy();
@@ -13,7 +13,7 @@ describe('Model: atmosphererequest', () => {
     expect(request.transport).toEqual('websocket');
     expect(request.fallbackTransport).toEqual('long-polling');
 
-    let connected: boolean = true;
+    let connected = true;
     request.requestConnectionStatus.subscribe(status => {
       connected = status;
     });
@@ -51,12 +51,12 @@ describe('Model: atmosphererequest', () => {
   });
 
   it('publishes all parsable messages in a batch', () => {
-    let request: AtmosphereRequest = new AtmosphereRequest('', '');
-    let m1: string = JSON.stringify({f1: 3, f2: 'string'});
-    let m2: string = 'not json';
-    let m3: string = JSON.stringify({messageType: 'heartbeat', message: 'here i am'});
+    const request: AtmosphereRequest = new AtmosphereRequest('', '');
+    const m1: string = JSON.stringify({f1: 3, f2: 'string'});
+    const m2 = 'not json';
+    const m3: string = JSON.stringify({messageType: 'heartbeat', message: 'here i am'});
 
-    let messages: any[] = [];
+    const messages: any[] = [];
     request.messageSubject.subscribe(message => {
       messages.push(message);
     });
@@ -68,12 +68,12 @@ describe('Model: atmosphererequest', () => {
   });
 
   it('ignores if no messages fields', () => {
-    let request: AtmosphereRequest = new AtmosphereRequest('', '');
-    let m1: string = JSON.stringify({f1: 3, f2: 'string'});
-    let m2: string = 'not json';
-    let m3: string = JSON.stringify({messageType: 'heartbeat', message: 'here i am'});
+    const request: AtmosphereRequest = new AtmosphereRequest('', '');
+    const m1: string = JSON.stringify({f1: 3, f2: 'string'});
+    const m2 = 'not json';
+    const m3: string = JSON.stringify({messageType: 'heartbeat', message: 'here i am'});
 
-    let messages: any[] = [];
+    const messages: any[] = [];
     request.messageSubject.subscribe(message => {
       messages.push(message);
     });

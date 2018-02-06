@@ -2,6 +2,8 @@ import {FacebookLoginService} from './facebook-login.service';
 import {fakeAsync, TestBed, tick} from '@angular/core/testing';
 import {FacebookInitializerService} from './facebook-initializer.service';
 
+declare let window: any;
+
 class MockInitService {
   public fbReady: Promise<any>;
   public fbRequiredPermissions: string[];
@@ -39,7 +41,7 @@ describe('Service: facebook login service', () => {
     loginService.currentAuthorization.subscribe((ca) => {
       currentAuth = ca;
     });
-    global.FB = {};
+    window.FB = {};
   });
 
   it('initializes before init ready', () => {
@@ -49,8 +51,8 @@ describe('Service: facebook login service', () => {
 
   describe('after init is ready', () => {
     it('not connected', fakeAsync(() => {
-      let called: boolean = false;
-      global.FB.getLoginStatus = (callback: (response: any) => void) => {
+      let called = false;
+      window.FB.getLoginStatus = (callback: (response: any) => void) => {
         called = true;
         callback({status: 'not connected'});
       };
@@ -63,11 +65,11 @@ describe('Service: facebook login service', () => {
 
     it('connected, missing perms', fakeAsync(() => {
       mockInit.fbRequiredPermissions = ['perm1', 'perm2', 'perm3'];
-      let called: boolean = false;
-      global.FB.getLoginStatus = (callback: (response: any) => void) => {
+      let called = false;
+      window.FB.getLoginStatus = (callback: (response: any) => void) => {
         callback({status: 'connected', authResponse: {code: 'x'}});
       };
-      global.FB.api = (api: string, callback: (response: any) => void) => {
+      window.FB.api = (api: string, callback: (response: any) => void) => {
         called = true;
         expect(api).toEqual('/me/permissions');
         callback({
@@ -87,11 +89,11 @@ describe('Service: facebook login service', () => {
 
     it('connected, have perms', fakeAsync(() => {
       mockInit.fbRequiredPermissions = ['perm1', 'perm2', 'perm3'];
-      let called: boolean = false;
-      global.FB.getLoginStatus = (callback: (response: any) => void) => {
+      let called = false;
+      window.FB.getLoginStatus = (callback: (response: any) => void) => {
         callback({status: 'connected', authResponse: {x: 1, y: '32'}});
       };
-      global.FB.api = (api: string, callback: (response: any) => void) => {
+      window.FB.api = (api: string, callback: (response: any) => void) => {
         called = true;
         expect(api).toEqual('/me/permissions');
         callback({
@@ -113,32 +115,32 @@ describe('Service: facebook login service', () => {
 
   it('manually initiating login before init does nothing', () => {
     mockInit.fbRequiredPermissions = ['perm1', 'perm3'];
-    global.FB.login = jest.fn();
+    window.FB.login = jest.fn();
     loginService.initiateLogin();
-    expect(global.FB.login.mock.calls.length).toEqual(0);
+    expect(window.FB.login.mock.calls.length).toEqual(0);
   });
 
   it('manually initiating login after init', fakeAsync(() => {
     mockInit.fbRequiredPermissions = ['perm1', 'perm3'];
 
     //  initially not connected
-    global.FB.getLoginStatus = (callback: (response: any) => void) => {
+    window.FB.getLoginStatus = (callback: (response: any) => void) => {
       callback({status: 'not connected'});
     };
     mockInit.resolve(true);
     tick();
 
 
-    global.FB.login = (callback: () => void, data: any) => {
+    window.FB.login = (callback: () => void, data: any) => {
       expect(data).toEqual({scope: 'perm1,perm3'});
       callback();
     };
 
-    let called: boolean = false;
-    global.FB.getLoginStatus = (callback: (response: any) => void) => {
+    let called = false;
+    window.FB.getLoginStatus = (callback: (response: any) => void) => {
       callback({status: 'connected', authResponse: {x: 2, y: '32'}});
     };
-    global.FB.api = (api: string, callback: (response: any) => void) => {
+    window.FB.api = (api: string, callback: (response: any) => void) => {
       called = true;
       expect(api).toEqual('/me/permissions');
       callback({

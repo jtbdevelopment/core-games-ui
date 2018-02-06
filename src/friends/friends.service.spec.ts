@@ -41,11 +41,11 @@ describe('Service: friends service', () => {
   it('refresh friends, only invitables', () => {
     friendService.refreshFriends();
 
-    let request = httpMock.expectOne('/api/player/friendsV2');
+    const request = httpMock.expectOne('/api/player/friendsV2');
     expect(request.request.method).toEqual('GET');
     expect(request.request.body).toBeNull();
 
-    let friendsResponse = {
+    const friendsResponse = {
       invitableFriends: [
         {
           id: 'id1',
@@ -70,10 +70,10 @@ describe('Service: friends service', () => {
 
   it('refresh friends, only friends', () => {
     friendService.refreshFriends();
-    let request = httpMock.expectOne('/api/player/friendsV2');
+    const request = httpMock.expectOne('/api/player/friendsV2');
     expect(request.request.method).toEqual('GET');
     expect(request.request.body).toBeNull();
-    let friendsResponse = {
+    const friendsResponse = {
       maskedFriends: [
         {
           md5: 'x1',
@@ -94,10 +94,10 @@ describe('Service: friends service', () => {
 
   it('refresh friends', () => {
     friendService.refreshFriends();
-    let request = httpMock.expectOne('/api/player/friendsV2');
+    const request = httpMock.expectOne('/api/player/friendsV2');
     expect(request.request.method).toEqual('GET');
     expect(request.request.body).toBeNull();
-    let friendsResponse = {
+    const friendsResponse = {
       invitableFriends: [
         {
           id: 'id1',
@@ -135,10 +135,10 @@ describe('Service: friends service', () => {
 
     messageBus.playerUpdates.next(new Player({id: 'thisId'}));
     friendService.refreshFriends();
-    let request = httpMock.expectOne('/api/player/friendsV2');
+    const request = httpMock.expectOne('/api/player/friendsV2');
     expect(request.request.method).toEqual('GET');
     expect(request.request.body).toBeNull();
-    let friendsResponse = {
+    const friendsResponse = {
       invitableFriends: [
         {
           id: 'id1',
@@ -167,10 +167,10 @@ describe('Service: friends service', () => {
   it('update to new player does clear friends', () => {
     messageBus.playerUpdates.next(new Player({id: 'thisId', imageUrl: 'x'}));
     friendService.refreshFriends();
-    let request = httpMock.expectOne('/api/player/friendsV2');
+    const request = httpMock.expectOne('/api/player/friendsV2');
     expect(request.request.method).toEqual('GET');
     expect(request.request.body).toBeNull();
-    let friendsResponse = {
+    const friendsResponse = {
       invitableFriends: [
         {
           id: 'id1',

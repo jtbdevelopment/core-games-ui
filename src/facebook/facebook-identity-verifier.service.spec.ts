@@ -30,6 +30,8 @@ class MockPlayerService {
   public logout: any = jest.fn();
 }
 
+declare let window: any;
+
 describe('Service: facebook identity verifier service', () => {
   let verifierService: FacebookIdentifyVerifierService;
   let mockInit: MockInitService;
@@ -51,7 +53,7 @@ describe('Service: facebook identity verifier service', () => {
 
   it('not facebook player does not check', fakeAsync(() => {
     mockInit.resolve(true);
-    let p = new Player({sourceId: 'x', source: 'manual'});
+    const p = new Player({sourceId: 'x', source: 'manual'});
     playerService.subject.next(p);
     tick();
     expect(playerService.logout).not.toHaveBeenCalled();
@@ -62,7 +64,7 @@ describe('Service: facebook identity verifier service', () => {
     window.FB.getLoginStatus = (callback: (response: any) => void) => {
       callback({status: 'connected', authResponse: {userID: 'x'}});
     };
-    let p = new Player({sourceId: 'x', source: 'facebook'});
+    const p = new Player({sourceId: 'x', source: 'facebook'});
     playerService.subject.next(p);
     tick();
     expect(playerService.logout).not.toHaveBeenCalled();
@@ -74,7 +76,7 @@ describe('Service: facebook identity verifier service', () => {
     });
 
     afterEach(fakeAsync(() => {
-      let p = new Player({sourceId: 'x', source: 'facebook'});
+      const p = new Player({sourceId: 'x', source: 'facebook'});
       playerService.subject.next(p);
       tick();
       expect(playerService.logout).toHaveBeenCalledTimes(1);

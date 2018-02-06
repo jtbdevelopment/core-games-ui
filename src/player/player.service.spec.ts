@@ -51,7 +51,7 @@ describe('Service: player service', () => {
   });
 
   it('loads logged in player', () => {
-    let loadedPlayer = {
+    const loadedPlayer = {
       source: 'A source',
       sourceId: 'sidX',
       displayName: 'A player',
@@ -59,9 +59,9 @@ describe('Service: player service', () => {
       imageUrl: null,
       profileUrl: 'http://myprofile/1'
     };
-    let expectedPlayer: Player = new Player(loadedPlayer);
+    const expectedPlayer: Player = new Player(loadedPlayer);
     playerService.loadLoggedInPlayer();
-    let request = httpMock.expectOne('/api/security');
+    const request = httpMock.expectOne('/api/security');
     expect(request.request.method).toEqual('GET');
     expect(request.request.body).toBeNull();
     request.flush(loadedPlayer);
@@ -75,7 +75,7 @@ describe('Service: player service', () => {
   describe('after loading logged in player', () => {
     let initiallyLoadedPlayer: Player;
     beforeEach(() => {
-      let loadedPlayer = {
+      const loadedPlayer = {
         id: 'id',
         source: 'a source',
         sourceId: 'sidX',
@@ -86,7 +86,7 @@ describe('Service: player service', () => {
       };
       initiallyLoadedPlayer = new Player(loadedPlayer);
       playerService.loadLoggedInPlayer();
-      let request = httpMock.expectOne('/api/security');
+      const request = httpMock.expectOne('/api/security');
       expect(request.request.method).toEqual('GET');
       expect(request.request.body).toBeNull();
       request.flush(loadedPlayer);
@@ -101,7 +101,7 @@ describe('Service: player service', () => {
     });
 
     it('processes update on player when matches id', () => {
-      let update = new Player(initiallyLoadedPlayer);
+      const update = new Player(initiallyLoadedPlayer);
       update.profileUrl = 'a new profile';
       update.displayName = 'a new name';
 
@@ -114,7 +114,7 @@ describe('Service: player service', () => {
     });
 
     it('ignores update on player when does not match id', () => {
-      let update = new Player(initiallyLoadedPlayer);
+      const update = new Player(initiallyLoadedPlayer);
       update.id = update.id + 'X';
       update.profileUrl = 'a new profile';
       update.displayName = 'a new name';
@@ -130,7 +130,7 @@ describe('Service: player service', () => {
     it('successful logout posts and redirects', () => {
       playerService.logout();
 
-      let request = httpMock.expectOne('/signout');
+      const request = httpMock.expectOne('/signout');
       expect(request.request.method).toEqual('POST');
       expect(request.request.body).toBeNull();
       request.flush('');
@@ -151,7 +151,7 @@ describe('Service: player service', () => {
 
     it('even failed logout posts and redirects', () => {
       playerService.logout();
-      let request = httpMock.expectOne('/signout');
+      const request = httpMock.expectOne('/signout');
       expect(request.request.method).toEqual('POST');
       expect(request.request.body).toBeNull();
       request.flush('');
@@ -163,10 +163,10 @@ describe('Service: player service', () => {
 
     it('switching to another user', () => {
       playerService.simulateUser('newid');
-      let request = httpMock.expectOne('/api/player/admin/newid');
+      const request = httpMock.expectOne('/api/player/admin/newid');
       expect(request.request.method).toEqual('PUT');
       expect(request.request.body).toEqual({});
-      let simulatedPlayer = new Player({id: 'newid', displayName: 'sim', source: 'MANUAL'});
+      const simulatedPlayer = new Player({id: 'newid', displayName: 'sim', source: 'MANUAL'});
       request.flush(simulatedPlayer);
 
       expect(currentPlayer).toBeDefined();

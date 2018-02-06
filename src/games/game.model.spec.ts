@@ -2,7 +2,7 @@ import {Game} from './game.model';
 
 describe('Model: Game', () => {
   it('defaults to undefined', () => {
-    let g: Game = new Game();
+    const g: Game = new Game();
 
     expect(g.id).toBeUndefined();
     expect(g.previousId).toBeUndefined();
@@ -19,7 +19,7 @@ describe('Model: Game', () => {
   });
 
   it('copies from optional param if provided', () => {
-    let source: Game = new Game();
+    const source: Game = new Game();
     source.id = 'id1';
     source.previousId = 'pid';
     source.version = 3;
@@ -41,7 +41,7 @@ describe('Model: Game', () => {
       'md51': 'profile2'
     };
     source.features = ['F1', 'F3', 'F2'];
-    let g: Game = new Game(source);
+    const g: Game = new Game(source);
 
     expect(g.id).toEqual(source.id);
     expect(g.previousId).toEqual(source.previousId);
@@ -58,7 +58,7 @@ describe('Model: Game', () => {
   });
 
   it('copies from optional param if provided, as map', () => {
-    let source = {
+    const source = {
       id: 'id1',
       previousId: 'pid',
       version: 3,
@@ -81,7 +81,7 @@ describe('Model: Game', () => {
       },
       features: ['F1', 'F3', 'F2']
     };
-    let g: Game = new Game(source);
+    const g: Game = new Game(source);
 
     expect(g.id).toEqual(source.id);
     expect(g.previousId).toEqual(source.previousId);
@@ -98,7 +98,7 @@ describe('Model: Game', () => {
   });
 
   it('computes standard link', function () {
-    let g: Game = new Game({id: 'myid', gamePhase: 'APhase'});
+    const g: Game = new Game({id: 'myid', gamePhase: 'APhase'});
     expect(g.standardLink()).toEqual('/game/aphase/myid');
   });
 });

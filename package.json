@@ -31,6 +31,24 @@
     "test:watch": "jest --watch",
     "test:ci": "jest --runInBand"
   },
+  "main": "jtb-core-games-ui.umd.js",
+  "module": "jtb-core-games-ui.js",
+  "jsnext:main": "jtb-core-games-ui.js",
+  "typings": "jtb-core-games-ui.d.ts",
+  "peerDependencies": {
+    "@angular/common": "^5.2.3",
+    "@angular/compiler": "^5.2.3",
+    "@angular/compiler-cli": "^5.2.3",
+    "@angular/core": "^5.2.3",
+    "@angular/http": "^5.2.3",
+    "@angular/router": "^5.2.3",
+    "@angular/platform-browser": "^5.2.3",
+    "@angular/platform-browser-dynamic": "^5.2.3",
+    "atmosphere.js": "^2.3.3",
+    "core-js": "^2.4.1",
+    "rxjs": "^5.5.2",
+    "zone.js": "^0.8.14"
+  },
   "devDependencies": {
     "@angular/common": "^5.2.3",
     "@angular/compiler": "^5.2.3",

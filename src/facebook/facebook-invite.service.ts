@@ -11,7 +11,7 @@ export class FacebookInviteService {
 
   public inviteFriends(friends: Invitable[], message: String): void {
     this.facebookInitializer.fbReady.then(() => {
-      let dialogOptions: any = {
+      const dialogOptions: any = {
         method: 'apprequests',
         message: message,
         to: friends.map((friend: Invitable) => {

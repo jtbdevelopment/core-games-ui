@@ -35,16 +35,16 @@ export class FriendsService {
   public refreshFriends(): void {
     this.http.get<any>('/api/player/friendsV2')
       .map(obj => {
-        let container = new Map<string, Object[]>();
-        let newFriends = [];
-        let newInvitable = [];
-        let invitableFriendsRaw = obj.invitableFriends;
+        const container = new Map<string, Object[]>();
+        const newFriends = [];
+        const newInvitable = [];
+        const invitableFriendsRaw = obj.invitableFriends;
         if (invitableFriendsRaw !== undefined) {
           invitableFriendsRaw.forEach(friendObject => {
             newInvitable.push(new Invitable(friendObject.id, friendObject.name));
           });
         }
-        let maskedFriendsRaw = obj.maskedFriends;
+        const maskedFriendsRaw = obj.maskedFriends;
         if (maskedFriendsRaw !== undefined) {
           maskedFriendsRaw.forEach(friendObject => {
             newFriends.push(new Friend(friendObject.md5, friendObject.displayName));

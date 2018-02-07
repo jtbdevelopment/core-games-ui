@@ -12,7 +12,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
   public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-    let subject = new Subject<HttpEvent<any>>();
+    const subject = new Subject<HttpEvent<any>>();
     next.handle(req).subscribe((event) => {
       // Remember, there may be other events besides just the response.
       if (event instanceof HttpErrorResponse) {

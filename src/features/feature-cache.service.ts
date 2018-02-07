@@ -28,12 +28,12 @@ export class FeatureCacheService {
   private initialize(): void {
     this.http.get<any[]>('/api/features')
       .map(json => {
-        let groups = [];
-        let groupMap = new Map<string, number>();
+        const groups = [];
+        const groupMap = new Map<string, number>();
         json.forEach(feature => {
-          let groupType = feature.feature.groupType;
+          const groupType = feature.feature.groupType;
           if (groupMap.has(groupType) === false) {
-            let group = new FeatureGroup(groupType);
+            const group = new FeatureGroup(groupType);
             groups.push(group);
             groupMap.set(groupType, groups.length - 1);
           }
@@ -42,11 +42,11 @@ export class FeatureCacheService {
       })
       .map(groupsAndFeatures => {
         groupsAndFeatures.features.forEach(feature => {
-          let groupType = feature.feature.groupType;
-          let newFeature = new Feature(feature.feature.feature, feature.feature.label, feature.feature.description);
+          const groupType = feature.feature.groupType;
+          const newFeature = new Feature(feature.feature.feature, feature.feature.label, feature.feature.description);
           feature.options.forEach(option => {
             //noinspection TypeScriptUnresolvedVariable
-            let newOption = new FeatureOption(option.feature, option.label, option.description);
+            const newOption = new FeatureOption(option.feature, option.label, option.description);
             newFeature.options.push(newOption);
           });
           groupsAndFeatures.groups[groupsAndFeatures.groupMap.get(groupType)].features.push(newFeature);

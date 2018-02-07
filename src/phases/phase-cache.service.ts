@@ -26,7 +26,7 @@ export class PhaseCacheService {
   private initializePhases(): void {
     this.http.get('/api/phases')
       .map(json => {
-        let phases = [];
+        const phases = [];
         Object.getOwnPropertyNames(json).forEach(phase => {
           phases.push(new Phase(phase, json[phase][1], json[phase][0]));
         });

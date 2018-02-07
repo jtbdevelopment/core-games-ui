@@ -27,7 +27,7 @@ export class PhaseGameClassifier implements GameClassifier<Game> {
     this.phaseCache.phases.subscribe(phases => {
       if (phases && phases.length > 0) {
         this.phaseToGroup.clear();
-        let groups = [];
+        const groups = [];
         phases.forEach(phase => {
           groups.push(phase.groupLabel);
           this.phaseToGroup.set(phase.value, phase.groupLabel);
@@ -50,5 +50,5 @@ export class PhaseGameClassifier implements GameClassifier<Game> {
       return this.phaseToGroup.get(game.gamePhase);
     }
     return game.gamePhase;
-  };
+  }
 }

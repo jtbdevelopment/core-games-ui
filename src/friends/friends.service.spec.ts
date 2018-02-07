@@ -65,7 +65,9 @@ describe('Service: friends service', () => {
 
     expect(friends).toEqual([]);
     expect(invitables.length).toEqual(3);
-    expect(JSON.stringify(invitables)).toEqual('[{"id":"id1","displayName":"name1"},{"id":"id3","displayName":"name3"},{"id":"id2","displayName":"name2"}]');
+    expect(JSON.stringify(invitables)).toEqual(
+      '[{"id":"id1","displayName":"name1"},{"id":"id3","displayName":"name3"},{"id":"id2","displayName":"name2"}]'
+    );
   });
 
   it('refresh friends, only friends', () => {
@@ -128,7 +130,9 @@ describe('Service: friends service', () => {
     expect(friends.length).toEqual(2);
     expect(JSON.stringify(friends)).toEqual('[{"md5":"x1","displayName":"dname1"},{"md5":"1fx","displayName":"dname3"}]');
     expect(invitables.length).toEqual(3);
-    expect(JSON.stringify(invitables)).toEqual('[{"id":"id1","displayName":"name1"},{"id":"id3","displayName":"name3"},{"id":"id2","displayName":"name2"}]');
+    expect(JSON.stringify(invitables)).toEqual(
+      '[{"id":"id1","displayName":"name1"},{"id":"id3","displayName":"name3"},{"id":"id2","displayName":"name2"}]'
+    );
   });
 
   it('update to player does not clear friends', () => {

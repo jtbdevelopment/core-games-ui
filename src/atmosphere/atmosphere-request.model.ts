@@ -5,15 +5,15 @@ export class AtmosphereRequest {
   requestConnectionStatus: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   messageSubject: Subject<any> = new Subject<any>();
 
-  url: string = '';
-  contentType: string = 'application/json';
-  logLevel: string = 'info';
-  transport: string = 'websocket';
-  trackMessageLength: boolean = true;
-  fallbackTransport: string = 'long-polling';
-  handleOlineOffline: boolean = false;
-  withCredentials: boolean = true;
-  closeAsync: boolean = true;  //  needed due to with credentials
+  url = '';
+  contentType = 'application/json';
+  logLevel = 'info';
+  transport = 'websocket';
+  trackMessageLength = true;
+  fallbackTransport = 'long-polling';
+  handleOlineOffline = false;
+  withCredentials = true;
+  closeAsync = true;  //  needed due to with credentials
 
   constructor(endPoint: string, playerId: string) {
     this.url = endPoint + '/livefeed/' + playerId;
@@ -34,19 +34,19 @@ export class AtmosphereRequest {
   }
 
   onMessage(message: any): void {
-    let localMessage = Object.assign({}, message);  //  clone as atmosphere can re-use
+    const localMessage = Object.assign({}, message);  //  clone as atmosphere can re-use
     if (localMessage.messages) {
-      let messages: string[] = localMessage.messages as string[];
+      const messages: string[] = localMessage.messages as string[];
       messages.forEach(messageAsString => {
-        let message: any;
+        let json: any;
         try {
-          message = JSON.parse(messageAsString);
+          json = JSON.parse(messageAsString);
         } catch (error) {
           console.error('got non-parseable message');
           return;
         }
 
-        this.messageSubject.next(message);
+        this.messageSubject.next(json);
       });
     }
   }

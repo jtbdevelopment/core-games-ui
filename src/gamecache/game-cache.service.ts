@@ -78,21 +78,21 @@ export class GameCacheService {
   }
 
   private addClassifiedGame(game: Game) {
-    let classification = this.gameClassifier.classifyGame(game);
+    const classification = this.gameClassifier.classifyGame(game);
     if (this.gamesByClassification.has(classification)) {
-      let subject = this.gamesByClassification.get(classification);
-      let newGames = subject.getValue().slice();
+      const subject = this.gamesByClassification.get(classification);
+      const newGames = subject.getValue().slice();
       newGames.push(game);
       subject.next(newGames);
     }
   }
 
   private removeClassifiedGame(game: Game): void {
-    let classification = this.gameClassifier.classifyGame(game);
+    const classification = this.gameClassifier.classifyGame(game);
     if (this.gamesByClassification.has(classification)) {
-      let subject = this.gamesByClassification.get(classification);
-      let classifiedGames = subject.getValue().slice();
-      let indexToClear = classifiedGames.indexOf(game);
+      const subject = this.gamesByClassification.get(classification);
+      const classifiedGames = subject.getValue().slice();
+      const indexToClear = classifiedGames.indexOf(game);
       if (indexToClear >= 0) {
         classifiedGames.splice(indexToClear, 1);
         subject.next(classifiedGames);
@@ -101,11 +101,11 @@ export class GameCacheService {
   }
 
   private reclassifyGames(): void {
-    let keys = this.gamesById.keys();
+    const keys = this.gamesById.keys();
     while (1) {
-      let id = keys.next();
+      const id = keys.next();
       if (id.value) {
-        let game = this.gamesById.get(id.value).getValue();
+        const game = this.gamesById.get(id.value).getValue();
         this.classifyGame(game, game);
       }
       if (id.done) {
@@ -141,7 +141,7 @@ export class GameCacheService {
     this.isConnected = true;
     this.http.get<any[]>('/api/player/games')
       .map(gameObjects => {
-        let games = [];
+        const games = [];
         gameObjects.forEach(gameObject => {
           games.push(this.gameFactory.newGame(gameObject));
         });

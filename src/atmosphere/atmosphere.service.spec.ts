@@ -19,7 +19,7 @@ class MockSocket {
 
 
 describe('Service: atmosphere service', () => {
-  let mockAtmosphere: any = {};
+  const mockAtmosphere: any = {};
   let atmosphereService: AtmosphereService;
   let processor: MockProcessor;
   let playerService: MockPlayerService;

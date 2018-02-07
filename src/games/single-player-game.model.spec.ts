@@ -2,7 +2,7 @@ import {SinglePlayerGame} from './single-player-game.model';
 
 describe('Model: SinglePlayerGame', () => {
   it('defaults to undefined', () => {
-    let g: SinglePlayerGame = new SinglePlayerGame();
+    const g: SinglePlayerGame = new SinglePlayerGame();
 
     //  select checks from underlying game class
     expect(g.id).toBeUndefined();

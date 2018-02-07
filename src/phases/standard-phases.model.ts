@@ -1,9 +1,9 @@
 export class StandardPhases {
-  public static Playing: string = 'Playing';
-  public static Challenged: string = 'Challenged';
-  public static Setup: string = 'Setup';
-  public static RoundOver: string = 'RoundOver';
-  public static NextRoundStarted: string = 'NextRoundStarted';
-  public static Declined: string = 'Declined';
-  public static Quit: string = 'Quit';
+  public static Playing = 'Playing';
+  public static Challenged = 'Challenged';
+  public static Setup = 'Setup';
+  public static RoundOver = 'RoundOver';
+  public static NextRoundStarted = 'NextRoundStarted';
+  public static Declined = 'Declined';
+  public static Quit = 'Quit';
 }

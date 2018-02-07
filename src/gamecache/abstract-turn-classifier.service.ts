@@ -5,9 +5,9 @@ import {from} from 'rxjs/observable/from';
 
 @Injectable()
 export abstract class AbstractTurnClassifier {
-  protected static YOUR_TURN: string = 'Your Turn';
-  protected static THEIR_TURN: string = 'Their Turn';
-  protected static OLDER_GAMES: string = 'Older Games';
+  protected static YOUR_TURN = 'Your Turn';
+  protected static THEIR_TURN = 'Their Turn';
+  protected static OLDER_GAMES = 'Older Games';
 
   private DEFAULT_CLASSIFICATIONS: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(['Your Turn', 'Their Turn', 'Older Games']);
 

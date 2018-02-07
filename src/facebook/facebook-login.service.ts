@@ -23,10 +23,10 @@ export class FacebookLoginService {
 
   public initiateLogin(): void {
     this.fbInitializer.fbReady.then(() => {
-      let fbPermissionString = this.fbInitializer.fbRequiredPermissions.join(',');
+      const fbPermissionString = this.fbInitializer.fbRequiredPermissions.join(',');
       FB.login(this.checkLoginStatus.bind(this), {scope: fbPermissionString});
     });
-  };
+  }
 
   private checkLoginStatus(): void {
     FB.getLoginStatus((response: any) => {
@@ -39,7 +39,7 @@ export class FacebookLoginService {
 
   private verifyPermissions(): void {
     FB.api('/me/permissions', (response: any) => {
-      let found: Map<string, boolean> = new Map<string, boolean>();
+      const found: Map<string, boolean> = new Map<string, boolean>();
       this.fbInitializer.fbRequiredPermissions.forEach((permission) => {
         found.set(permission, false);
       });
@@ -54,7 +54,7 @@ export class FacebookLoginService {
         });
       }
 
-      let allFound: boolean = true;
+      let allFound = true;
       found.forEach((value, key) => {
         allFound = allFound && value;
         if (!value) {

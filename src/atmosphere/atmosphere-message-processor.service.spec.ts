@@ -1,4 +1,3 @@
-import {ReflectiveInjector} from '@angular/core';
 import {Player} from '../player/player.model';
 import {Game} from '../games/game.model';
 import {AtmosphereMessageProcessorService} from './atmosphere-message-processor.service';
@@ -9,6 +8,7 @@ import {MessageBusService} from '../messagebus/message-bus.service';
 import {Subscription} from 'rxjs/Subscription';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Subject} from 'rxjs/Subject';
+import {TestBed} from '@angular/core/testing';
 
 class MockSubscription extends Subscription {
   constructor() {
@@ -32,8 +32,12 @@ class MockAtmosphereRequest extends AtmosphereRequest {
 
   constructor() {
     super('', '');
-    this.requestConnectionStatus.subscribe = jasmine.createSpy('rcssubscribe', this.requestConnectionStatus.subscribe).and.returnValues(this.connectionSubscriptions);
-    this.messageSubject.subscribe = jasmine.createSpy('mssubscribe', this.messageSubject.subscribe).and.returnValue(this.messageSubscriptions);
+    this.requestConnectionStatus.subscribe = jasmine.createSpy(
+      'rcssubscribe',
+      this.requestConnectionStatus.subscribe).and.returnValues(this.connectionSubscriptions);
+    this.messageSubject.subscribe = jasmine.createSpy(
+      'mssubscribe',
+      this.messageSubject.subscribe).and.returnValue(this.messageSubscriptions);
   }
 }
 
@@ -48,13 +52,15 @@ describe('Service: atmosphere message handler service', () => {
     lastPlayer = null;
     lastStatus = null;
     lastGame = null;
-    this.injector = ReflectiveInjector.resolveAndCreate([
-      {provide: 'GameFactory', useClass: MockGameFactory},
-      MessageBusService,
-      AtmosphereMessageProcessorService,
-    ]);
-    processor = this.injector.get(AtmosphereMessageProcessorService);
-    messageBus = this.injector.get(MessageBusService);
+    TestBed.configureTestingModule({
+      providers: [
+        {provide: 'GameFactory', useClass: MockGameFactory},
+        MessageBusService,
+        AtmosphereMessageProcessorService,
+      ]
+    });
+    processor = TestBed.get(AtmosphereMessageProcessorService);
+    messageBus = TestBed.get(MessageBusService);
     messageBus.playerUpdates.subscribe(p => {
       lastPlayer = p;
     });

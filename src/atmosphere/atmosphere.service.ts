@@ -7,7 +7,7 @@ import {AtmosphereRequest} from './atmosphere-request.model';
 
 @Injectable()
 export class AtmosphereService {
-  endPoint: string = '';
+  endPoint = '';
 
   //  TODO - public to aid in testing, global var blocked
   socket = atmosphere;
@@ -37,7 +37,7 @@ export class AtmosphereService {
     if (player && player.id && player.id !== this.currentPlayerId) {
       this.closeSocket();
 
-      let currentRequest: AtmosphereRequest = new AtmosphereRequest(this.endPoint, player.id);
+      const currentRequest: AtmosphereRequest = new AtmosphereRequest(this.endPoint, player.id);
       this.messageHandler.listen(currentRequest);
       try {
         this.currentConnection = this.socket.subscribe(currentRequest);
@@ -48,6 +48,6 @@ export class AtmosphereService {
     } else if (!player || !player.id) {
       this.closeSocket();
     }
-  };
+  }
 }
 

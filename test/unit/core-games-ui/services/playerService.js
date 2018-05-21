@@ -14,7 +14,7 @@ describe('Service: playerService', function () {
         disabled: false,
         displayName: 'Manual Player1'
     };
-    var friendResult = {maskedFriends: {1: '2', 5: '6'}, otherData: ['1,', '2']};
+    var friendResult = {maskedFriends: [{md5: 1, displayName: '2'}, {md5: 5, displayName: '6'}], otherData: ['1,', '2']};
 
     var facebookDeferred, matchedPlayer;
     beforeEach(module(function ($provide) {
@@ -201,22 +201,9 @@ describe('Service: playerService', function () {
             httpBackend.flush();
 
             httpBackend.expectGET('/api/player/friendsV2').respond({
-                maskedFriends: {
-                    'md51': 'Friend 1',
-                    'md52': 'Friend 52'
-                },
-                invitableFriends: [
-                    {
-                        id: 'fbid1',
-                        name: 'FB Friend',
-                        picture: {
-                            url: 'http://xyz'
-                        }
-                    },
-                    {
-                        id: 'fbid2',
-                        name: 'FB Stalker'
-                    }
+                maskedFriends: [
+                  {md5: 'md51', displayName: 'Friend 1'},
+                  {md5: 'md52', displayName: 'Friend 52'}
                 ]
             });
             var controller = {};
@@ -224,7 +211,6 @@ describe('Service: playerService', function () {
             service.initializeFriendsForController(controller).then(function () {
                 promiseResolved = true
             });
-            expect(controller.invitableFBFriends).toEqual([]);
             expect(controller.chosenFriends).toEqual([]);
             expect(controller.friends).toEqual([]);
             httpBackend.flush();
@@ -233,7 +219,6 @@ describe('Service: playerService', function () {
                 {md5: 'md52', displayName: 'Friend 52'}
             ]);
             expect(controller.chosenFriends).toEqual([]);
-            expect(controller.invitableFBFriends).toEqual([]);
             expect(promiseResolved).toEqual(true);
         });
 
@@ -335,27 +320,13 @@ describe('Service: playerService', function () {
 
         it('initializes friends for fb player', function () {
             httpBackend.expectGET('/api/player/friendsV2').respond({
-                maskedFriends: {
-                    'md51': 'Friend 1',
-                    'md52': 'Friend 52'
-                },
-                invitableFriends: [
-                    {
-                        id: 'fbid1',
-                        name: 'FB Friend',
-                        picture: {
-                            url: 'http://xyz'
-                        }
-                    },
-                    {
-                        id: 'fbid2',
-                        name: 'FB Stalker'
-                    }
+                maskedFriends: [
+                    {md5:'md51', displayName: 'Friend 1'},
+                    {md5: 'md52', displayName: 'Friend 52'}
                 ]
             });
             var controller = {};
             service.initializeFriendsForController(controller);
-            expect(controller.invitableFBFriends).toEqual([]);
             expect(controller.chosenFriends).toEqual([]);
             expect(controller.friends).toEqual([]);
             httpBackend.flush();
@@ -365,10 +336,6 @@ describe('Service: playerService', function () {
                 {md5: 'md52', displayName: 'Friend 52'}
             ]);
             expect(controller.chosenFriends).toEqual([]);
-            expect(controller.invitableFBFriends).toEqual([
-                {id: 'fbid1', name: 'FB Friend', url: 'http://xyz'},
-                {id: 'fbid2', name: 'FB Stalker'}
-            ]);
         });
 
     });

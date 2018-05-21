@@ -7,7 +7,7 @@ angular.module('coreGamesUi.services').factory('jtbPlayerService',
             var realPID = '';
             var simulatedPID = '';
             var BASE_PLAYER_URL = '/api/player';
-            var FRIENDS_PATH = '/friends';
+            var FRIENDS_PATH = '/friendsV2';
             var service = {};
 
             var simulatedPlayer;

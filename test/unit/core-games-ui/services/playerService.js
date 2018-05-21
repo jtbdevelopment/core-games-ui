@@ -135,7 +135,7 @@ describe('Service: playerService', function () {
         it('sets current friends with http', function () {
             httpBackend.flush();
 
-            httpBackend.expectGET('/api/player/friends').respond(friendResult);
+            httpBackend.expectGET('/api/player/friendsV2').respond(friendResult);
             var friends = null;
             service.currentPlayerFriends().then(function (data) {
                 friends = data;
@@ -150,7 +150,7 @@ describe('Service: playerService', function () {
         it('sets current friends with error', function () {
             httpBackend.flush();
 
-            httpBackend.expectGET('/api/player/friends').respond(500, {err: 'error'});
+            httpBackend.expectGET('/api/player/friendsV2').respond(500, {err: 'error'});
             var friends;
             var errorCalled = false;
             service.currentPlayerFriends().then(function (data) {
@@ -176,7 +176,7 @@ describe('Service: playerService', function () {
         it('multiple calls only one http friends', function () {
             httpBackend.flush();
 
-            httpBackend.expectGET('/api/player/friends').respond(friendResult);
+            httpBackend.expectGET('/api/player/friendsV2').respond(friendResult);
             expect(service.currentID()).toEqual(testID);
             var friends = null;
             service.currentPlayerFriends().then(function (data) {
@@ -200,7 +200,7 @@ describe('Service: playerService', function () {
         it('initializes friends for non-fb player', function () {
             httpBackend.flush();
 
-            httpBackend.expectGET('/api/player/friends').respond({
+            httpBackend.expectGET('/api/player/friendsV2').respond({
                 maskedFriends: {
                     'md51': 'Friend 1',
                     'md52': 'Friend 52'
@@ -334,7 +334,7 @@ describe('Service: playerService', function () {
         });
 
         it('initializes friends for fb player', function () {
-            httpBackend.expectGET('/api/player/friends').respond({
+            httpBackend.expectGET('/api/player/friendsV2').respond({
                 maskedFriends: {
                     'md51': 'Friend 1',
                     'md52': 'Friend 52'
